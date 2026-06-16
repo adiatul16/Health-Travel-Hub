@@ -1,0 +1,1 @@
+- [Clerk auth setup](clerk-setup.md) — Clerk provisioned, React dedupe + optimizeDeps both needed to prevent null hooks error in Vite + @clerk/themes.

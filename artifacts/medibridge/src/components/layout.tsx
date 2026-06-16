@@ -1,8 +1,14 @@
 import { Link, useLocation } from "wouter";
+import { Show, useUser, useClerk } from "@clerk/react";
 import { Button } from "./ui/button";
+import { LocationModal } from "./location-modal";
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { user } = useUser();
+  const { signOut } = useClerk();
+
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   const navItems = [
     { href: "/treatments", label: "Treatments" },
@@ -15,6 +21,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-background text-foreground">
+      <LocationModal />
+
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
@@ -42,13 +50,34 @@ export function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </nav>
 
-          <div className="flex items-center gap-4">
-            <Button variant="outline" className="hidden sm:inline-flex" asChild>
-              <Link href="/dashboard">Log in</Link>
-            </Button>
-            <Button asChild>
-              <Link href="/packages">Build Package</Link>
-            </Button>
+          <div className="flex items-center gap-3">
+            <Show when="signed-out">
+              <Button variant="outline" className="hidden sm:inline-flex" asChild>
+                <Link href="/sign-in">Log in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/packages">Build Package</Link>
+              </Button>
+            </Show>
+
+            <Show when="signed-in">
+              <span className="hidden sm:block text-sm text-muted-foreground">
+                {user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress}
+              </span>
+              <Button variant="outline" className="hidden sm:inline-flex" asChild>
+                <Link href="/dashboard">Dashboard</Link>
+              </Button>
+              <Button
+                variant="ghost"
+                className="hidden sm:inline-flex text-muted-foreground"
+                onClick={() => signOut({ redirectUrl: basePath || "/" })}
+              >
+                Sign out
+              </Button>
+              <Button asChild>
+                <Link href="/packages">Build Package</Link>
+              </Button>
+            </Show>
           </div>
         </div>
       </header>
@@ -69,7 +98,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </span>
             </div>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Your Entire Medical Journey. One Trusted Platform. Compare verified hospitals, reserve treatment slots, and book travel in one place.
+              Your entire medical journey. One trusted platform. Compare verified hospitals, reserve treatment slots and book travel in one place.
             </p>
           </div>
           <div>
@@ -87,7 +116,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <li><Link href="#" className="hover:text-primary">About Us</Link></li>
               <li><Link href="#" className="hover:text-primary">Contact</Link></li>
               <li><Link href="#" className="hover:text-primary">Careers</Link></li>
-              <li><Link href="#" className="hover:text-primary">Trust & Safety</Link></li>
+              <li><Link href="#" className="hover:text-primary">Trust and Safety</Link></li>
             </ul>
           </div>
           <div>
@@ -102,11 +131,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
         <div className="container mx-auto px-4 mt-12 pt-8 border-t border-border flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} MediBridge Global. All rights reserved.
+            &copy; {new Date().getFullYear()} MediBridge Global. All rights reserved.
           </p>
-          <div className="flex gap-4">
-            {/* Social Links would go here */}
-          </div>
         </div>
       </footer>
     </div>

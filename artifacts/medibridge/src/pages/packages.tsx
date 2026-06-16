@@ -10,6 +10,7 @@ import {
   useOptimizePackage,
 } from "@workspace/api-client-react";
 import type { PackageOption } from "@workspace/api-client-react";
+import { BookingModal } from "@/components/booking-modal";
 
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
@@ -53,7 +54,15 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-function PackageCard({ pkg, highlight }: { pkg: PackageOption; highlight?: boolean }) {
+function PackageCard({
+  pkg,
+  highlight,
+  onReserve,
+}: {
+  pkg: PackageOption;
+  highlight?: boolean;
+  onReserve: (pkg: PackageOption) => void;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -80,10 +89,26 @@ function PackageCard({ pkg, highlight }: { pkg: PackageOption; highlight?: boole
 
         <div className="space-y-2.5 mb-5">
           <LineItem icon="🏥" label="Treatment" value={`£${pkg.procedurePrice.toLocaleString()}`} />
-          {pkg.airline && <LineItem icon="✈️" label={pkg.airline} value={`£${pkg.flightPrice.toLocaleString()}`} affiliate="Skyscanner" />}
-          <LineItem icon="🏨" label={pkg.hotelName} value={`£${pkg.hotelPrice.toLocaleString()}`} affiliate="Booking.com" />
+          {pkg.airline && (
+            <LineItem
+              icon="✈️"
+              label={pkg.airline}
+              value={`£${pkg.flightPrice.toLocaleString()}`}
+              affiliateLabel="Skyscanner"
+              affiliateUrl="https://www.skyscanner.net/flights"
+            />
+          )}
+          <LineItem
+            icon="🏨"
+            label={pkg.hotelName}
+            value={`£${pkg.hotelPrice.toLocaleString()}`}
+            affiliateLabel="Booking.com"
+            affiliateUrl="https://www.booking.com/searchresults.html"
+          />
           <LineItem icon="🚗" label="Airport Transfer" value={`£${pkg.transferPrice.toLocaleString()}`} />
-          {pkg.insuranceProvider && <LineItem icon="🛡️" label={pkg.insuranceProvider} value={`£${pkg.insurancePrice.toLocaleString()}`} />}
+          {pkg.insuranceProvider && (
+            <LineItem icon="🛡️" label={pkg.insuranceProvider} value={`£${pkg.insurancePrice.toLocaleString()}`} />
+          )}
         </div>
 
         <div className="border-t pt-4 mb-5">
@@ -106,11 +131,17 @@ function PackageCard({ pkg, highlight }: { pkg: PackageOption; highlight?: boole
         </div>
 
         <div className="flex gap-2 text-xs text-muted-foreground mb-5">
-          <span className="bg-muted px-2 py-1 rounded">✓ {pkg.successRate}% success rate</span>
           <span className="bg-muted px-2 py-1 rounded">✓ {pkg.availableSlots} slots left</span>
+          <span className="bg-muted px-2 py-1 rounded">✓ JCI accredited clinic</span>
         </div>
 
-        <Button className="w-full" variant={highlight ? "default" : "outline"} size="lg">
+        <Button
+          className="w-full"
+          variant={highlight ? "default" : "outline"}
+          size="lg"
+          onClick={() => onReserve(pkg)}
+          data-testid={`reserve-${pkg.type}`}
+        >
           Reserve This Package
         </Button>
       </div>
@@ -118,19 +149,34 @@ function PackageCard({ pkg, highlight }: { pkg: PackageOption; highlight?: boole
   );
 }
 
-function LineItem({ icon, label, value, affiliate }: { icon: string; label: string; value: string; affiliate?: string }) {
+function LineItem({
+  icon,
+  label,
+  value,
+  affiliateLabel,
+  affiliateUrl,
+}: {
+  icon: string;
+  label: string;
+  value: string;
+  affiliateLabel?: string;
+  affiliateUrl?: string;
+}) {
   return (
     <div className="flex items-center justify-between text-sm">
       <div className="flex items-center gap-2 text-muted-foreground">
         <span>{icon}</span>
         <span>{label}</span>
-        {affiliate && (
-          <span
-            className="text-xs bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-medium cursor-pointer"
-            data-affiliate={affiliate}
+        {affiliateLabel && affiliateUrl && (
+          <a
+            href={affiliateUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-affiliate={affiliateLabel}
+            className="text-xs bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-medium hover:underline"
           >
-            via {affiliate}
-          </span>
+            via {affiliateLabel}
+          </a>
         )}
       </div>
       <span className="font-medium">{value}</span>
@@ -145,6 +191,7 @@ export default function Packages() {
   const [budget, setBudget] = useState(5000);
   const [travelMonth, setTravelMonth] = useState(MONTHS[new Date().getMonth() + 1] || "July");
   const [activeTab, setActiveTab] = useState("best_value");
+  const [bookingPkg, setBookingPkg] = useState<PackageOption | null>(null);
 
   const { data: treatments, isLoading: loadingTreatments } = useListTreatments();
   const { data: destinations, isLoading: loadingDestinations } = useListDestinations();
@@ -173,11 +220,15 @@ export default function Packages() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      {bookingPkg && (
+        <BookingModal pkg={bookingPkg} onClose={() => setBookingPkg(null)} />
+      )}
+
       <div className="container py-12 px-4 mx-auto max-w-5xl">
         <div className="mb-10 text-center">
           <h1 className="text-4xl font-bold tracking-tight mb-3">Smart Package Optimizer</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Build your entire medical journey in seconds — treatment, flights, hotel, transfers and insurance, all in one.
+            Build your entire medical journey in seconds. Treatment, flights, hotel, transfers and insurance all in one.
           </p>
         </div>
 
@@ -412,7 +463,11 @@ export default function Packages() {
                     </TabsList>
                     {packageOptions.map((pkg) => (
                       <TabsContent key={pkg.type} value={pkg.type}>
-                        <PackageCard pkg={pkg} highlight={pkg.type === "best_value"} />
+                        <PackageCard
+                          pkg={pkg}
+                          highlight={pkg.type === "best_value"}
+                          onReserve={setBookingPkg}
+                        />
                       </TabsContent>
                     ))}
                   </Tabs>
