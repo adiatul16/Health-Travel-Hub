@@ -1,0 +1,887 @@
+Build a world-class healthcare travel platform called **MediBridge Global**.
+
+# COMPANY VISION
+
+MediBridge Global is not simply a medical tourism website.
+
+It is a **Healthcare Travel Operating System** that combines:
+
+* Medical Tourism Marketplace
+* Treatment Slot Inventory Management
+* Travel Aggregation
+* Hotel Aggregation
+* Insurance Marketplace
+* Recovery Commerce
+* Telemedicine
+* Post-Treatment Care Coordination
+
+The platform helps UK patients discover, compare, and book verified treatments abroad while managing the entire patient journey from treatment selection to recovery.
+
+Target Markets:
+
+* United Kingdom (patients)
+* Turkey (Phase 1)
+* China (Phase 2)
+
+Target Procedures:
+
+* Hair Transplants
+* Dental Implants
+* All-on-4 / All-on-6
+* Cosmetic Surgery
+* Rhinoplasty
+* Bariatric Surgery
+* IVF
+* Orthopaedics
+* Advanced Diagnostics
+
+The platform should look like a combination of:
+
+* Airbnb
+* Expedia
+* Booking.com
+* Zocdoc
+* Stripe
+* Uber
+
+with a premium healthcare startup aesthetic.
+
+---
+
+# DESIGN REQUIREMENTS
+
+Style:
+
+* Modern healthcare unicorn startup
+* Premium blue and teal palette
+* White background
+* Mobile-first design
+* Fully responsive
+* WCAG compliant
+* SEO optimized
+* Smooth animations
+* Premium typography
+* Trust-first design
+
+Technology Stack:
+
+Frontend:
+
+* Next.js
+* React
+* TypeScript
+* Tailwind CSS
+* Framer Motion
+
+Backend:
+
+* Node.js
+* PostgreSQL
+
+Authentication:
+
+* Clerk or Auth0
+
+Payments:
+
+* Stripe
+
+Analytics:
+
+* Google Analytics
+* Mixpanel
+
+Admin:
+
+* Role-based access control
+
+---
+
+# HOMEPAGE
+
+## HERO SECTION
+
+Headline:
+
+"Your Entire Medical Journey. One Trusted Platform."
+
+Subheadline:
+
+Compare verified hospitals, reserve treatment slots, book flights and accommodation, arrange transfers, secure insurance, and manage recovery — all in one platform.
+
+Primary CTA:
+
+"Find Treatment"
+
+Secondary CTA:
+
+"Explore Destinations"
+
+Search Fields:
+
+* Procedure
+* Destination
+* Budget
+* Travel Month
+
+Popular Searches:
+
+* Hair Transplant
+* Dental Implants
+* All-on-4
+* Rhinoplasty
+* Bariatric Surgery
+* IVF
+
+Hero Visual:
+
+Treatment Search
+→ Verified Clinic
+→ Flight Booking
+→ Hotel Booking
+→ Airport Transfer
+→ Treatment Abroad
+→ Recovery Support
+
+---
+
+# SMART PACKAGE OPTIMIZER™ (FLAGSHIP FEATURE)
+
+SECTION TITLE:
+
+"Build Your Entire Medical Journey in Seconds"
+
+Description:
+
+The Smart Package Optimizer automatically creates a complete healthcare travel package by combining treatment, flights, accommodation, transfers, and insurance.
+
+---
+
+## PACKAGE BUILDER
+
+Step 1:
+
+Choose Procedure
+
+* Hair Transplant
+* Dental Implants
+* All-on-4
+* Rhinoplasty
+* Bariatric Surgery
+* IVF
+
+Step 2:
+
+Choose Destination
+
+* Turkey
+* China
+
+Step 3:
+
+Budget Slider
+
+£1,000 → £20,000
+
+Step 4:
+
+Travel Dates
+
+Calendar Selection
+
+---
+
+## AI PACKAGE GENERATION
+
+Display:
+
+Recommended Treatment Package
+
+Clinic:
+
+Acibadem Healthcare Group
+
+Procedure:
+
+FUE Hair Transplant
+
+Price:
+
+£1,750
+
+Success Rate:
+
+98%
+
+Available Slots:
+
+6
+
+---
+
+Flight
+
+Airline:
+
+Turkish Airlines
+
+Price:
+
+£220
+
+Affiliate Partner:
+
+Skyscanner
+
+Button:
+
+Book Flight
+
+---
+
+Hotel
+
+Ramada Plaza Istanbul
+
+Price:
+
+£240
+
+Affiliate Partner:
+
+Booking.com
+
+Button:
+
+Reserve Hotel
+
+---
+
+Airport Transfer
+
+Private Transfer
+
+Price:
+
+£45
+
+Button:
+
+Reserve Transfer
+
+---
+
+Insurance
+
+Provider:
+
+Allianz
+
+Price:
+
+£85
+
+Button:
+
+Get Coverage
+
+---
+
+## TOTAL PACKAGE CALCULATOR
+
+Treatment:
+£1,750
+
+Flight:
+£220
+
+Hotel:
+£240
+
+Transfer:
+£45
+
+Insurance:
+£85
+
+---
+
+TOTAL:
+£2,340
+
+---
+
+## UK PRICE COMPARISON
+
+UK Price:
+£6,500
+
+Package Price:
+£2,340
+
+Savings:
+£4,160
+
+Savings:
+64%
+
+Show animated savings counter.
+
+---
+
+## OPTIMIZATION OPTIONS
+
+Tabs:
+
+### Cheapest Package
+
+Lowest total cost.
+
+### Best Value Package
+
+Best balance between cost and outcomes.
+
+### Premium Package
+
+Best hospitals, hotels, transfers.
+
+---
+
+## PRICE ALERT SYSTEM
+
+Allow users to create alerts:
+
+"Notify me if package falls below £2,000"
+
+Track:
+
+* Flight price changes
+* Hotel price changes
+* Treatment discounts
+* Empty treatment slots
+
+---
+
+# TREATMENT SLOT MARKETPLACE
+
+SECTION TITLE:
+
+"Exclusive Treatment Slot Inventory"
+
+Description:
+
+We negotiate reserved capacity directly with partner hospitals and clinics.
+
+Display Cards:
+
+Hair Transplant
+
+* Istanbul
+* 8 Slots Remaining
+* From £1,699
+* Save £800
+
+Dental Implants
+
+* Istanbul
+* 5 Slots Remaining
+* From £2,499
+
+Rhinoplasty
+
+* Istanbul
+* 4 Slots Remaining
+* From £2,999
+
+Features:
+
+* Live inventory
+* Availability calendar
+* Dynamic pricing
+* Urgency indicators
+
+Inventory Colors:
+
+Green:
+High availability
+
+Amber:
+Limited availability
+
+Red:
+Almost sold out
+
+---
+
+# DESTINATIONS
+
+Turkey
+
+* Istanbul
+* Ankara
+* Antalya
+
+China
+
+* Shanghai
+* Shenzhen
+* Hainan
+
+For each destination show:
+
+* Number of clinics
+* Average savings
+* Popular treatments
+* Healthcare quality score
+
+---
+
+# FEATURED CLINICS
+
+Display marketplace cards.
+
+Each card contains:
+
+* Clinic image
+* Accreditation badges
+* JCI accreditation
+* Specialties
+* Reviews
+* Available treatment slots
+* Pricing
+* Book Consultation button
+
+---
+
+# TRAVEL AGGREGATION ENGINE
+
+SECTION TITLE:
+
+"Travel Arranged Automatically"
+
+Display:
+
+Flights
+
+Hotels
+
+Airport Transfers
+
+Insurance
+
+Visa Assistance
+
+Travel Partners:
+
+* Skyscanner
+* Expedia
+* Booking.com
+* Hotels.com
+* Trip.com
+
+---
+
+# AFFILIATE COMMISSION SYSTEM
+
+IMPORTANT:
+
+Whenever users click travel options:
+
+Flights
+
+Hotels
+
+Insurance
+
+Transfers
+
+Redirect via affiliate links.
+
+Track:
+
+* Clicks
+* Bookings
+* Revenue
+* Conversion Rate
+
+Example:
+
+Patient clicks:
+
+Book Flight
+
+↓
+
+Redirect to Skyscanner Affiliate Link
+
+↓
+
+Conversion tracked
+
+↓
+
+Commission added to dashboard
+
+Affiliate Revenue Sources:
+
+* Flights
+* Hotels
+* Insurance
+* Transfers
+* Recovery products
+
+---
+
+# HOW IT WORKS
+
+Step 1
+
+Choose Treatment
+
+↓
+
+Step 2
+
+Compare Verified Clinics
+
+↓
+
+Step 3
+
+Reserve Treatment Slot
+
+↓
+
+Step 4
+
+Book Flights & Accommodation
+
+↓
+
+Step 5
+
+Travel & Treatment
+
+↓
+
+Step 6
+
+Recovery Support
+
+↓
+
+Step 7
+
+Follow-Up Care
+
+Use animated timeline.
+
+---
+
+# COST COMPARISON ENGINE
+
+Table:
+
+Procedure
+
+UK Cost
+
+Turkey Cost
+
+China Cost
+
+Savings
+
+Examples:
+
+Hair Transplant
+
+Dental Implant
+
+Rhinoplasty
+
+Bariatric Surgery
+
+IVF
+
+Visual charts showing savings.
+
+---
+
+# PATIENT DASHBOARD
+
+Dashboard Features:
+
+Upcoming Treatments
+
+Flights
+
+Hotels
+
+Transfers
+
+Medical Documents
+
+Invoices
+
+Timeline
+
+Messages
+
+Recovery Plan
+
+Emergency Contacts
+
+Telemedicine Appointments
+
+Notifications
+
+---
+
+# RECOVERY & CONTINUITY CARE
+
+SECTION TITLE:
+
+"Care Doesn't End After Surgery"
+
+Services:
+
+Medication Delivery
+
+Recovery Kits
+
+Telemedicine Follow-Up
+
+Local GP Referrals
+
+Dental Follow-Up
+
+Home Nursing Referrals
+
+Physiotherapy Referrals
+
+Nutrition Support
+
+Recovery Subscriptions:
+
+Recovery Basic
+
+Recovery Plus
+
+Recovery Premium
+
+---
+
+# WHY CHOOSE MEDIBRIDGE
+
+Feature Grid:
+
+✓ Verified Hospitals
+
+✓ Reserved Treatment Slots
+
+✓ Transparent Pricing
+
+✓ Flight Integration
+
+✓ Hotel Integration
+
+✓ Insurance Integration
+
+✓ Recovery Commerce
+
+✓ Post-Treatment Care
+
+✓ Telemedicine
+
+✓ Patient Advocacy
+
+---
+
+# COMPETITIVE COMPARISON
+
+Comparison Table:
+
+Feature | Bookimed | WhatClinic | MediBridge
+
+Verified Hospitals
+
+Treatment Slot Inventory
+
+Flight Booking
+
+Hotel Booking
+
+Insurance
+
+Recovery Support
+
+Telemedicine
+
+Follow-Up Care
+
+Price Optimization
+
+Smart Package Optimizer
+
+Affiliate Travel Integration
+
+MediBridge should clearly lead.
+
+---
+
+# TESTIMONIALS
+
+Carousel with patient stories.
+
+Before treatment:
+
+Concerns
+
+Travel experience
+
+Results
+
+Recovery experience
+
+---
+
+# FAQ
+
+How are clinics verified?
+
+How do treatment slots work?
+
+How are prices negotiated?
+
+Do you arrange travel?
+
+Can I book flights?
+
+How does insurance work?
+
+What happens if complications occur?
+
+Do you offer follow-up care?
+
+What is the Smart Package Optimizer?
+
+---
+
+# CONTACT SECTION
+
+Lead Form:
+
+Name
+
+Email
+
+Phone
+
+Procedure
+
+Destination
+
+Budget
+
+Preferred Contact Method
+
+Message
+
+---
+
+# ADMIN DASHBOARD
+
+Create enterprise-level dashboard.
+
+Metrics:
+
+Patients
+
+Bookings
+
+Treatment Revenue
+
+Affiliate Revenue
+
+Hotel Revenue
+
+Insurance Revenue
+
+Recovery Revenue
+
+Monthly Revenue
+
+Conversion Rate
+
+Customer Acquisition Cost
+
+Customer Lifetime Value
+
+Most Popular Treatments
+
+Most Popular Destinations
+
+Available Slots
+
+Inventory Utilization
+
+Affiliate Click Tracking
+
+Revenue Charts
+
+Analytics Widgets
+
+---
+
+# BUSINESS MODEL VISUALIZATION
+
+Create infographic:
+
+Patient Acquisition
+↓
+Treatment Slot Margin
+↓
+Flight Commission
+↓
+Hotel Commission
+↓
+Insurance Commission
+↓
+Recovery Commerce
+↓
+Telemedicine
+↓
+Follow-Up Care
+
+Highlight recurring revenue.
+
+---
+
+# FOOTER
+
+Privacy Policy
+
+Terms of Service
+
+GDPR Compliance
+
+Cookie Policy
+
+Travel Partners
+
+Hospital Partners
+
+Insurance Partners
+
+Contact Information
+
+Social Media Links
+
+---
+
+# UNIQUE VALUE PROPOSITION
+
+"MediBridge Global is the first Healthcare Travel Operating System that combines verified treatment providers, exclusive treatment slot inventory, AI-powered package optimization, travel aggregation, insurance integration, recovery commerce, and post-treatment care into one seamless healthcare journey."
+
+Generate a complete production-ready application with realistic healthcare marketplace content, modern SaaS UI, advanced animations, affiliate tracking architecture, dynamic package optimization engine, treatment slot inventory management, and scalable startup-grade architecture.

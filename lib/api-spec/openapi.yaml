@@ -1,22 +1,41 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: MediBridge Global API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: treatments
+    description: Medical procedures and treatments
+  - name: clinics
+    description: Healthcare providers and clinics
+  - name: destinations
+    description: Travel destinations
+  - name: slots
+    description: Treatment slot inventory
+  - name: packages
+    description: Smart package optimizer
+  - name: cost
+    description: Cost comparison engine
+  - name: testimonials
+    description: Patient testimonials
+  - name: contact
+    description: Lead capture
+  - name: dashboard
+    description: Patient dashboard
+  - name: admin
+    description: Admin metrics
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +43,593 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /treatments:
+    get:
+      operationId: listTreatments
+      tags: [treatments]
+      summary: List all available treatments/procedures
+      responses:
+        "200":
+          description: List of treatments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Treatment"
+
+  /treatments/popular:
+    get:
+      operationId: getPopularTreatments
+      tags: [treatments]
+      summary: Get top popular treatments with stats
+      responses:
+        "200":
+          description: Popular treatments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TreatmentStat"
+
+  /clinics:
+    get:
+      operationId: listClinics
+      tags: [clinics]
+      summary: List clinics with optional filters
+      parameters:
+        - name: destination
+          in: query
+          schema:
+            type: string
+        - name: treatment
+          in: query
+          schema:
+            type: string
+        - name: featured
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: List of clinics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Clinic"
+
+  /clinics/{id}:
+    get:
+      operationId: getClinic
+      tags: [clinics]
+      summary: Get clinic details
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Clinic detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Clinic"
+        "404":
+          description: Not found
+
+  /destinations:
+    get:
+      operationId: listDestinations
+      tags: [destinations]
+      summary: List all destinations with stats
+      responses:
+        "200":
+          description: Destinations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Destination"
+
+  /slots:
+    get:
+      operationId: listSlots
+      tags: [slots]
+      summary: List available treatment slots with urgency indicators
+      parameters:
+        - name: treatmentId
+          in: query
+          schema:
+            type: integer
+        - name: destinationId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Available slots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TreatmentSlot"
+
+  /packages/optimize:
+    post:
+      operationId: optimizePackage
+      tags: [packages]
+      summary: Smart Package Optimizer — generate optimized travel+treatment bundles
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PackageRequest"
+      responses:
+        "200":
+          description: Optimized package options
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PackageResult"
+
+  /cost-comparison:
+    get:
+      operationId: getCostComparison
+      tags: [cost]
+      summary: UK vs Turkey vs China cost comparison table
+      responses:
+        "200":
+          description: Cost comparison data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CostComparison"
+
+  /testimonials:
+    get:
+      operationId: listTestimonials
+      tags: [testimonials]
+      summary: Patient testimonials and success stories
+      responses:
+        "200":
+          description: Testimonials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Testimonial"
+
+  /contact:
+    post:
+      operationId: submitContact
+      tags: [contact]
+      summary: Submit lead / consultation request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ContactInput"
+      responses:
+        "201":
+          description: Lead captured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ContactConfirmation"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Patient dashboard summary — upcoming treatments, travel, messages
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /admin/metrics:
+    get:
+      operationId: getAdminMetrics
+      tags: [admin]
+      summary: Admin dashboard — revenue, bookings, affiliate metrics
+      responses:
+        "200":
+          description: Admin metrics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminMetrics"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    Treatment:
+      type: object
+      required: [id, name, category, ukPrice, turkeyPrice, chinaPrice, savings, savingsPercent, description, imageUrl]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        ukPrice:
+          type: number
+        turkeyPrice:
+          type: number
+        chinaPrice:
+          type: ["number", "null"]
+        savings:
+          type: number
+        savingsPercent:
+          type: integer
+        description:
+          type: string
+        imageUrl:
+          type: string
+        duration:
+          type: string
+        recoveryTime:
+          type: string
+
+    TreatmentStat:
+      type: object
+      required: [id, name, bookingsThisMonth, averageSavings, successRate, imageUrl]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        bookingsThisMonth:
+          type: integer
+        averageSavings:
+          type: number
+        successRate:
+          type: number
+        imageUrl:
+          type: string
+
+    Clinic:
+      type: object
+      required: [id, name, city, country, accreditations, specialties, rating, reviewCount, availableSlots, startingFrom, imageUrl, jciAccredited, yearsEstablished]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: string
+        country:
+          type: string
+        accreditations:
+          type: array
+          items:
+            type: string
+        specialties:
+          type: array
+          items:
+            type: string
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        availableSlots:
+          type: integer
+        startingFrom:
+          type: number
+        imageUrl:
+          type: string
+        jciAccredited:
+          type: boolean
+        yearsEstablished:
+          type: integer
+        successRate:
+          type: number
+        description:
+          type: string
+
+    Destination:
+      type: object
+      required: [id, name, country, clinicCount, averageSavings, popularTreatments, qualityScore, imageUrl, flag]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        country:
+          type: string
+        clinicCount:
+          type: integer
+        averageSavings:
+          type: number
+        popularTreatments:
+          type: array
+          items:
+            type: string
+        qualityScore:
+          type: number
+        imageUrl:
+          type: string
+        flag:
+          type: string
+        description:
+          type: string
+
+    TreatmentSlot:
+      type: object
+      required: [id, treatmentName, clinicName, city, slotsRemaining, price, originalPrice, savings, availability, nextAvailableDate]
+      properties:
+        id:
+          type: integer
+        treatmentName:
+          type: string
+        clinicName:
+          type: string
+        city:
+          type: string
+        slotsRemaining:
+          type: integer
+        price:
+          type: number
+        originalPrice:
+          type: number
+        savings:
+          type: number
+        availability:
+          type: string
+          enum: [high, limited, critical]
+        nextAvailableDate:
+          type: string
+
+    PackageRequest:
+      type: object
+      required: [procedureId, destinationId, budget, travelMonth]
+      properties:
+        procedureId:
+          type: integer
+        destinationId:
+          type: integer
+        budget:
+          type: number
+        travelMonth:
+          type: string
+        packageType:
+          type: string
+          enum: [cheapest, best_value, premium]
+
+    PackageOption:
+      type: object
+      required: [type, clinicName, procedure, procedurePrice, flightPrice, hotelName, hotelPrice, transferPrice, insurancePrice, total, ukPrice, savings, savingsPercent, successRate, availableSlots]
+      properties:
+        type:
+          type: string
+          enum: [cheapest, best_value, premium]
+        clinicName:
+          type: string
+        procedure:
+          type: string
+        procedurePrice:
+          type: number
+        airline:
+          type: string
+        flightPrice:
+          type: number
+        hotelName:
+          type: string
+        hotelPrice:
+          type: number
+        transferPrice:
+          type: number
+        insuranceProvider:
+          type: string
+        insurancePrice:
+          type: number
+        total:
+          type: number
+        ukPrice:
+          type: number
+        savings:
+          type: number
+        savingsPercent:
+          type: integer
+        successRate:
+          type: number
+        availableSlots:
+          type: integer
+
+    PackageResult:
+      type: object
+      required: [options]
+      properties:
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/PackageOption"
+
+    CostComparison:
+      type: object
+      required: [procedure, ukCost, turkeyCost, savings, savingsPercent]
+      properties:
+        procedure:
+          type: string
+        ukCost:
+          type: number
+        turkeyCost:
+          type: number
+        chinaCost:
+          type: ["number", "null"]
+        savings:
+          type: number
+        savingsPercent:
+          type: integer
+
+    Testimonial:
+      type: object
+      required: [id, name, location, procedure, clinic, rating, beforeText, afterText, savings, avatarUrl]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        location:
+          type: string
+        procedure:
+          type: string
+        clinic:
+          type: string
+        rating:
+          type: number
+        beforeText:
+          type: string
+        afterText:
+          type: string
+        savings:
+          type: number
+        avatarUrl:
+          type: string
+
+    ContactInput:
+      type: object
+      required: [name, email, procedure, destination]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        procedure:
+          type: string
+        destination:
+          type: string
+        budget:
+          type: ["number", "null"]
+        preferredContact:
+          type: string
+        message:
+          type: string
+
+    ContactConfirmation:
+      type: object
+      required: [id, message]
+      properties:
+        id:
+          type: integer
+        message:
+          type: string
+
+    DashboardSummary:
+      type: object
+      required: [upcomingTreatments, totalSavings, nextFlightDate, nextHotelCheckIn, messageCount, recoveryProgress]
+      properties:
+        upcomingTreatments:
+          type: array
+          items:
+            $ref: "#/components/schemas/UpcomingBooking"
+        totalSavings:
+          type: number
+        nextFlightDate:
+          type: ["string", "null"]
+        nextHotelCheckIn:
+          type: ["string", "null"]
+        messageCount:
+          type: integer
+        recoveryProgress:
+          type: integer
+
+    UpcomingBooking:
+      type: object
+      required: [id, procedure, clinic, city, date, status, packageTotal]
+      properties:
+        id:
+          type: integer
+        procedure:
+          type: string
+        clinic:
+          type: string
+        city:
+          type: string
+        date:
+          type: string
+        status:
+          type: string
+          enum: [confirmed, pending, completed]
+        packageTotal:
+          type: number
+
+    AdminMetrics:
+      type: object
+      required: [totalPatients, totalBookings, treatmentRevenue, affiliateRevenue, hotelRevenue, insuranceRevenue, recoveryRevenue, conversionRate, monthlyRevenueTrend, popularTreatments, availableSlots, inventoryUtilization]
+      properties:
+        totalPatients:
+          type: integer
+        totalBookings:
+          type: integer
+        treatmentRevenue:
+          type: number
+        affiliateRevenue:
+          type: number
+        hotelRevenue:
+          type: number
+        insuranceRevenue:
+          type: number
+        recoveryRevenue:
+          type: number
+        conversionRate:
+          type: number
+        monthlyRevenueTrend:
+          type: array
+          items:
+            $ref: "#/components/schemas/MonthlyRevenue"
+        popularTreatments:
+          type: array
+          items:
+            $ref: "#/components/schemas/TreatmentPopularity"
+        availableSlots:
+          type: integer
+        inventoryUtilization:
+          type: number
+
+    MonthlyRevenue:
+      type: object
+      required: [month, revenue, bookings]
+      properties:
+        month:
+          type: string
+        revenue:
+          type: number
+        bookings:
+          type: integer
+
+    TreatmentPopularity:
+      type: object
+      required: [name, bookings, revenue]
+      properties:
+        name:
+          type: string
+        bookings:
+          type: integer
+        revenue:
+          type: number
