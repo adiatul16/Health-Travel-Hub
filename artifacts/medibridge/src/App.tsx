@@ -9,6 +9,7 @@ import { Layout } from "@/components/layout";
 import Home from "@/pages/home";
 import Treatments from "@/pages/treatments";
 import Clinics from "@/pages/clinics";
+import ClinicDetail from "@/pages/clinic-detail";
 import Destinations from "@/pages/destinations";
 import Packages from "@/pages/packages";
 import Dashboard from "@/pages/dashboard";
@@ -23,6 +24,7 @@ function Router() {
         <Route path="/" component={Home} />
         <Route path="/treatments" component={Treatments} />
         <Route path="/clinics" component={Clinics} />
+        <Route path="/clinics/:id" component={ClinicDetail} />
         <Route path="/destinations" component={Destinations} />
         <Route path="/packages" component={Packages} />
         <Route path="/dashboard" component={Dashboard} />
