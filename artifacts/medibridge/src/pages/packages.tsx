@@ -3,7 +3,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useListTreatments,
   useListDestinations,
@@ -17,7 +16,7 @@ const MONTHS = [
   "July", "August", "September", "October", "November", "December",
 ];
 
-const STEP_LABELS = ["Procedure", "Destination", "Budget & Dates", "Your Package"];
+const STEP_LABELS = ["Procedure", "Destination", "Budget & Dates", "Clinics"];
 
 function StepIndicator({ current }: { current: number }) {
   return (
@@ -54,133 +53,157 @@ function StepIndicator({ current }: { current: number }) {
   );
 }
 
-function PackageCard({
-  pkg,
-  highlight,
-  onReserve,
-}: {
-  pkg: PackageOption;
-  highlight?: boolean;
-  onReserve: (pkg: PackageOption) => void;
-}) {
+function StarRating({ rating }: { rating: number }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`rounded-2xl border bg-card shadow-sm overflow-hidden transition-all duration-200 hover:shadow-lg ${
-        highlight ? "border-primary ring-2 ring-primary/20" : ""
-      }`}
-    >
-      {highlight && (
-        <div className="bg-primary text-primary-foreground text-center py-1.5 text-xs font-semibold tracking-wider uppercase">
-          Best Value
-        </div>
-      )}
-      <div className="p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="font-bold text-lg">{pkg.clinicName}</h3>
-            <p className="text-muted-foreground text-sm">{pkg.procedure}</p>
-          </div>
-          <Badge variant={pkg.type === "premium" ? "default" : pkg.type === "best_value" ? "secondary" : "outline"} className="capitalize">
-            {pkg.type.replace("_", " ")}
-          </Badge>
-        </div>
-
-        <div className="space-y-2.5 mb-5">
-          <LineItem icon="🏥" label="Treatment" value={`£${pkg.procedurePrice.toLocaleString()}`} />
-          {pkg.airline && (
-            <LineItem
-              icon="✈️"
-              label={pkg.airline}
-              value={`£${pkg.flightPrice.toLocaleString()}`}
-              affiliateLabel="Skyscanner"
-              affiliateUrl="https://www.skyscanner.net/flights"
-            />
-          )}
-          <LineItem
-            icon="🏨"
-            label={pkg.hotelName}
-            value={`£${pkg.hotelPrice.toLocaleString()}`}
-            affiliateLabel="Booking.com"
-            affiliateUrl="https://www.booking.com/searchresults.html"
-          />
-          <LineItem icon="🚗" label="Airport Transfer" value={`£${pkg.transferPrice.toLocaleString()}`} />
-          {pkg.insuranceProvider && (
-            <LineItem icon="🛡️" label={pkg.insuranceProvider} value={`£${pkg.insurancePrice.toLocaleString()}`} />
-          )}
-        </div>
-
-        <div className="border-t pt-4 mb-5">
-          <div className="flex justify-between items-center mb-1">
-            <span className="text-sm text-muted-foreground">Package Total</span>
-            <span className="text-2xl font-bold text-primary">£{pkg.total.toLocaleString()}</span>
-          </div>
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-muted-foreground">UK equivalent</span>
-            <span className="line-through text-muted-foreground">£{pkg.ukPrice.toLocaleString()}</span>
-          </div>
-        </div>
-
-        <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-xl p-3 mb-5 flex items-center justify-between">
-          <div>
-            <div className="text-xs text-green-700 dark:text-green-400 font-medium">You save</div>
-            <div className="text-xl font-bold text-green-700 dark:text-green-400">£{pkg.savings.toLocaleString()}</div>
-          </div>
-          <div className="text-3xl font-black text-green-600 dark:text-green-400">{pkg.savingsPercent}%</div>
-        </div>
-
-        <div className="flex gap-2 text-xs text-muted-foreground mb-5">
-          <span className="bg-muted px-2 py-1 rounded">✓ {pkg.availableSlots} slots left</span>
-          <span className="bg-muted px-2 py-1 rounded">✓ JCI accredited clinic</span>
-        </div>
-
-        <Button
-          className="w-full"
-          variant={highlight ? "default" : "outline"}
-          size="lg"
-          onClick={() => onReserve(pkg)}
-          data-testid={`reserve-${pkg.type}`}
+    <div className="flex items-center gap-1">
+      {[1, 2, 3, 4, 5].map((star) => (
+        <svg
+          key={star}
+          className={`w-3.5 h-3.5 ${star <= Math.round(rating) ? "text-amber-400 fill-amber-400" : "text-slate-200 fill-slate-200"}`}
+          viewBox="0 0 20 20"
         >
-          Reserve This Package
-        </Button>
-      </div>
-    </motion.div>
+          <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+      ))}
+      <span className="text-xs text-muted-foreground ml-1">{rating.toFixed(1)}</span>
+    </div>
   );
 }
 
-function LineItem({
-  icon,
-  label,
-  value,
-  affiliateLabel,
-  affiliateUrl,
+function ClinicCard({
+  pkg,
+  rank,
+  onReserve,
 }: {
-  icon: string;
-  label: string;
-  value: string;
-  affiliateLabel?: string;
-  affiliateUrl?: string;
+  pkg: PackageOption;
+  rank: number;
+  onReserve: (pkg: PackageOption) => void;
 }) {
+  const [expanded, setExpanded] = useState(false);
+
   return (
-    <div className="flex items-center justify-between text-sm">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <span>{icon}</span>
-        <span>{label}</span>
-        {affiliateLabel && affiliateUrl && (
-          <a
-            href={affiliateUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            data-affiliate={affiliateLabel}
-            className="text-xs bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded font-medium hover:underline"
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: rank * 0.06 }}
+      className="rounded-2xl border bg-card shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200"
+    >
+      <div className="flex flex-col sm:flex-row">
+        {/* Clinic image */}
+        <div className="relative sm:w-48 h-40 sm:h-auto flex-shrink-0">
+          <img
+            src={pkg.imageUrl}
+            alt={pkg.clinicName}
+            className="w-full h-full object-cover"
+          />
+          {rank === 0 && (
+            <div className="absolute top-2 left-2 bg-primary text-primary-foreground text-xs font-bold px-2 py-1 rounded-full shadow">
+              Best Price
+            </div>
+          )}
+          {pkg.jciAccredited && (
+            <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm text-slate-700 text-xs font-semibold px-2 py-1 rounded-full flex items-center gap-1 shadow">
+              <span className="text-green-600">✓</span> JCI Accredited
+            </div>
+          )}
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 p-5 flex flex-col">
+          <div className="flex items-start justify-between gap-3 mb-3">
+            <div>
+              <h3 className="font-bold text-lg leading-tight">{pkg.clinicName}</h3>
+              <p className="text-muted-foreground text-sm">{pkg.city}</p>
+              <StarRating rating={pkg.rating} />
+              <p className="text-xs text-muted-foreground mt-0.5">{pkg.reviewCount} reviews</p>
+            </div>
+            <div className="text-right flex-shrink-0">
+              <div className="text-2xl font-black text-primary">£{pkg.total.toLocaleString()}</div>
+              <div className="text-xs text-muted-foreground line-through">£{pkg.ukPrice.toLocaleString()} UK</div>
+              <Badge variant="secondary" className="text-green-700 bg-green-50 border-green-200 mt-1">
+                Save £{pkg.savings.toLocaleString()} ({pkg.savingsPercent}%)
+              </Badge>
+            </div>
+          </div>
+
+          {/* Key stats */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            <div className="bg-muted/40 rounded-lg p-2 text-center">
+              <div className="text-xs text-muted-foreground">Success Rate</div>
+              <div className="text-sm font-bold">{pkg.successRate}%</div>
+            </div>
+            <div className="bg-muted/40 rounded-lg p-2 text-center">
+              <div className="text-xs text-muted-foreground">Slots Left</div>
+              <div className={`text-sm font-bold ${pkg.availableSlots <= 3 ? "text-red-500" : "text-foreground"}`}>
+                {pkg.availableSlots}
+              </div>
+            </div>
+            <div className="bg-muted/40 rounded-lg p-2 text-center">
+              <div className="text-xs text-muted-foreground">Next Date</div>
+              <div className="text-xs font-semibold">{pkg.nextAvailableDate}</div>
+            </div>
+          </div>
+
+          {/* Expandable price breakdown */}
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="text-xs text-primary hover:underline text-left mb-3 flex items-center gap-1"
           >
-            via {affiliateLabel}
-          </a>
-        )}
+            {expanded ? "▲ Hide" : "▼ Show"} price breakdown
+          </button>
+
+          <AnimatePresence>
+            {expanded && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden mb-3"
+              >
+                <div className="bg-muted/30 rounded-xl p-3 space-y-1.5 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">🏥 {pkg.procedure}</span>
+                    <span className="font-medium">£{pkg.procedurePrice.toLocaleString()}</span>
+                  </div>
+                  {pkg.airline && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">✈️ {pkg.airline}</span>
+                      <span className="font-medium">£{pkg.flightPrice.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">🏨 {pkg.hotelName}</span>
+                    <span className="font-medium">£{pkg.hotelPrice.toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">🚗 Airport Transfer</span>
+                    <span className="font-medium">£{pkg.transferPrice.toLocaleString()}</span>
+                  </div>
+                  {pkg.insuranceProvider && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">🛡️ {pkg.insuranceProvider}</span>
+                      <span className="font-medium">£{pkg.insurancePrice.toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between border-t pt-1.5 font-bold">
+                    <span>Total Package</span>
+                    <span className="text-primary">£{pkg.total.toLocaleString()}</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          <Button
+            className="w-full mt-auto"
+            onClick={() => onReserve(pkg)}
+            data-testid={`reserve-${pkg.clinicId}`}
+          >
+            Reserve at {pkg.clinicName}
+          </Button>
+        </div>
       </div>
-      <span className="font-medium">{value}</span>
-    </div>
+    </motion.div>
   );
 }
 
@@ -190,7 +213,6 @@ export default function Packages() {
   const [selectedDestinationId, setSelectedDestinationId] = useState<number | null>(null);
   const [budget, setBudget] = useState(5000);
   const [travelMonth, setTravelMonth] = useState(MONTHS[new Date().getMonth() + 1] || "July");
-  const [activeTab, setActiveTab] = useState("best_value");
   const [bookingPkg, setBookingPkg] = useState<PackageOption | null>(null);
 
   const { data: treatments, isLoading: loadingTreatments } = useListTreatments();
@@ -214,7 +236,7 @@ export default function Packages() {
     );
   };
 
-  const packageOptions = optimizeMutation.data?.options ?? [];
+  const clinicOptions = optimizeMutation.data?.options ?? [];
   const selectedTreatment = treatments?.find((t) => t.id === selectedTreatmentId);
   const selectedDestination = destinations?.find((d) => d.id === selectedDestinationId);
 
@@ -354,7 +376,7 @@ export default function Packages() {
                   disabled={!selectedDestinationId}
                   data-testid="step2-next"
                 >
-                  Next: Budget & Dates →
+                  Next: Set Budget →
                 </Button>
               </div>
             </motion.div>
@@ -371,11 +393,11 @@ export default function Packages() {
               className="bg-card border rounded-2xl p-8 shadow-sm"
             >
               <h2 className="text-2xl font-bold mb-2">Set your budget and travel dates</h2>
-              <p className="text-muted-foreground mb-8">We'll optimise your package to fit your budget and preferred month.</p>
+              <p className="text-muted-foreground mb-8">We'll show you every clinic that fits within your budget, sorted by price.</p>
 
               <div className="mb-8">
                 <div className="flex justify-between items-center mb-3">
-                  <label className="font-semibold text-sm">Total Budget (package)</label>
+                  <label className="font-semibold text-sm">Total Budget (full package)</label>
                   <span className="text-2xl font-bold text-primary">£{budget.toLocaleString()}</span>
                 </div>
                 <Slider
@@ -418,7 +440,7 @@ export default function Packages() {
                 <div className="grid grid-cols-2 gap-2 text-muted-foreground">
                   <span>Procedure:</span><span className="text-foreground font-medium">{selectedTreatment?.name}</span>
                   <span>Destination:</span><span className="text-foreground font-medium">{selectedDestination?.flag} {selectedDestination?.name}</span>
-                  <span>Budget:</span><span className="text-foreground font-medium">£{budget.toLocaleString()}</span>
+                  <span>Max budget:</span><span className="text-foreground font-medium">£{budget.toLocaleString()}</span>
                   <span>Travel month:</span><span className="text-foreground font-medium">{travelMonth}</span>
                 </div>
               </div>
@@ -431,13 +453,13 @@ export default function Packages() {
                   disabled={optimizeMutation.isPending}
                   data-testid="optimize-button"
                 >
-                  {optimizeMutation.isPending ? "Building packages..." : "Build My Package →"}
+                  {optimizeMutation.isPending ? "Finding clinics..." : "Show Available Clinics →"}
                 </Button>
               </div>
             </motion.div>
           )}
 
-          {/* STEP 4: Results */}
+          {/* STEP 4: Clinic List Results */}
           {step === 4 && (
             <motion.div
               key="step4"
@@ -446,48 +468,53 @@ export default function Packages() {
               exit={{ opacity: 0, x: -30 }}
               transition={{ duration: 0.25 }}
             >
-              <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold mb-2">Your optimised packages</h2>
-                <p className="text-muted-foreground">
-                  {selectedTreatment?.name} in {selectedDestination?.flag} {selectedDestination?.name} · {travelMonth}
-                </p>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    {clinicOptions.length} clinic{clinicOptions.length !== 1 ? "s" : ""} within your budget
+                  </h2>
+                  <p className="text-muted-foreground text-sm mt-1">
+                    {selectedTreatment?.name} · {selectedDestination?.flag} {selectedDestination?.name} · up to £{budget.toLocaleString()} · {travelMonth}
+                  </p>
+                </div>
+                <div className="text-right hidden sm:block">
+                  <div className="text-xs text-muted-foreground">Sorted by</div>
+                  <div className="text-sm font-semibold text-primary">Lowest price first</div>
+                </div>
               </div>
 
-              {packageOptions.length > 0 ? (
-                <>
-                  <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
-                    <TabsList className="w-full grid grid-cols-3">
-                      <TabsTrigger value="cheapest">Cheapest</TabsTrigger>
-                      <TabsTrigger value="best_value">Best Value</TabsTrigger>
-                      <TabsTrigger value="premium">Premium</TabsTrigger>
-                    </TabsList>
-                    {packageOptions.map((pkg) => (
-                      <TabsContent key={pkg.type} value={pkg.type}>
-                        <PackageCard
-                          pkg={pkg}
-                          highlight={pkg.type === "best_value"}
-                          onReserve={setBookingPkg}
-                        />
-                      </TabsContent>
-                    ))}
-                  </Tabs>
-
-                  <div className="text-center">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => { setStep(1); optimizeMutation.reset(); }}
-                      data-testid="start-over"
-                    >
-                      Start over
-                    </Button>
-                  </div>
-                </>
+              {clinicOptions.length > 0 ? (
+                <div className="space-y-4">
+                  {clinicOptions.map((pkg, i) => (
+                    <ClinicCard
+                      key={pkg.clinicId}
+                      pkg={pkg}
+                      rank={i}
+                      onReserve={setBookingPkg}
+                    />
+                  ))}
+                </div>
               ) : (
-                <div className="text-center text-muted-foreground py-16">
-                  No packages found. Try adjusting your budget.
+                <div className="bg-card border rounded-2xl p-12 text-center">
+                  <div className="text-4xl mb-4">🔍</div>
+                  <h3 className="text-xl font-bold mb-2">No clinics found within this budget</h3>
+                  <p className="text-muted-foreground mb-6">Try increasing your budget or selecting a different treatment.</p>
+                  <Button onClick={() => setStep(3)} data-testid="adjust-budget">
+                    Adjust Budget
+                  </Button>
                 </div>
               )}
+
+              <div className="text-center mt-8">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => { setStep(1); optimizeMutation.reset(); }}
+                  data-testid="start-over"
+                >
+                  ← Start over
+                </Button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

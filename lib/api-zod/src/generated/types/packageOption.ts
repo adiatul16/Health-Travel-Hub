@@ -5,11 +5,15 @@
  * MediBridge Global API
  * OpenAPI spec version: 0.1.0
  */
-import type { PackageOptionType } from './packageOptionType';
 
 export interface PackageOption {
-  type: PackageOptionType;
+  clinicId: number;
   clinicName: string;
+  city: string;
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  jciAccredited: boolean;
   procedure: string;
   procedurePrice: number;
   airline?: string;
@@ -25,4 +29,5 @@ export interface PackageOption {
   savingsPercent: number;
   successRate: number;
   availableSlots: number;
+  nextAvailableDate: string;
 }

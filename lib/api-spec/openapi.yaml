@@ -421,13 +421,22 @@ components:
 
     PackageOption:
       type: object
-      required: [type, clinicName, procedure, procedurePrice, flightPrice, hotelName, hotelPrice, transferPrice, insurancePrice, total, ukPrice, savings, savingsPercent, successRate, availableSlots]
+      required: [clinicId, clinicName, procedure, procedurePrice, flightPrice, hotelName, hotelPrice, transferPrice, insurancePrice, total, ukPrice, savings, savingsPercent, successRate, availableSlots, rating, reviewCount, jciAccredited, imageUrl, nextAvailableDate, city]
       properties:
-        type:
-          type: string
-          enum: [cheapest, best_value, premium]
+        clinicId:
+          type: integer
         clinicName:
           type: string
+        city:
+          type: string
+        imageUrl:
+          type: string
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        jciAccredited:
+          type: boolean
         procedure:
           type: string
         procedurePrice:
@@ -458,6 +467,8 @@ components:
           type: number
         availableSlots:
           type: integer
+        nextAvailableDate:
+          type: string
 
     PackageResult:
       type: object

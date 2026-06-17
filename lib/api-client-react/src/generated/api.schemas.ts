@@ -104,18 +104,14 @@ export interface PackageRequest {
   packageType?: PackageRequestPackageType;
 }
 
-export type PackageOptionType = typeof PackageOptionType[keyof typeof PackageOptionType];
-
-
-export const PackageOptionType = {
-  cheapest: 'cheapest',
-  best_value: 'best_value',
-  premium: 'premium',
-} as const;
-
 export interface PackageOption {
-  type: PackageOptionType;
+  clinicId: number;
   clinicName: string;
+  city: string;
+  imageUrl: string;
+  rating: number;
+  reviewCount: number;
+  jciAccredited: boolean;
   procedure: string;
   procedurePrice: number;
   airline?: string;
@@ -131,6 +127,7 @@ export interface PackageOption {
   savingsPercent: number;
   successRate: number;
   availableSlots: number;
+  nextAvailableDate: string;
 }
 
 export interface PackageResult {

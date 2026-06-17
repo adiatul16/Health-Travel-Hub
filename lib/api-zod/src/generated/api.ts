@@ -159,8 +159,13 @@ export const OptimizePackageBody = zod.object({
 
 export const OptimizePackageResponse = zod.object({
   "options": zod.array(zod.object({
-  "type": zod.enum(['cheapest', 'best_value', 'premium']),
+  "clinicId": zod.number(),
   "clinicName": zod.string(),
+  "city": zod.string(),
+  "imageUrl": zod.string(),
+  "rating": zod.number(),
+  "reviewCount": zod.number(),
+  "jciAccredited": zod.boolean(),
   "procedure": zod.string(),
   "procedurePrice": zod.number(),
   "airline": zod.string().optional(),
@@ -175,7 +180,8 @@ export const OptimizePackageResponse = zod.object({
   "savings": zod.number(),
   "savingsPercent": zod.number(),
   "successRate": zod.number(),
-  "availableSlots": zod.number()
+  "availableSlots": zod.number(),
+  "nextAvailableDate": zod.string()
 }))
 })
 

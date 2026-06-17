@@ -1,58 +1,59 @@
 import { Router } from "express";
 import { OptimizePackageBody } from "@workspace/api-zod";
+import { db } from "@workspace/db";
+import { clinicsTable, treatmentsTable } from "@workspace/db/schema";
+import { eq, asc } from "drizzle-orm";
 
 const router = Router();
 
-const packageData = {
-  cheapest: {
-    type: "cheapest" as const,
-    clinicName: "Cosmedica Clinic",
-    procedure: "FUE Hair Transplant",
-    procedurePrice: 1499,
-    airline: "Pegasus Airlines",
-    flightPrice: 189,
-    hotelName: "Tulip Inn Istanbul",
-    hotelPrice: 180,
+const TRAVEL_ESTIMATES: Record<string, {
+  airline: string;
+  flightPrice: number;
+  hotelPricePerNight: number;
+  hotelName: string;
+  transferPrice: number;
+  insuranceProvider: string;
+  insurancePrice: number;
+  nights: number;
+}> = {
+  Turkey: {
+    airline: "Turkish Airlines",
+    flightPrice: 220,
+    hotelPricePerNight: 70,
+    hotelName: "Ramada Plaza Istanbul",
+    transferPrice: 40,
+    insuranceProvider: "AXA",
+    insurancePrice: 75,
+    nights: 4,
+  },
+  China: {
+    airline: "Air China",
+    flightPrice: 580,
+    hotelPricePerNight: 90,
+    hotelName: "Holiday Inn Shanghai",
+    transferPrice: 60,
+    insuranceProvider: "Cigna Global",
+    insurancePrice: 110,
+    nights: 5,
+  },
+  default: {
+    airline: "easyJet",
+    flightPrice: 180,
+    hotelPricePerNight: 65,
+    hotelName: "Premier Inn",
     transferPrice: 35,
     insuranceProvider: "AXA",
     insurancePrice: 65,
-    ukPrice: 6500,
-    successRate: 94.5,
-    availableSlots: 12,
-  },
-  best_value: {
-    type: "best_value" as const,
-    clinicName: "Acibadem Healthcare Group",
-    procedure: "FUE Hair Transplant",
-    procedurePrice: 1750,
-    airline: "Turkish Airlines",
-    flightPrice: 220,
-    hotelName: "Ramada Plaza Istanbul",
-    hotelPrice: 240,
-    transferPrice: 45,
-    insuranceProvider: "Allianz",
-    insurancePrice: 85,
-    ukPrice: 6500,
-    successRate: 98.2,
-    availableSlots: 6,
-  },
-  premium: {
-    type: "premium" as const,
-    clinicName: "Memorial Hospital Istanbul",
-    procedure: "FUE Hair Transplant",
-    procedurePrice: 2299,
-    airline: "Turkish Airlines (Business)",
-    flightPrice: 450,
-    hotelName: "Ritz-Carlton Istanbul",
-    hotelPrice: 520,
-    transferPrice: 85,
-    insuranceProvider: "Cigna Global",
-    insurancePrice: 150,
-    ukPrice: 6500,
-    successRate: 99.1,
-    availableSlots: 3,
+    nights: 3,
   },
 };
+
+function nextAvailableDate(index: number): string {
+  const now = new Date();
+  const offsetWeeks = 2 + (index % 6) * 2;
+  const d = new Date(now.getTime() + offsetWeeks * 7 * 24 * 60 * 60 * 1000);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
 
 router.post("/optimize", async (req, res) => {
   try {
@@ -61,18 +62,61 @@ router.post("/optimize", async (req, res) => {
       return res.status(400).json({ error: "Invalid request body" });
     }
 
-    const { budget, packageType } = parsed.data;
-    const types: Array<"cheapest" | "best_value" | "premium"> = packageType
-      ? [packageType as "cheapest" | "best_value" | "premium"]
-      : ["cheapest", "best_value", "premium"];
+    const { procedureId, budget } = parsed.data;
 
-    const options = types.map((t) => {
-      const base = packageData[t];
-      const total = base.procedurePrice + base.flightPrice + base.hotelPrice + base.transferPrice + base.insurancePrice;
-      const savings = base.ukPrice - total;
-      const savingsPercent = Math.round((savings / base.ukPrice) * 100);
-      return { ...base, total, savings, savingsPercent };
-    });
+    const [treatment] = await db
+      .select()
+      .from(treatmentsTable)
+      .where(eq(treatmentsTable.id, procedureId));
+
+    if (!treatment) {
+      return res.status(404).json({ error: "Treatment not found" });
+    }
+
+    const clinics = await db
+      .select()
+      .from(clinicsTable)
+      .orderBy(asc(clinicsTable.startingFrom));
+
+    const ukPrice = parseFloat(treatment.ukPrice as string);
+
+    const options = clinics
+      .map((clinic, idx) => {
+        const travel = TRAVEL_ESTIMATES[clinic.country] ?? TRAVEL_ESTIMATES.default;
+        const procedurePrice = parseFloat(clinic.startingFrom as string);
+        const hotelPrice = travel.hotelPricePerNight * travel.nights;
+        const total = procedurePrice + travel.flightPrice + hotelPrice + travel.transferPrice + travel.insurancePrice;
+        const savings = ukPrice - total;
+        const savingsPercent = Math.round((savings / ukPrice) * 100);
+
+        return {
+          clinicId: clinic.id,
+          clinicName: clinic.name,
+          city: clinic.city,
+          imageUrl: clinic.imageUrl,
+          rating: parseFloat(clinic.rating as string),
+          reviewCount: clinic.reviewCount,
+          jciAccredited: clinic.jciAccredited,
+          procedure: treatment.name,
+          procedurePrice,
+          airline: travel.airline,
+          flightPrice: travel.flightPrice,
+          hotelName: travel.hotelName,
+          hotelPrice,
+          transferPrice: travel.transferPrice,
+          insuranceProvider: travel.insuranceProvider,
+          insurancePrice: travel.insurancePrice,
+          total,
+          ukPrice,
+          savings,
+          savingsPercent,
+          successRate: parseFloat(clinic.successRate as string),
+          availableSlots: clinic.availableSlots,
+          nextAvailableDate: nextAvailableDate(idx),
+        };
+      })
+      .filter((pkg) => pkg.total <= budget && pkg.savings > 0)
+      .sort((a, b) => a.total - b.total);
 
     res.json({ options });
   } catch (err) {

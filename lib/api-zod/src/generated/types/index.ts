@@ -18,7 +18,6 @@ export * from './listClinicsParams';
 export * from './listSlotsParams';
 export * from './monthlyRevenue';
 export * from './packageOption';
-export * from './packageOptionType';
 export * from './packageRequest';
 export * from './packageRequestPackageType';
 export * from './packageResult';
