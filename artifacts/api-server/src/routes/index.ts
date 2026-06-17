@@ -10,6 +10,7 @@ import testimonialsRouter from "./testimonials";
 import contactRouter from "./contact";
 import dashboardRouter from "./dashboard";
 import adminRouter from "./admin";
+import chatRouter from "./chat";
 
 const router: IRouter = Router();
 
@@ -24,5 +25,6 @@ router.use("/testimonials", testimonialsRouter);
 router.use("/contact", contactRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/admin", adminRouter);
+router.use("/chat", chatRouter);
 
 export default router;
