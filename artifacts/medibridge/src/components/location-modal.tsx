@@ -12,15 +12,17 @@ const LOCATIONS = [
 export function LocationModal() {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
-  const [, navigate] = useLocation();
+  const [pathname] = useLocation();
 
   useEffect(() => {
+    // Don't show on homepage — the hero already has an inline location picker
+    if (pathname === "/" || pathname === "") return;
     const seen = sessionStorage.getItem("mb_location_set");
     if (!seen) {
-      const timer = setTimeout(() => setOpen(true), 1200);
+      const timer = setTimeout(() => setOpen(true), 1800);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [pathname]);
 
   const handleConfirm = () => {
     if (selected) {
@@ -44,27 +46,30 @@ export function LocationModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50"
             onClick={handleSkip}
           />
           <motion.div
             key="modal"
-            initial={{ opacity: 0, scale: 0.95, y: 16 }}
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 16 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4"
           >
-            <div className="bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden">
-              <div className="bg-gradient-to-r from-sky-500 to-sky-600 px-6 py-5 text-white text-center">
-                <div className="text-2xl mb-1">👋</div>
-                <h2 className="text-xl font-bold">Where are you based?</h2>
-                <p className="text-sky-100 text-sm mt-1">
-                  We personalise treatment options and savings based on your location.
-                </p>
+            <div className="bg-white rounded-2xl shadow-2xl border border-purple-100 overflow-hidden">
+              <div className="purple-gradient px-6 py-5 text-white text-center relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3" />
+                <div className="relative z-10">
+                  <div className="text-2xl mb-1">👋</div>
+                  <h2 className="text-xl font-bold">Where are you based?</h2>
+                  <p className="text-purple-100 text-sm mt-1">
+                    We personalise treatment options and savings based on your location.
+                  </p>
+                </div>
               </div>
 
-              <div className="p-6 space-y-3">
+              <div className="p-5 space-y-3">
                 {LOCATIONS.map((loc) => (
                   <button
                     key={loc.id}
@@ -72,17 +77,17 @@ export function LocationModal() {
                     data-testid={`location-${loc.id}`}
                     className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all duration-150 ${
                       selected === loc.id
-                        ? "border-sky-500 bg-sky-50"
-                        : "border-slate-200 hover:border-sky-300 hover:bg-slate-50"
+                        ? "border-purple-500 bg-purple-50"
+                        : "border-gray-200 hover:border-purple-300 hover:bg-purple-50/40"
                     }`}
                   >
                     <span className="text-3xl">{loc.flag}</span>
-                    <div>
-                      <div className="font-semibold text-slate-900">{loc.label}</div>
-                      <div className="text-sm text-slate-500">{loc.desc}</div>
+                    <div className="flex-1">
+                      <div className="font-semibold text-gray-900">{loc.label}</div>
+                      <div className="text-sm text-gray-500">{loc.desc}</div>
                     </div>
                     {selected === loc.id && (
-                      <div className="ml-auto w-5 h-5 rounded-full bg-sky-500 flex items-center justify-center text-white text-xs font-bold">
+                      <div className="w-5 h-5 rounded-full purple-gradient flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                         ✓
                       </div>
                     )}
@@ -90,19 +95,19 @@ export function LocationModal() {
                 ))}
               </div>
 
-              <div className="px-6 pb-6 space-y-2">
+              <div className="px-5 pb-5 space-y-2">
                 <Button
-                  className="w-full"
+                  className="w-full purple-gradient border-0 font-semibold rounded-xl"
                   size="lg"
                   onClick={handleConfirm}
                   disabled={!selected}
                   data-testid="location-confirm"
                 >
-                  Find Treatments Near Me
+                  Personalise My Results
                 </Button>
                 <button
                   onClick={handleSkip}
-                  className="w-full text-sm text-slate-400 hover:text-slate-600 py-1 transition-colors"
+                  className="w-full text-sm text-gray-400 hover:text-gray-600 py-1.5 transition-colors"
                   data-testid="location-skip"
                 >
                   Skip for now

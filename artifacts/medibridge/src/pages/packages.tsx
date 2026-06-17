@@ -11,6 +11,29 @@ import {
 import type { PackageOption } from "@workspace/api-client-react";
 import { BookingModal } from "@/components/booking-modal";
 
+const CITY_IATA: Record<string, string> = {
+  Istanbul: "ist",
+  Antalya: "ayt",
+  Ankara: "esb",
+  Shanghai: "pvg",
+  Beijing: "pek",
+  Shenzhen: "szx",
+};
+
+function getSkyscannerLink(city: string): string {
+  const dest = CITY_IATA[city] ?? city.toLowerCase().replace(/\s/g, "").slice(0, 3);
+  return `https://www.skyscanner.net/transport/flights/lond/${dest}/`;
+}
+
+function getBookingLink(city: string): string {
+  const checkin = new Date();
+  checkin.setMonth(checkin.getMonth() + 2);
+  const checkout = new Date(checkin);
+  checkout.setDate(checkout.getDate() + 7);
+  const fmt = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(city)}&checkin=${fmt(checkin)}&checkout=${fmt(checkout)}`;
+}
+
 const MONTHS = [
   "January", "February", "March", "April", "May", "June",
   "July", "August", "September", "October", "November", "December",
@@ -161,26 +184,54 @@ function ClinicCard({
                 className="overflow-hidden mb-3"
               >
                 <div className="bg-muted/30 rounded-xl p-3 space-y-1.5 text-sm">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">🏥 {pkg.procedure}</span>
                     <span className="font-medium">£{pkg.procedurePrice.toLocaleString()}</span>
                   </div>
                   {pkg.airline && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">✈️ {pkg.airline}</span>
-                      <span className="font-medium">£{pkg.flightPrice.toLocaleString()}</span>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground flex items-center gap-1.5">
+                        ✈️ {pkg.airline}
+                        <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-1.5 py-0.5 rounded-full">est.</span>
+                      </span>
+                      <span className="font-medium flex items-center gap-2">
+                        £{pkg.flightPrice.toLocaleString()}
+                        <a
+                          href={getSkyscannerLink(pkg.city)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[10px] text-primary hover:underline font-semibold"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          Real prices →
+                        </a>
+                      </span>
                     </div>
                   )}
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">🏨 {pkg.hotelName}</span>
-                    <span className="font-medium">£{pkg.hotelPrice.toLocaleString()}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground flex items-center gap-1.5">
+                      🏨 {pkg.hotelName}
+                      <span className="text-[10px] bg-amber-100 text-amber-700 font-semibold px-1.5 py-0.5 rounded-full">est.</span>
+                    </span>
+                    <span className="font-medium flex items-center gap-2">
+                      £{pkg.hotelPrice.toLocaleString()}
+                      <a
+                        href={getBookingLink(pkg.city)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-primary hover:underline font-semibold"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Real prices →
+                      </a>
+                    </span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-muted-foreground">🚗 Airport Transfer</span>
                     <span className="font-medium">£{pkg.transferPrice.toLocaleString()}</span>
                   </div>
                   {pkg.insuranceProvider && (
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <span className="text-muted-foreground">🛡️ {pkg.insuranceProvider}</span>
                       <span className="font-medium">£{pkg.insurancePrice.toLocaleString()}</span>
                     </div>
@@ -189,6 +240,9 @@ function ClinicCard({
                     <span>Total Package</span>
                     <span className="text-primary">£{pkg.total.toLocaleString()}</span>
                   </div>
+                  <p className="text-[10px] text-muted-foreground/70 pt-0.5 leading-tight">
+                    ⚠️ Flight and hotel costs are typical estimates based on departure from London. Click "Real prices →" for live fares.
+                  </p>
                 </div>
               </motion.div>
             )}

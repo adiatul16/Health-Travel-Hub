@@ -1,34 +1,79 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useGetPopularTreatments } from "@workspace/api-client-react";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
-  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, type: "spring", stiffness: 280, damping: 26 } }),
+  show: (i: number) => ({
+    opacity: 1, y: 0,
+    transition: { delay: i * 0.1, type: "spring", stiffness: 280, damping: 26 },
+  }),
 };
 
-function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
-  return (
-    <motion.span
-      initial={{ opacity: 0, scale: 0.8 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true }}
-      className="tabular-nums"
-    >
-      {value}{suffix}
-    </motion.span>
-  );
-}
+const LOCATIONS = [
+  {
+    id: "uk",
+    flag: "🇬🇧",
+    label: "United Kingdom",
+    headline: "Tired of NHS waiting lists?",
+    subtext: "UK patients wait an average of 18 months for common procedures. With MediBridge, you can be treated abroad in just 2–4 weeks — at a fraction of the cost.",
+    stat: "18 months → 2–4 weeks",
+    statSub: "Treatment wait time",
+    cta: "Find UK-Friendly Treatments",
+    href: "/treatments",
+  },
+  {
+    id: "europe",
+    flag: "🇪🇺",
+    label: "Europe",
+    headline: "Save 40–70% on European prices.",
+    subtext: "Even compared to European private clinics, MediBridge partner clinics in Turkey and China deliver the same JCI-accredited quality at dramatically lower cost.",
+    stat: "40–70%",
+    statSub: "Saving vs European private care",
+    cta: "Compare European vs Abroad",
+    href: "/packages",
+  },
+  {
+    id: "worldwide",
+    flag: "🌍",
+    label: "Worldwide",
+    headline: "World-class care, wherever you are.",
+    subtext: "MediBridge connects patients globally to 48+ verified, JCI-accredited clinics across Istanbul, Antalya, Shanghai and Shenzhen.",
+    stat: "48+",
+    statSub: "Verified clinics worldwide",
+    cta: "Browse Global Clinics",
+    href: "/clinics",
+  },
+] as const;
+
+type LocationId = (typeof LOCATIONS)[number]["id"];
 
 export default function Home() {
   const { data: popularTreatments, isLoading: isLoadingPopular } = useGetPopularTreatments();
+  const [selectedLocation, setSelectedLocation] = useState<LocationId | null>(null);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("mb_user_location") as LocationId | null;
+    if (stored && LOCATIONS.some((l) => l.id === stored)) {
+      setSelectedLocation(stored);
+    }
+  }, []);
+
+  const handleSelectLocation = (id: LocationId) => {
+    setSelectedLocation(id);
+    sessionStorage.setItem("mb_user_location", id);
+    sessionStorage.setItem("mb_location_set", id);
+  };
+
+  const locContent = LOCATIONS.find((l) => l.id === selectedLocation);
 
   return (
     <div className="w-full flex flex-col">
       {/* ── Hero ── */}
       <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Animated gradient blobs */}
+        {/* Animated gradient background */}
         <div className="absolute inset-0 -z-10">
           <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-purple-50/60 to-white" />
           <motion.div
@@ -43,7 +88,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="container px-4 md:px-6 z-10 flex flex-col items-center text-center py-24">
+        <div className="container px-4 md:px-6 z-10 flex flex-col items-center text-center py-20">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -75,14 +120,76 @@ export default function Home() {
             Compare verified hospitals, reserve treatment slots, book flights and accommodation, arrange transfers, secure insurance and manage your recovery — all in one platform.
           </motion.p>
 
+          {/* ── Location picker ── */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="mt-10 flex flex-col sm:flex-row gap-4"
+            className="mt-10 w-full max-w-xl"
           >
-            <Button size="lg" className="h-14 px-10 text-lg rounded-2xl purple-gradient border-0 shadow-lg hover:opacity-90 transition-opacity font-semibold" asChild>
-              <Link href="/treatments">Find My Treatment</Link>
+            <p className="text-sm text-gray-400 mb-3 font-medium">
+              📍 Where are you travelling from? <span className="text-purple-500">Get personalised results</span>
+            </p>
+            <div className="inline-flex gap-2 bg-white/90 backdrop-blur rounded-2xl p-2 border border-purple-100 shadow-lg w-full justify-center">
+              {LOCATIONS.map((loc) => (
+                <button
+                  key={loc.id}
+                  onClick={() => handleSelectLocation(loc.id)}
+                  className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all flex-1 justify-center ${
+                    selectedLocation === loc.id
+                      ? "purple-gradient text-white shadow-md"
+                      : "text-gray-600 hover:bg-purple-50 hover:text-purple-700"
+                  }`}
+                >
+                  <span className="text-base">{loc.flag}</span>
+                  <span className="hidden sm:inline">{loc.label}</span>
+                  <span className="sm:hidden">{loc.id === "uk" ? "UK" : loc.id === "europe" ? "EU" : "World"}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Personalised insight card */}
+            <AnimatePresence mode="wait">
+              {locContent && (
+                <motion.div
+                  key={locContent.id}
+                  initial={{ opacity: 0, y: 8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 28 }}
+                  className="mt-3 bg-white rounded-2xl p-4 border border-purple-100 shadow-md text-left"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 text-3xl mt-0.5">{locContent.flag}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-gray-900 text-sm">{locContent.headline}</p>
+                      <p className="text-gray-500 text-xs mt-1 leading-relaxed">{locContent.subtext}</p>
+                    </div>
+                    <div className="flex-shrink-0 text-right hidden sm:block">
+                      <div className="text-lg font-black bg-gradient-to-r from-purple-600 to-violet-500 bg-clip-text text-transparent">{locContent.stat}</div>
+                      <div className="text-xs text-gray-400 max-w-[100px] leading-tight">{locContent.statSub}</div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
+
+          {/* CTAs */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.42 }}
+            className="mt-6 flex flex-col sm:flex-row gap-4"
+          >
+            <Button
+              size="lg"
+              className="h-14 px-10 text-lg rounded-2xl purple-gradient border-0 shadow-lg hover:opacity-90 transition-opacity font-semibold"
+              asChild
+            >
+              <Link href={locContent ? locContent.href : "/treatments"}>
+                {locContent ? locContent.cta : "Find My Treatment"}
+              </Link>
             </Button>
             <Button size="lg" variant="outline" className="h-14 px-10 text-lg rounded-2xl border-2 border-purple-200 text-purple-700 hover:bg-purple-50 font-semibold" asChild>
               <Link href="/destinations">Explore Destinations</Link>
@@ -93,26 +200,24 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="mt-14 flex flex-wrap items-center justify-center gap-8"
+            transition={{ delay: 0.55 }}
+            className="mt-10 flex flex-wrap items-center justify-center gap-8"
           >
             {[
-              { num: 48, suffix: "+", label: "Verified clinics", icon: "🏥" },
-              { num: 2, suffix: "", label: "Destinations", icon: "🌍" },
-              { num: 65, suffix: "%", label: "Average savings", icon: "💰" },
-              { num: 4.9, suffix: "★", label: "Patient rating", icon: "⭐" },
-            ].map(({ num, suffix, label, icon }) => (
+              { num: "48+", label: "Verified clinics", icon: "🏥" },
+              { num: "2", label: "Destinations", icon: "🌍" },
+              { num: "65%", label: "Average savings", icon: "💰" },
+              { num: "4.9★", label: "Patient rating", icon: "⭐" },
+            ].map(({ num, label, icon }) => (
               <div key={label} className="flex flex-col items-center gap-1">
-                <div className="text-2xl font-bold text-purple-800">
-                  <AnimatedCounter value={num} suffix={suffix} />
-                </div>
+                <div className="text-2xl font-bold text-purple-800">{num}</div>
                 <div className="text-xs text-gray-400 flex items-center gap-1">{icon} {label}</div>
               </div>
             ))}
           </motion.div>
         </div>
 
-        {/* Floating cards decoration */}
+        {/* Floating cards */}
         <div className="absolute bottom-8 left-8 hidden xl:block">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
@@ -176,7 +281,6 @@ export default function Home() {
                   viewport={{ once: true }}
                   variants={fadeUp}
                   whileHover={{ y: -4 }}
-                  transition={{ duration: 0.2 }}
                 >
                   <Link href="/packages" className="group block rounded-2xl overflow-hidden border border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all bg-white">
                     <div className="relative h-48 overflow-hidden bg-purple-50">
@@ -220,9 +324,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
-            {/* Connector line */}
             <div className="absolute top-10 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-purple-200 via-purple-400 to-purple-200 hidden lg:block" />
-
             {[
               { step: "01", title: "Choose Treatment", desc: "Compare procedures, verified clinics and transparent pricing from our global network.", icon: "🔍" },
               { step: "02", title: "Reserve Your Slot", desc: "Lock in your exclusive treatment date at your chosen clinic with instant confirmation.", icon: "📅" },
@@ -260,7 +362,6 @@ export default function Home() {
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Everything You Need in One Place</h2>
             <p className="text-gray-500 mt-4">A safe, affordable and well-managed medical journey abroad, from consultation to recovery.</p>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {[
               { icon: "🏥", text: "Verified hospitals and clinics" },
