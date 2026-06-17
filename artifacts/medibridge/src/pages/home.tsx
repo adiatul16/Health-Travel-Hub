@@ -3,114 +3,201 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useGetPopularTreatments } from "@workspace/api-client-react";
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { delay: i * 0.1, type: "spring", stiffness: 280, damping: 26 } }),
+};
+
+function AnimatedCounter({ value, suffix = "" }: { value: number; suffix?: string }) {
+  return (
+    <motion.span
+      initial={{ opacity: 0, scale: 0.8 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true }}
+      className="tabular-nums"
+    >
+      {value}{suffix}
+    </motion.span>
+  );
+}
+
 export default function Home() {
   const { data: popularTreatments, isLoading: isLoadingPopular } = useGetPopularTreatments();
 
   return (
     <div className="w-full flex flex-col">
-      {/* Hero Section */}
-      <section className="relative w-full py-24 md:py-32 lg:py-40 overflow-hidden flex items-center justify-center">
-        <div className="absolute inset-0 bg-primary/5 -z-10" />
-        <div className="container px-4 md:px-6 z-10 flex flex-col items-center text-center">
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-5xl lg:text-7xl font-bold tracking-tight text-foreground max-w-4xl"
+      {/* ── Hero ── */}
+      <section className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden">
+        {/* Animated gradient blobs */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-violet-50 via-purple-50/60 to-white" />
+          <motion.div
+            animate={{ scale: [1, 1.12, 1], opacity: [0.35, 0.55, 0.35] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-purple-300 rounded-full blur-[120px] opacity-40"
+          />
+          <motion.div
+            animate={{ scale: [1, 1.08, 1], opacity: [0.2, 0.38, 0.2] }}
+            transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+            className="absolute bottom-0 right-1/4 w-[400px] h-[400px] bg-violet-400 rounded-full blur-[100px] opacity-25"
+          />
+        </div>
+
+        <div className="container px-4 md:px-6 z-10 flex flex-col items-center text-center py-24">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 bg-purple-100 text-purple-700 rounded-full px-4 py-1.5 text-sm font-semibold mb-8 border border-purple-200"
           >
-            Your Entire Medical Journey. <br />
-            <span className="text-primary">One Trusted Platform.</span>
+            <span className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
+            The Healthcare Travel Operating System
+          </motion.div>
+
+          <motion.h1
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, type: "spring", stiffness: 220, damping: 24 }}
+            className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight text-gray-900 max-w-4xl leading-tight"
+          >
+            Your Entire Medical Journey.{" "}
+            <span className="bg-gradient-to-r from-purple-600 to-violet-500 bg-clip-text text-transparent">
+              One Trusted Platform.
+            </span>
           </motion.h1>
 
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mt-6 text-lg md:text-xl text-muted-foreground max-w-3xl"
+            transition={{ delay: 0.2 }}
+            className="mt-6 text-lg md:text-xl text-gray-500 max-w-3xl leading-relaxed"
           >
-            Compare verified hospitals, reserve treatment slots, book flights and accommodation, arrange transfers, secure insurance and manage your recovery all in one platform.
+            Compare verified hospitals, reserve treatment slots, book flights and accommodation, arrange transfers, secure insurance and manage your recovery — all in one platform.
           </motion.p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            transition={{ delay: 0.3 }}
             className="mt-10 flex flex-col sm:flex-row gap-4"
           >
-            <Button size="lg" className="h-14 px-8 text-lg rounded-full" asChild>
-              <Link href="/treatments">Find Treatment</Link>
+            <Button size="lg" className="h-14 px-10 text-lg rounded-2xl purple-gradient border-0 shadow-lg hover:opacity-90 transition-opacity font-semibold" asChild>
+              <Link href="/treatments">Find My Treatment</Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full" asChild>
+            <Button size="lg" variant="outline" className="h-14 px-10 text-lg rounded-2xl border-2 border-purple-200 text-purple-700 hover:bg-purple-50 font-semibold" asChild>
               <Link href="/destinations">Explore Destinations</Link>
             </Button>
           </motion.div>
 
-          {/* Trust indicators */}
+          {/* Trust badges */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground"
+            transition={{ delay: 0.5 }}
+            className="mt-14 flex flex-wrap items-center justify-center gap-8"
           >
             {[
-              { icon: "🏥", text: "48 verified clinics" },
-              { icon: "✈️", text: "2 destination countries" },
-              { icon: "💰", text: "Average 65% savings" },
-              { icon: "⭐", text: "4.9 patient rating" },
-            ].map(({ icon, text }) => (
-              <div key={text} className="flex items-center gap-2">
-                <span>{icon}</span>
-                <span>{text}</span>
+              { num: 48, suffix: "+", label: "Verified clinics", icon: "🏥" },
+              { num: 2, suffix: "", label: "Destinations", icon: "🌍" },
+              { num: 65, suffix: "%", label: "Average savings", icon: "💰" },
+              { num: 4.9, suffix: "★", label: "Patient rating", icon: "⭐" },
+            ].map(({ num, suffix, label, icon }) => (
+              <div key={label} className="flex flex-col items-center gap-1">
+                <div className="text-2xl font-bold text-purple-800">
+                  <AnimatedCounter value={num} suffix={suffix} />
+                </div>
+                <div className="text-xs text-gray-400 flex items-center gap-1">{icon} {label}</div>
               </div>
             ))}
           </motion.div>
         </div>
+
+        {/* Floating cards decoration */}
+        <div className="absolute bottom-8 left-8 hidden xl:block">
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.8 }}
+            className="glass-card rounded-2xl p-4 shadow-lg max-w-[220px]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center text-lg">💰</div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm">Save up to £4,200</p>
+                <p className="text-xs text-gray-500">on dental implants vs UK</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+        <div className="absolute top-32 right-8 hidden xl:block">
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 1.0 }}
+            className="glass-card rounded-2xl p-4 shadow-lg max-w-[200px]"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-lg">✅</div>
+              <div>
+                <p className="font-bold text-gray-800 text-sm">JCI Accredited</p>
+                <p className="text-xs text-gray-500">All partner clinics verified</p>
+              </div>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
-      {/* Popular Treatments */}
-      <section className="py-20">
+      {/* ── Popular Treatments ── */}
+      <section className="py-24 bg-white">
         <div className="container px-4">
-          <div className="flex justify-between items-end mb-10">
+          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
             <div>
-              <h2 className="text-3xl font-bold tracking-tight">Popular Treatments</h2>
-              <p className="text-muted-foreground mt-2">Discover our most booked procedures</p>
+              <p className="text-purple-600 font-semibold text-sm uppercase tracking-wider mb-2">Most Booked</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Popular Treatments</h2>
+              <p className="text-gray-500 mt-2">Discover our most booked procedures with huge UK savings</p>
             </div>
-            <Button variant="ghost" asChild>
-              <Link href="/treatments">View all</Link>
+            <Button variant="outline" className="border-purple-200 text-purple-700 hover:bg-purple-50 rounded-xl" asChild>
+              <Link href="/treatments">View all →</Link>
             </Button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {isLoadingPopular ? (
               Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="h-64 rounded-xl bg-muted animate-pulse" />
+                <div key={i} className="h-72 rounded-2xl bg-purple-50 animate-pulse" />
               ))
             ) : (
               popularTreatments?.slice(0, 4).map((treatment, i) => (
                 <motion.div
                   key={treatment.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
+                  custom={i}
+                  initial="hidden"
+                  whileInView="show"
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
+                  variants={fadeUp}
+                  whileHover={{ y: -4 }}
+                  transition={{ duration: 0.2 }}
                 >
-                  <Link href="/packages" className="group block">
-                    <div className="relative h-48 rounded-t-xl overflow-hidden bg-muted">
+                  <Link href="/packages" className="group block rounded-2xl overflow-hidden border border-purple-100 hover:border-purple-300 hover:shadow-lg transition-all bg-white">
+                    <div className="relative h-48 overflow-hidden bg-purple-50">
                       {treatment.imageUrl && (
                         <img
                           src={treatment.imageUrl}
                           alt={treatment.name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
                       )}
-                      <div className="absolute top-4 right-4 bg-background/90 backdrop-blur px-3 py-1 text-sm font-semibold rounded-full shadow-sm text-green-700">
+                      <div className="absolute inset-0 bg-gradient-to-t from-purple-900/30 to-transparent" />
+                      <div className="absolute top-3 right-3 bg-white/95 backdrop-blur px-3 py-1 text-xs font-bold rounded-full shadow-sm text-emerald-700">
                         Save up to {Math.round(treatment.averageSavings)}%
                       </div>
                     </div>
-                    <div className="border border-t-0 rounded-b-xl p-5 bg-card">
-                      <h3 className="font-semibold text-lg">{treatment.name}</h3>
-                      <div className="mt-2 text-sm text-muted-foreground">
+                    <div className="p-5">
+                      <h3 className="font-semibold text-gray-900 text-base group-hover:text-purple-700 transition-colors">{treatment.name}</h3>
+                      <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 bg-purple-400 rounded-full" />
                         {treatment.bookingsThisMonth} bookings this month
-                      </div>
+                      </p>
                     </div>
                   </Link>
                 </motion.div>
@@ -120,87 +207,158 @@ export default function Home() {
         </div>
       </section>
 
-      {/* How It Works */}
-      <section className="py-20 bg-muted/30">
+      {/* ── How It Works ── */}
+      <section className="py-24 bg-gradient-to-b from-purple-50/60 to-white relative overflow-hidden">
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-purple-100 rounded-full blur-[80px] opacity-40" />
+        </div>
         <div className="container px-4">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight">How MediBridge Works</h2>
-            <p className="text-muted-foreground mt-4">We handle every detail of your medical journey so you can focus on your recovery.</p>
+            <p className="text-purple-600 font-semibold text-sm uppercase tracking-wider mb-3">Simple Process</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">How MediBridge Works</h2>
+            <p className="text-gray-500 mt-4">We handle every detail of your medical journey so you can focus on your recovery.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
+            {/* Connector line */}
+            <div className="absolute top-10 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-purple-200 via-purple-400 to-purple-200 hidden lg:block" />
+
             {[
-              { step: "01", title: "Choose Treatment", desc: "Compare procedures, verified clinics and transparent pricing from our global network." },
-              { step: "02", title: "Reserve Your Slot", desc: "Lock in your exclusive treatment date at your chosen clinic." },
-              { step: "03", title: "Book Travel", desc: "We arrange flights, accommodation and transfers in one click." },
-              { step: "04", title: "Travel and Recover", desc: "Fly out for treatment and enjoy a seamless recovery experience." },
+              { step: "01", title: "Choose Treatment", desc: "Compare procedures, verified clinics and transparent pricing from our global network.", icon: "🔍" },
+              { step: "02", title: "Reserve Your Slot", desc: "Lock in your exclusive treatment date at your chosen clinic with instant confirmation.", icon: "📅" },
+              { step: "03", title: "Book Travel", desc: "We arrange flights, accommodation and transfers in one seamless click.", icon: "✈️" },
+              { step: "04", title: "Travel and Recover", desc: "Fly out for treatment and enjoy a fully managed, seamless recovery experience.", icon: "🌟" },
             ].map((step, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
+                custom={i}
+                initial="hidden"
+                whileInView="show"
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="relative p-6 rounded-2xl bg-background border shadow-sm"
+                variants={fadeUp}
+                className="relative p-6 rounded-2xl bg-white border border-purple-100 shadow-sm hover:shadow-md hover:border-purple-300 transition-all"
               >
-                <div className="text-4xl font-bold text-primary/20 mb-4">{step.step}</div>
-                <h3 className="text-xl font-semibold mb-2">{step.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{step.desc}</p>
+                <div className="absolute -top-4 left-6">
+                  <div className="w-8 h-8 rounded-full purple-gradient flex items-center justify-center text-white text-sm font-bold shadow-md">
+                    {i + 1}
+                  </div>
+                </div>
+                <div className="text-3xl mb-4 mt-2">{step.icon}</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{step.title}</h3>
+                <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Why MediBridge */}
-      <section className="py-20">
+      {/* ── Why MediBridge ── */}
+      <section className="py-24 bg-white">
         <div className="container px-4">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <h2 className="text-3xl font-bold tracking-tight">Why Choose MediBridge</h2>
-            <p className="text-muted-foreground mt-4">Everything a patient needs for a safe, affordable and well-managed medical journey abroad.</p>
+          <div className="text-center max-w-2xl mx-auto mb-14">
+            <p className="text-purple-600 font-semibold text-sm uppercase tracking-wider mb-3">Why Us</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Everything You Need in One Place</h2>
+            <p className="text-gray-500 mt-4">A safe, affordable and well-managed medical journey abroad, from consultation to recovery.</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
             {[
-              "Verified hospitals and clinics",
-              "Reserved treatment slots",
-              "Transparent pricing",
-              "Flight and hotel integration",
-              "Insurance integration",
-              "Recovery commerce",
-              "Post-treatment care",
-              "Telemedicine follow-up",
-              "Patient advocacy",
-              "Airport transfers",
-            ].map((feature) => (
-              <div key={feature} className="flex items-center gap-3 bg-muted/40 rounded-xl px-4 py-3">
-                <span className="text-primary font-bold text-lg">✓</span>
-                <span className="text-sm font-medium">{feature}</span>
-              </div>
+              { icon: "🏥", text: "Verified hospitals and clinics" },
+              { icon: "📅", text: "Reserved treatment slots" },
+              { icon: "💎", text: "Transparent pricing" },
+              { icon: "✈️", text: "Flight and hotel integration" },
+              { icon: "🛡️", text: "Insurance integration" },
+              { icon: "🛍️", text: "Recovery commerce" },
+              { icon: "❤️", text: "Post-treatment care" },
+              { icon: "💻", text: "Telemedicine follow-up" },
+              { icon: "🤝", text: "Patient advocacy" },
+              { icon: "🚗", text: "Airport transfers" },
+            ].map((feature, i) => (
+              <motion.div
+                key={feature.text}
+                custom={i}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                className="flex items-center gap-3 bg-gradient-to-r from-purple-50 to-violet-50 rounded-xl px-4 py-3.5 border border-purple-100 hover:border-purple-300 hover:shadow-sm transition-all"
+              >
+                <span className="text-xl flex-shrink-0">{feature.icon}</span>
+                <span className="text-sm font-medium text-gray-800">{feature.text}</span>
+              </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="py-20 bg-primary text-primary-foreground">
-        <div className="container px-4 text-center">
+      {/* ── Stats Banner ── */}
+      <section className="py-20 bg-gradient-to-br from-purple-50 to-violet-50 border-y border-purple-100">
+        <div className="container px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { value: "£12,000+", label: "Average patient saving", icon: "💷" },
+              { value: "48", label: "JCI-accredited clinics", icon: "🏆" },
+              { value: "4.9★", label: "Average patient rating", icon: "⭐" },
+              { value: "2,400+", label: "Treatments completed", icon: "✅" },
+            ].map(({ value, label, icon }, i) => (
+              <motion.div
+                key={label}
+                custom={i}
+                initial="hidden"
+                whileInView="show"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                className="flex flex-col items-center gap-2"
+              >
+                <div className="text-3xl mb-1">{icon}</div>
+                <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-700 to-violet-600 bg-clip-text text-transparent">{value}</div>
+                <div className="text-sm text-gray-500">{label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA ── */}
+      <section className="py-28 relative overflow-hidden">
+        <div className="absolute inset-0 purple-gradient" />
+        <div className="absolute inset-0 opacity-20">
+          <motion.div
+            animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+            transition={{ duration: 9, repeat: Infinity }}
+            className="absolute top-0 left-1/4 w-96 h-96 bg-white rounded-full blur-[80px]"
+          />
+          <motion.div
+            animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 12, repeat: Infinity, delay: 3 }}
+            className="absolute bottom-0 right-1/4 w-80 h-80 bg-white rounded-full blur-[80px]"
+          />
+        </div>
+        <div className="container px-4 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            className="inline-flex items-center gap-2 bg-white/20 text-white rounded-full px-4 py-1.5 text-sm font-semibold mb-6 border border-white/30"
+          >
+            ✨ Start your journey today
+          </motion.div>
           <motion.h2
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-4xl font-bold mb-4"
+            className="text-4xl md:text-5xl font-bold text-white mb-5 max-w-2xl mx-auto leading-tight"
           >
             Ready to start your medical journey?
           </motion.h2>
-          <p className="text-primary-foreground/80 text-lg mb-8 max-w-xl mx-auto">
+          <p className="text-white/80 text-lg mb-10 max-w-xl mx-auto">
             Build your personalised treatment package in under 60 seconds.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="h-14 px-8 text-lg rounded-full" asChild>
+            <Button size="lg" className="h-14 px-10 text-lg rounded-2xl bg-white text-purple-700 hover:bg-purple-50 font-bold shadow-xl" asChild>
               <Link href="/packages">Build My Package</Link>
             </Button>
-            <Button size="lg" variant="outline" className="h-14 px-8 text-lg rounded-full text-primary-foreground border-primary-foreground/40 hover:bg-primary-foreground/10" asChild>
+            <Button size="lg" variant="outline" className="h-14 px-10 text-lg rounded-2xl text-white border-white/40 hover:bg-white/10 font-semibold" asChild>
               <Link href="/clinics">Browse Clinics</Link>
             </Button>
           </div>

@@ -48,41 +48,41 @@ const clerkAppearance = {
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
   },
   variables: {
-    colorPrimary: "#0ea5e9",
-    colorForeground: "#0f172a",
-    colorMutedForeground: "#64748b",
+    colorPrimary: "#7C3AED",
+    colorForeground: "#1e1030",
+    colorMutedForeground: "#6b5e87",
     colorDanger: "#ef4444",
     colorBackground: "#ffffff",
-    colorInput: "#f8fafc",
-    colorInputForeground: "#0f172a",
-    colorNeutral: "#e2e8f0",
+    colorInput: "#faf9ff",
+    colorInputForeground: "#1e1030",
+    colorNeutral: "#ede9f7",
     fontFamily: "Inter, system-ui, sans-serif",
     borderRadius: "0.75rem",
   },
   elements: {
     rootBox: "w-full flex justify-center",
-    cardBox: "bg-white rounded-2xl w-[440px] max-w-full overflow-hidden shadow-xl border border-slate-100",
+    cardBox: "bg-white rounded-2xl w-[440px] max-w-full overflow-hidden shadow-xl border border-purple-100",
     card: "!shadow-none !border-0 !bg-transparent !rounded-none",
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
-    headerTitle: "text-slate-900 font-bold text-2xl",
-    headerSubtitle: "text-slate-500",
-    socialButtonsBlockButtonText: "text-slate-700 font-medium",
-    formFieldLabel: "text-slate-700 font-medium",
-    footerActionLink: "text-sky-500 font-semibold hover:text-sky-600",
-    footerActionText: "text-slate-500",
-    dividerText: "text-slate-400",
-    identityPreviewEditButton: "text-sky-500",
+    headerTitle: "text-gray-900 font-bold text-2xl",
+    headerSubtitle: "text-gray-500",
+    socialButtonsBlockButtonText: "text-gray-700 font-medium",
+    formFieldLabel: "text-gray-700 font-medium",
+    footerActionLink: "text-purple-600 font-semibold hover:text-purple-800",
+    footerActionText: "text-gray-500",
+    dividerText: "text-gray-400",
+    identityPreviewEditButton: "text-purple-600",
     formFieldSuccessText: "text-green-600",
-    alertText: "text-slate-700",
+    alertText: "text-gray-700",
     logoBox: "flex items-center justify-center py-2",
     logoImage: "h-10 w-auto",
-    socialButtonsBlockButton: "border border-slate-200 hover:border-slate-300 bg-white",
-    formButtonPrimary: "bg-sky-500 hover:bg-sky-600 text-white font-semibold",
-    formFieldInput: "border-slate-200 bg-slate-50 text-slate-900 focus:border-sky-400",
-    footerAction: "bg-slate-50 border-t border-slate-100",
-    dividerLine: "bg-slate-200",
+    socialButtonsBlockButton: "border border-purple-100 hover:border-purple-200 bg-white",
+    formButtonPrimary: "bg-purple-600 hover:bg-purple-700 text-white font-semibold",
+    formFieldInput: "border-purple-100 bg-purple-50/30 text-gray-900 focus:border-purple-400",
+    footerAction: "bg-purple-50/40 border-t border-purple-100",
+    dividerLine: "bg-purple-100",
     alert: "bg-red-50 border border-red-200",
-    otpCodeFieldInput: "border-slate-200 bg-slate-50",
+    otpCodeFieldInput: "border-purple-100 bg-purple-50/30",
     formFieldRow: "gap-3",
     main: "px-6 py-4",
   },
@@ -90,10 +90,10 @@ const clerkAppearance = {
 
 function SignInPage() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-b from-sky-50 to-white px-4">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-white px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <p className="text-slate-500 text-sm">The Healthcare Travel Operating System</p>
+          <p className="text-purple-500 text-sm font-medium">The Healthcare Travel Operating System</p>
         </div>
         <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
       </div>
@@ -103,10 +103,10 @@ function SignInPage() {
 
 function SignUpPage() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-b from-sky-50 to-white px-4">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-white px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <p className="text-slate-500 text-sm">Join thousands of patients saving on world-class healthcare</p>
+          <p className="text-purple-500 text-sm font-medium">Join thousands of patients saving on world-class healthcare</p>
         </div>
         <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
       </div>
