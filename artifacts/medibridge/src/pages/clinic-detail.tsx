@@ -3,6 +3,25 @@ import { useParams, Link } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from "react";
+import { CredentialBadge, type CredentialData } from "@/components/credential-badge";
+
+function useClinicCredentials(clinicId: number) {
+  const [credentials, setCredentials] = useState<CredentialData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!clinicId || isNaN(clinicId)) return;
+    setLoading(true);
+    fetch(`/api/credentials/clinic/${clinicId}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: CredentialData[]) => setCredentials(data))
+      .catch(() => setCredentials([]))
+      .finally(() => setLoading(false));
+  }, [clinicId]);
+
+  return { credentials, loading };
+}
 
 export default function ClinicDetail() {
   const { id } = useParams<{ id: string }>();
@@ -10,6 +29,7 @@ export default function ClinicDetail() {
   const { data: clinic, isLoading, error } = useGetClinic(clinicId, {
     query: { enabled: !isNaN(clinicId) && clinicId > 0 },
   });
+  const { credentials, loading: credsLoading } = useClinicCredentials(clinicId);
 
   if (isLoading) {
     return (
@@ -119,7 +139,62 @@ export default function ClinicDetail() {
               </div>
             </motion.section>
 
+            {/* ── Verified Credentials (blockchain-anchored) ── */}
             <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-xl font-bold">Verified Credentials</h2>
+                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  ⛓️ Blockchain-anchored
+                </span>
+              </div>
+
+              {credsLoading ? (
+                <div className="space-y-2">
+                  {[1, 2].map((i) => (
+                    <div key={i} className="h-16 rounded-xl bg-muted animate-pulse" />
+                  ))}
+                </div>
+              ) : credentials.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center">
+                  <p className="text-sm text-muted-foreground">
+                    No on-chain credentials yet. Credentials submitted by the clinic are reviewed by MediBridge and anchored on the Polygon blockchain.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {credentials.map((cred) => (
+                    <motion.div
+                      key={cred.id}
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="flex items-start justify-between gap-4 bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-sm"
+                    >
+                      <div className="min-w-0">
+                        <div className="font-semibold text-sm text-gray-900">{cred.credentialType}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {cred.issuingBody} · Issued {cred.issueDate}
+                        </div>
+                        {cred.documentName && (
+                          <div className="text-xs text-muted-foreground mt-0.5 truncate">
+                            {cred.documentName}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-shrink-0">
+                        <CredentialBadge credential={cred} />
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  <p className="text-xs text-muted-foreground text-center pt-2">
+                    Each credential's SHA-256 hash is permanently recorded on the Polygon blockchain.
+                    Click any badge to independently verify.
+                  </p>
+                </div>
+              )}
+            </motion.section>
+
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
               <h2 className="text-xl font-bold mb-3">Why choose {clinic.name}?</h2>
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Internationally accredited with verified patient outcomes</li>
@@ -172,6 +247,26 @@ export default function ClinicDetail() {
                 No obligation · Free consultation · Response within 2 hours
               </p>
             </motion.div>
+
+            {/* Trust summary */}
+            {credentials.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-emerald-50 border border-emerald-200 rounded-2xl p-4"
+              >
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-lg">⛓️</span>
+                  <span className="font-semibold text-emerald-800 text-sm">
+                    {credentials.length} On-Chain {credentials.length === 1 ? "Credential" : "Credentials"}
+                  </span>
+                </div>
+                <p className="text-xs text-emerald-700">
+                  This clinic's credentials are verified and permanently recorded on the Polygon blockchain — independently auditable by anyone.
+                </p>
+              </motion.div>
+            )}
           </div>
         </div>
       </div>

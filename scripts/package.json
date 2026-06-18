@@ -5,10 +5,13 @@
   "type": "module",
   "scripts": {
     "hello": "tsx ./src/hello.ts",
+    "deploy-contract": "tsx ./src/deploy-contract.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "ethers": "^6.16.0",
+    "solc": "^0.8.35",
     "tsx": "catalog:"
   }
 }
