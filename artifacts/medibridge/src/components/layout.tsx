@@ -25,7 +25,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   }, [location]);
 
-  const isAdmin = user?.publicMetadata?.role === "admin" || user?.unsafeMetadata?.role === "admin";
+  const isAdmin = sessionStorage.getItem("mb_admin") === "1";
 
   const navItems = [
     { href: "/treatments", label: "Treatments" },

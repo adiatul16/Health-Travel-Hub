@@ -7,13 +7,7 @@ import {
   hashDocument,
   isBlockchainConfigured,
 } from "../services/blockchain.js";
-import { createClerkClient } from "@clerk/backend";
-
 const router = Router();
-
-function getClerkClient() {
-  return createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY ?? "" });
-}
 
 router.get("/metrics", (_req, res) => {
   res.json({
@@ -209,44 +203,6 @@ router.delete("/credentials/:id", async (req, res) => {
   }
   await db.delete(credentialsTable).where(eq(credentialsTable.id, id));
   res.json({ success: true });
-});
-
-/* ——— User Role Management via Clerk Backend API ——— */
-
-router.get("/users", async (req, res) => {
-  try {
-    const response = await getClerkClient().users.getUserList({ limit: 100 });
-    return res.json({
-      users: response.data.map((u) => ({
-        id: u.id,
-        firstName: u.firstName,
-        lastName: u.lastName,
-        email: u.emailAddresses[0]?.emailAddress,
-        role: u.publicMetadata?.role || u.unsafeMetadata?.role || "user",
-        createdAt: u.createdAt,
-      })),
-    });
-  } catch (err) {
-    req.log.error({ err }, "Failed to list users");
-    return res.status(500).json({ error: "Failed to list users" });
-  }
-});
-
-router.post("/users/:id/role", async (req, res) => {
-  const userId = req.params.id;
-  const { role } = req.body as { role?: string };
-  if (!role) {
-    return res.status(400).json({ error: "role is required" });
-  }
-  try {
-    await getClerkClient().users.updateUser(userId, {
-      publicMetadata: { role },
-    });
-    return res.json({ success: true, userId, role });
-  } catch (err) {
-    req.log.error({ err }, "Failed to update user role");
-    return res.status(500).json({ error: "Failed to update user role" });
-  }
 });
 
 export default router;

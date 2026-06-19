@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
@@ -17,8 +17,11 @@ import Destinations from "@/pages/destinations";
 import Packages from "@/pages/packages";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
+import AdminLogin from "@/pages/admin-login";
 
 const queryClient = new QueryClient();
+
+const ADMIN_KEY = "mb_admin";
 
 const clerkPubKey = publishableKeyFromHost(
   window.location.hostname,
@@ -133,25 +136,13 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function AdminGate({ children }: { children: React.ReactNode }) {
-  const { user } = useUser();
-  const isAdmin = user?.publicMetadata?.role === "admin" || user?.unsafeMetadata?.role === "admin";
+  const isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
   return (
-    <AuthGate>
-      {isAdmin ? (
-        children
-      ) : (
-        <div className="flex min-h-[60vh] items-center justify-center px-4">
-          <div className="text-center max-w-md">
-            <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
-            <h2 className="text-xl font-bold text-gray-900 mb-2">Admin Access Required</h2>
-            <p className="text-gray-500 mb-6">You don't have permission to view this page. Contact your administrator if you believe this is an error.</p>
-            <a href="/" className="inline-flex items-center justify-center rounded-xl bg-purple-600 text-white font-semibold px-6 py-2.5 hover:bg-purple-700 transition-colors">
-              Back to Home
-            </a>
-          </div>
-        </div>
-      )}
-    </AuthGate>
+    isAdmin ? (
+      children
+    ) : (
+      <Redirect to="/admin-login" />
+    )
   );
 }
 
@@ -189,6 +180,7 @@ function Router() {
             <Dashboard />
           </AuthGate>
         </Route>
+        <Route path="/admin-login" component={AdminLogin} />
         <Route path="/admin">
           <AdminGate>
             <Admin />
