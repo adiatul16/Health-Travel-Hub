@@ -12,6 +12,7 @@ import dashboardRouter from "./dashboard";
 import adminRouter from "./admin";
 import chatRouter from "./chat";
 import credentialsRouter from "./credentials";
+import { adminAuthRouter, adminAuthMiddleware } from "../middleware/adminAuth.js";
 
 const router: IRouter = Router();
 
@@ -25,7 +26,8 @@ router.use("/cost-comparison", costRouter);
 router.use("/testimonials", testimonialsRouter);
 router.use("/contact", contactRouter);
 router.use("/dashboard", dashboardRouter);
-router.use("/admin", adminRouter);
+router.use("/admin-auth", adminAuthRouter);
+router.use("/admin", adminAuthMiddleware, adminRouter);
 router.use("/chat", chatRouter);
 router.use("/credentials", credentialsRouter);
 
