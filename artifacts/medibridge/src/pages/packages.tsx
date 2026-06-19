@@ -43,14 +43,14 @@ const STEP_LABELS = ["Procedure", "Destination", "Budget & Dates", "Clinics"];
 
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="flex items-center justify-center gap-0 mb-6 sm:mb-10 px-2 overflow-x-auto flex-nowrap">
+    <div className="flex items-center justify-center gap-0 mb-6 sm:mb-10 overflow-x-auto flex-nowrap min-w-0 w-full">
       {STEP_LABELS.map((label, i) => {
         const stepNum = i + 1;
         const isActive = stepNum === current;
         const isDone = stepNum < current;
         return (
-          <div key={label} className="flex items-center">
-            <div className="flex flex-col items-center gap-1.5 min-w-[4rem] sm:min-w-0">
+          <div key={label} className="flex items-center flex-shrink-0">
+            <div className="flex flex-col items-center gap-1.5 min-w-[3.5rem] sm:min-w-[5rem]">
               <div
                 className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-300 ${
                   isActive
@@ -62,12 +62,12 @@ function StepIndicator({ current }: { current: number }) {
               >
                 {isDone ? "✓" : stepNum}
               </div>
-              <span className={`text-xs font-medium hidden sm:block ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+              <span className={`text-[10px] sm:text-xs font-medium ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                 {label}
               </span>
             </div>
             {i < STEP_LABELS.length - 1 && (
-              <div className={`h-0.5 w-12 sm:w-20 mx-1 mb-5 transition-colors duration-300 ${stepNum < current ? "bg-primary" : "bg-muted"}`} />
+              <div className={`h-0.5 w-8 sm:w-16 mx-0.5 sm:mx-1 mb-5 transition-colors duration-300 ${stepNum < current ? "bg-primary" : "bg-muted"}`} />
             )}
           </div>
         );
