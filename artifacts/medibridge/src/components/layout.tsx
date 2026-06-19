@@ -25,13 +25,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
     setMobileOpen(false);
   }, [location]);
 
+  const isAdmin = user?.publicMetadata?.role === "admin" || user?.unsafeMetadata?.role === "admin";
+
   const navItems = [
     { href: "/treatments", label: "Treatments" },
     { href: "/clinics", label: "Clinics" },
     { href: "/destinations", label: "Destinations" },
     { href: "/packages", label: "Packages" },
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/admin", label: "Admin" },
+    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
   return (
