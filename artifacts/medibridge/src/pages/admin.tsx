@@ -550,25 +550,39 @@ export default function Admin() {
           <div className="absolute bottom-0 left-20 w-48 h-48 bg-white/5 rounded-full translate-y-1/3" />
         </div>
         <div className="container mx-auto px-4 py-10 relative z-10">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-2xl">⚙️</div>
-            <div>
-              <motion.p
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-purple-200 text-xs font-semibold uppercase tracking-wider"
-              >
-                Platform Management
-              </motion.p>
-              <motion.h1
-                initial={{ opacity: 0, x: -12 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 }}
-                className="text-2xl sm:text-3xl font-bold text-white"
-              >
-                Admin Console
-              </motion.h1>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center text-2xl">⚙️</div>
+              <div>
+                <motion.p
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  className="text-purple-200 text-xs font-semibold uppercase tracking-wider"
+                >
+                  Platform Management
+                </motion.p>
+                <motion.h1
+                  initial={{ opacity: 0, x: -12 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.05 }}
+                  className="text-2xl sm:text-3xl font-bold text-white"
+                >
+                  Admin Console
+                </motion.h1>
+              </div>
             </div>
+            <motion.button
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              onClick={() => {
+                sessionStorage.removeItem("mb_admin");
+                window.location.href = "/";
+              }}
+              className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-sm font-semibold backdrop-blur transition-colors"
+            >
+              Sign Out
+            </motion.button>
           </div>
 
           {/* Revenue total banner */}
