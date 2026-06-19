@@ -3,6 +3,24 @@
 @import "tw-animate-css";
 @plugin "@tailwindcss/typography";
 
+/* Clerk social button text visibility */
+.cl-socialButtonsBlockButtonText {
+  color: #1a1a2e !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+.cl-socialButtonsBlockButton {
+  border: 2px solid #d4c4f0 !important;
+  border-radius: 0.75rem !important;
+  min-height: 44px !important;
+  transition: all 0.15s ease !important;
+}
+.cl-socialButtonsBlockButton:hover {
+  border-color: #7C3AED !important;
+  background-color: #faf5ff !important;
+  box-shadow: 0 2px 8px rgba(124,58,237,0.08) !important;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

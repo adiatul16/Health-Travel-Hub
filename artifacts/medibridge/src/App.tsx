@@ -2,7 +2,8 @@ import React, { useEffect, useRef } from "react";
 import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
-import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
+import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
+import { useUser } from "@clerk/react";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -46,6 +47,8 @@ const clerkAppearance = {
     logoPlacement: "inside" as const,
     logoLinkUrl: basePath || "/",
     logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    socialButtonsPlacement: "top" as const,
+    socialButtonsVariant: "blockButton" as const,
   },
   variables: {
     colorPrimary: "#7C3AED",
@@ -66,7 +69,7 @@ const clerkAppearance = {
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
     headerTitle: "text-gray-900 font-bold text-2xl",
     headerSubtitle: "text-gray-500",
-    socialButtonsBlockButtonText: "text-gray-700 font-medium",
+    socialButtonsBlockButtonText: "text-gray-900 font-semibold",
     formFieldLabel: "text-gray-700 font-medium",
     footerActionLink: "text-purple-600 font-semibold hover:text-purple-800",
     footerActionText: "text-gray-500",
@@ -76,7 +79,7 @@ const clerkAppearance = {
     alertText: "text-gray-700",
     logoBox: "flex items-center justify-center py-2",
     logoImage: "h-10 w-auto",
-    socialButtonsBlockButton: "border border-purple-100 hover:border-purple-200 bg-white",
+    socialButtonsBlockButton: "w-full border-2 border-purple-300 hover:border-purple-500 bg-white hover:bg-purple-50/50 shadow-sm hover:shadow-md transition-all h-12 font-semibold text-gray-900",
     formButtonPrimary: "bg-purple-600 hover:bg-purple-700 text-white font-semibold",
     formFieldInput: "border-purple-100 bg-purple-50/30 text-gray-900 focus:border-purple-400",
     footerAction: "bg-purple-50/40 border-t border-purple-100",
@@ -95,7 +98,7 @@ function SignInPage() {
         <div className="text-center mb-8">
           <p className="text-purple-500 text-sm font-medium">The Healthcare Travel Operating System</p>
         </div>
-        <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+        <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} fallbackRedirectUrl={`${basePath}/dashboard`} />
       </div>
     </div>
   );
@@ -108,9 +111,48 @@ function SignUpPage() {
         <div className="text-center mb-8">
           <p className="text-purple-500 text-sm font-medium">Join thousands of patients saving on world-class healthcare</p>
         </div>
-        <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
+        <SignUp
+          routing="path"
+          path={`${basePath}/sign-up`}
+          signInUrl={`${basePath}/sign-in`}
+          fallbackRedirectUrl={`${basePath}/dashboard`}
+        />
       </div>
     </div>
+  );
+}
+
+function AuthGate({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <Show when="signed-in">{children}</Show>
+      <Show when="signed-out">
+        <Redirect to="/sign-in" />
+      </Show>
+    </>
+  );
+}
+
+function AdminGate({ children }: { children: React.ReactNode }) {
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin" || user?.unsafeMetadata?.role === "admin";
+  return (
+    <AuthGate>
+      {isAdmin ? (
+        children
+      ) : (
+        <div className="flex min-h-[60vh] items-center justify-center px-4">
+          <div className="text-center max-w-md">
+            <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Admin Access Required</h2>
+            <p className="text-gray-500 mb-6">You don't have permission to view this page. Please contact your administrator if you believe this is an error.</p>
+            <a href="/" className="inline-flex items-center justify-center rounded-xl bg-purple-600 text-white font-semibold px-6 py-2.5 hover:bg-purple-700 transition-colors">
+              Back to Home
+            </a>
+          </div>
+        </div>
+      )}
+    </AuthGate>
   );
 }
 
@@ -143,8 +185,16 @@ function Router() {
         <Route path="/clinics/:id" component={ClinicDetail} />
         <Route path="/destinations" component={Destinations} />
         <Route path="/packages" component={Packages} />
-        <Route path="/dashboard" component={Dashboard} />
-        <Route path="/admin" component={Admin} />
+        <Route path="/dashboard">
+          <AuthGate>
+            <Dashboard />
+          </AuthGate>
+        </Route>
+        <Route path="/admin">
+          <AdminGate>
+            <Admin />
+          </AdminGate>
+        </Route>
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
         <Route component={NotFound} />
