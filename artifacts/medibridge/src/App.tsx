@@ -18,10 +18,13 @@ import Packages from "@/pages/packages";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
 import AdminLogin from "@/pages/admin-login";
+import ClinicLogin from "@/pages/clinic-login";
+import ClinicDashboard from "@/pages/clinic-dashboard";
 
 const queryClient = new QueryClient();
 
 const ADMIN_KEY = "mb_admin";
+const CLINIC_KEY = "mb_clinic";
 
 const clerkPubKey = publishableKeyFromHost(
   window.location.hostname,
@@ -137,13 +140,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 
 function AdminGate({ children }: { children: React.ReactNode }) {
   const isAdmin = sessionStorage.getItem(ADMIN_KEY) === "1";
-  return (
-    isAdmin ? (
-      children
-    ) : (
-      <Redirect to="/admin-login" />
-    )
-  );
+  return isAdmin ? children : <Redirect to="/admin-login" />;
+}
+
+function ClinicGate({ children }: { children: React.ReactNode }) {
+  const isClinic = sessionStorage.getItem(CLINIC_KEY) === "1";
+  return isClinic ? children : <Redirect to="/clinic-login" />;
 }
 
 function ClerkQueryClientCacheInvalidator() {
@@ -179,6 +181,12 @@ function Router() {
           <AuthGate>
             <Dashboard />
           </AuthGate>
+        </Route>
+        <Route path="/clinic-login" component={ClinicLogin} />
+        <Route path="/clinic-dashboard">
+          <ClinicGate>
+            <ClinicDashboard />
+          </ClinicGate>
         </Route>
         <Route path="/admin-login" component={AdminLogin} />
         <Route path="/admin">

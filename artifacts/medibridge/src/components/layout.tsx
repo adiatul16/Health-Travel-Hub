@@ -26,6 +26,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   }, [location]);
 
   const isAdmin = sessionStorage.getItem("mb_admin") === "1";
+  const isClinic = sessionStorage.getItem("mb_clinic") === "1";
 
   const navItems = [
     { href: "/treatments", label: "Treatments" },
@@ -33,6 +34,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/destinations", label: "Destinations" },
     { href: "/packages", label: "Packages" },
     { href: "/dashboard", label: "Dashboard" },
+    ...(isClinic ? [{ href: "/clinic-dashboard", label: "Clinic" }] : []),
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
