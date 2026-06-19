@@ -82,7 +82,7 @@ router.post("/optimize", async (req, res) => {
 
     const options = clinics
       .map((clinic, idx) => {
-        const travel = TRAVEL_ESTIMATES[clinic.country] ?? TRAVEL_ESTIMATES.default;
+        const travel = TRAVEL_ESTIMATES[clinic.country as keyof typeof TRAVEL_ESTIMATES] ?? TRAVEL_ESTIMATES.default;
         const procedurePrice = parseFloat(clinic.startingFrom as string);
         const hotelPrice = travel.hotelPricePerNight * travel.nights;
         const total = procedurePrice + travel.flightPrice + hotelPrice + travel.transferPrice + travel.insurancePrice;
@@ -118,10 +118,10 @@ router.post("/optimize", async (req, res) => {
       .filter((pkg) => pkg.total <= budget && pkg.savings > 0)
       .sort((a, b) => a.total - b.total);
 
-    res.json({ options });
+    return res.json({ options });
   } catch (err) {
     req.log.error({ err }, "Failed to optimize package");
-    res.status(500).json({ error: "Failed to optimize package" });
+    return res.status(500).json({ error: "Failed to optimize package" });
   }
 });
 

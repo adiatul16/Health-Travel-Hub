@@ -88,7 +88,7 @@ async function deploy() {
   }
 
   console.log("\nDeploying CredentialRegistry...");
-  const factory = new ethers.ContractFactory(abi, bytecode, wallet);
+  const factory = new ethers.ContractFactory(abi as string[], bytecode, wallet);
   const contract = await factory.deploy();
   await contract.waitForDeployment();
 

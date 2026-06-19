@@ -24,13 +24,13 @@ router.post("/", async (req, res) => {
       message: message ?? null,
     }).returning({ id: contactsTable.id });
 
-    res.status(201).json({
+    return res.status(201).json({
       id: row.id,
       message: "Thank you! A MediBridge consultant will contact you within 24 hours.",
     });
   } catch (err) {
     req.log.error({ err }, "Failed to submit contact");
-    res.status(500).json({ error: "Failed to submit contact" });
+    return res.status(500).json({ error: "Failed to submit contact" });
   }
 });
 

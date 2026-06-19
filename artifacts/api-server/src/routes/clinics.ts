@@ -51,7 +51,7 @@ router.get("/:id", async (req, res) => {
     const [row] = await db.select().from(clinicsTable).where(eq(clinicsTable.id, id));
     if (!row) return res.status(404).json({ error: "Clinic not found" });
 
-    res.json({
+    return res.json({
       id: row.id,
       name: row.name,
       city: row.city,
@@ -70,7 +70,7 @@ router.get("/:id", async (req, res) => {
     });
   } catch (err) {
     req.log.error({ err }, "Failed to fetch clinic");
-    res.status(500).json({ error: "Failed to fetch clinic" });
+    return res.status(500).json({ error: "Failed to fetch clinic" });
   }
 });
 

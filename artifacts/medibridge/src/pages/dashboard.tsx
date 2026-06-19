@@ -1,7 +1,18 @@
+import { useState } from "react";
 import { useGetDashboardSummary } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { motion } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 function StatCard({
   label,
@@ -37,8 +48,237 @@ function StatCard({
   );
 }
 
+interface BookingDetails {
+  id: number;
+  procedure: string;
+  clinic: string;
+  city: string;
+  date: string;
+  status: string;
+  packageTotal: number;
+  procedurePrice: number;
+  flightPrice: number;
+  hotelPrice: number;
+  transferPrice: number;
+  insurancePrice: number;
+  airline: string;
+  hotelName: string;
+  departureAirport: string;
+  arrivalAirport: string;
+  nextFlightDate: string;
+  returnFlightDate: string;
+  insuranceProvider: string;
+  doctor: string;
+  roomType: string;
+  nights: number;
+}
+
+function generateMockDetails(booking: any): BookingDetails {
+  return {
+    ...booking,
+    procedurePrice: Math.round(booking.packageTotal * 0.55),
+    flightPrice: Math.round(booking.packageTotal * 0.18),
+    hotelPrice: Math.round(booking.packageTotal * 0.15),
+    transferPrice: Math.round(booking.packageTotal * 0.05),
+    insurancePrice: Math.round(booking.packageTotal * 0.07),
+    airline: "Turkish Airlines",
+    hotelName: "Shangri-La Bosphorus",
+    departureAirport: "London Heathrow (LHR)",
+    arrivalAirport: "Istanbul Airport (IST)",
+    nextFlightDate: booking.date,
+    returnFlightDate: "2026-07-18",
+    insuranceProvider: "Allianz Global Assistance",
+    doctor: "Dr. Mehmet Yilmaz",
+    roomType: "Deluxe Single Room",
+    nights: 5,
+  };
+}
+
+function ItineraryModal({
+  booking,
+  open,
+  onClose,
+}: {
+  booking: BookingDetails;
+  open: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="text-xl">Trip Itinerary</DialogTitle>
+          <DialogDescription>
+            {booking.procedure} at {booking.clinic}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-5 mt-2">
+          {/* Flight */}
+          <div className="rounded-xl border border-purple-100 p-4 bg-purple-50/30">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">✈️</span>
+              <h4 className="font-semibold text-gray-900">Flights</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Airline</span>
+                <span className="font-medium">{booking.airline}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Outbound</span>
+                <span className="font-medium">
+                  {new Date(booking.nextFlightDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} — {booking.departureAirport} → {booking.arrivalAirport}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Return</span>
+                <span className="font-medium">
+                  {new Date(booking.returnFlightDate).toLocaleDateString("en-GB", { day: "numeric", month: "short" })} — {booking.arrivalAirport} → {booking.departureAirport}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Cost</span>
+                <span className="font-semibold">£{booking.flightPrice.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Accommodation */}
+          <div className="rounded-xl border border-blue-100 p-4 bg-blue-50/30">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">🏨</span>
+              <h4 className="font-semibold text-gray-900">Accommodation</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Hotel</span>
+                <span className="font-medium">{booking.hotelName}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Room</span>
+                <span className="font-medium">{booking.roomType}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Nights</span>
+                <span className="font-medium">{booking.nights}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Cost</span>
+                <span className="font-semibold">£{booking.hotelPrice.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Treatment */}
+          <div className="rounded-xl border border-emerald-100 p-4 bg-emerald-50/30">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">🏥</span>
+              <h4 className="font-semibold text-gray-900">Treatment</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Procedure</span>
+                <span className="font-medium">{booking.procedure}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Clinic</span>
+                <span className="font-medium">{booking.clinic}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Doctor</span>
+                <span className="font-medium">{booking.doctor}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Date</span>
+                <span className="font-medium">
+                  {new Date(booking.date).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Cost</span>
+                <span className="font-semibold">£{booking.procedurePrice.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Insurance */}
+          <div className="rounded-xl border border-amber-100 p-4 bg-amber-50/30">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">🛡️</span>
+              <h4 className="font-semibold text-gray-900">Insurance</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Provider</span>
+                <span className="font-medium">{booking.insuranceProvider}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Cost</span>
+                <span className="font-semibold">£{booking.insurancePrice.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Transfers */}
+          <div className="rounded-xl border border-gray-100 p-4 bg-gray-50/30">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="text-xl">🚗</span>
+              <h4 className="font-semibold text-gray-900">Transfers</h4>
+            </div>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Airport ↔ Hotel</span>
+                <span className="font-medium">Included</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Hotel ↔ Clinic</span>
+                <span className="font-medium">Included</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Cost</span>
+                <span className="font-semibold">£{booking.transferPrice.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Total */}
+          <div className="rounded-xl border border-purple-200 p-4 bg-purple-50">
+            <div className="flex justify-between items-center">
+              <span className="font-semibold text-gray-900">Total Package</span>
+              <span className="text-xl font-bold text-purple-700">£{booking.packageTotal.toLocaleString()}</span>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              Includes all taxes and MediBridge coordination fees
+            </p>
+          </div>
+        </div>
+
+        <DialogFooter className="mt-4">
+          <DialogClose asChild>
+            <Button variant="outline" className="rounded-xl">Close</Button>
+          </DialogClose>
+          <Button asChild className="rounded-xl">
+            <Link href="/packages">Modify Package</Link>
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function Dashboard() {
   const { data: summary, isLoading } = useGetDashboardSummary();
+  const { toast } = useToast();
+  const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
+
+  function openChat() {
+    window.dispatchEvent(new CustomEvent("medibridge-open-chat"));
+    toast({
+      title: "Chat opened",
+      description: "A MediBridge coordinator will assist you shortly.",
+    });
+  }
 
   if (isLoading) {
     return (
@@ -215,7 +455,12 @@ export default function Dashboard() {
                           <p className="text-xs text-gray-400">Package total</p>
                           <p className="font-bold text-purple-700 text-lg">£{booking.packageTotal.toLocaleString()}</p>
                         </div>
-                        <Button variant="outline" size="sm" className="rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50"
+                          onClick={() => setSelectedBooking(generateMockDetails(booking))}
+                        >
                           Details
                         </Button>
                       </div>
@@ -254,7 +499,10 @@ export default function Dashboard() {
                   <p className="font-semibold text-gray-800">
                     {new Date(summary.nextFlightDate).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}
                   </p>
-                  <button className="text-sm text-purple-600 font-medium hover:text-purple-800 mt-2 flex items-center gap-1">
+                  <button
+                    className="text-sm text-purple-600 font-medium hover:text-purple-800 mt-2 flex items-center gap-1"
+                    onClick={() => toast({ title: "Boarding pass", description: "Your boarding pass will be available 24 hours before departure." })}
+                  >
                     View boarding pass →
                   </button>
                 </div>
@@ -279,13 +527,14 @@ export default function Dashboard() {
               </div>
               <div className="space-y-2">
                 {[
-                  { icon: "💬", label: "Message Concierge" },
-                  { icon: "📁", label: "Upload Medical Records" },
-                  { icon: "🩺", label: "Telemedicine Consultation" },
-                  { icon: "🛡️", label: "View Insurance Policy" },
-                ].map(({ icon, label }) => (
+                  { icon: "💬", label: "Message Concierge", action: openChat },
+                  { icon: "📁", label: "Upload Medical Records", action: () => toast({ title: "Upload records", description: "Please use the secure upload portal on your desktop to submit medical records." }) },
+                  { icon: "🩺", label: "Telemedicine Consultation", action: () => toast({ title: "Telemedicine", description: "Booking a video consultation. A coordinator will confirm your appointment within 2 hours." }) },
+                  { icon: "🛡️", label: "View Insurance Policy", action: () => toast({ title: "Insurance policy", description: "Your policy documents will be emailed to you shortly." }) },
+                ].map(({ icon, label, action }) => (
                   <button
                     key={label}
+                    onClick={action}
                     className="w-full flex items-center gap-3 px-4 py-3 rounded-xl border border-purple-100 text-sm font-medium text-gray-700 hover:bg-purple-50 hover:border-purple-200 hover:text-purple-800 transition-all text-left"
                   >
                     <span className="text-lg">{icon}</span>
@@ -307,7 +556,10 @@ export default function Dashboard() {
                 <p className="text-2xl mb-2">🌟</p>
                 <h3 className="font-bold mb-1">24/7 Patient Support</h3>
                 <p className="text-purple-100 text-sm mb-4">Our medical coordinators are always here to help.</p>
-                <button className="bg-white text-purple-700 rounded-xl px-4 py-2 text-sm font-semibold hover:bg-purple-50 transition-colors">
+                <button
+                  className="bg-white text-purple-700 rounded-xl px-4 py-2 text-sm font-semibold hover:bg-purple-50 transition-colors"
+                  onClick={openChat}
+                >
                   Contact Concierge
                 </button>
               </div>
@@ -315,6 +567,15 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Itinerary modal */}
+      {selectedBooking && (
+        <ItineraryModal
+          booking={selectedBooking}
+          open={!!selectedBooking}
+          onClose={() => setSelectedBooking(null)}
+        />
+      )}
     </div>
   );
 }

@@ -34,12 +34,12 @@ const stagger = {
 
 const fadeSlide = {
   hidden: { opacity: 0, y: 32 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 26 } },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 260, damping: 26 } },
 };
 
 const fadePop = {
   hidden: { opacity: 0, scale: 0.92, y: 20 },
-  show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring", stiffness: 280, damping: 22 } },
+  show: { opacity: 1, scale: 1, y: 0, transition: { type: "spring" as const, stiffness: 280, damping: 22 } },
 };
 
 /* ─── Marquee items ─── */

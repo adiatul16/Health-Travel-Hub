@@ -30,7 +30,7 @@ export function BookingModal({ pkg, onClose }: BookingModalProps) {
           destination: "Istanbul",
           budget: pkg.total,
           preferredContact: "email",
-          message: `Package reservation request: ${pkg.type} package for ${pkg.procedure} at ${pkg.clinicName}. Total: £${pkg.total.toLocaleString()}.`,
+          message: `Package reservation request for ${pkg.procedure} at ${pkg.clinicName}. Total: £${pkg.total.toLocaleString()}.`,
         },
       },
       {

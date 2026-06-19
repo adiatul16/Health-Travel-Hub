@@ -22,6 +22,7 @@ export function LocationModal() {
       const timer = setTimeout(() => setOpen(true), 1800);
       return () => clearTimeout(timer);
     }
+    return;
   }, [pathname]);
 
   const handleConfirm = () => {

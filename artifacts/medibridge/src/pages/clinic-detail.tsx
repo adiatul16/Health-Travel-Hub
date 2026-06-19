@@ -27,7 +27,7 @@ export default function ClinicDetail() {
   const { id } = useParams<{ id: string }>();
   const clinicId = parseInt(id ?? "0");
   const { data: clinic, isLoading, error } = useGetClinic(clinicId, {
-    query: { enabled: !isNaN(clinicId) && clinicId > 0 },
+    query: { enabled: !isNaN(clinicId) && clinicId > 0, queryKey: ["clinic", clinicId] },
   });
   const { credentials, loading: credsLoading } = useClinicCredentials(clinicId);
 

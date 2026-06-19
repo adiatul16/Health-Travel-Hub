@@ -33,6 +33,16 @@ export function ChatbotWidget() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    const handler = () => {
+      setIsOpen(true);
+      setHasNotification(false);
+      setTimeout(() => inputRef.current?.focus(), 300);
+    };
+    window.addEventListener("medibridge-open-chat", handler);
+    return () => window.removeEventListener("medibridge-open-chat", handler);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       setHasNotification(false);
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
