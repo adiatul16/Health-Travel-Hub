@@ -43,16 +43,16 @@ const STEP_LABELS = ["Procedure", "Destination", "Budget & Dates", "Clinics"];
 
 function StepIndicator({ current }: { current: number }) {
   return (
-    <div className="flex items-center justify-center gap-0 mb-10">
+    <div className="flex items-center justify-center gap-0 mb-6 sm:mb-10 px-2 overflow-x-auto flex-nowrap">
       {STEP_LABELS.map((label, i) => {
         const stepNum = i + 1;
         const isActive = stepNum === current;
         const isDone = stepNum < current;
         return (
           <div key={label} className="flex items-center">
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center gap-1.5 min-w-[4rem] sm:min-w-0">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300 ${
+                className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-xs sm:text-sm font-bold transition-all duration-300 ${
                   isActive
                     ? "bg-primary text-primary-foreground ring-4 ring-primary/20"
                     : isDone
@@ -302,7 +302,7 @@ export default function Packages() {
 
       <div className="container py-12 px-4 mx-auto max-w-5xl">
         <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold tracking-tight mb-3">Smart Package Optimizer</h1>
+          <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">Smart Package Optimizer</h1>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Build your entire medical journey in seconds. Treatment, flights, hotel, transfers and insurance all in one.
           </p>

@@ -68,19 +68,19 @@ export default function ClinicDetail() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 container px-4 pb-8 mx-auto max-w-5xl">
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex flex-wrap gap-1.5 mb-3">
             {clinic.jciAccredited && (
-              <Badge className="bg-yellow-400 text-yellow-950 hover:bg-yellow-400 font-bold">
+              <Badge className="bg-yellow-400 text-yellow-950 hover:bg-yellow-400 font-bold text-xs">
                 JCI Accredited
               </Badge>
             )}
             {clinic.accreditations.filter(a => a !== "JCI").map((acc) => (
-              <Badge key={acc} variant="secondary" className="bg-white/20 text-white border-white/30">
+              <Badge key={acc} variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
                 {acc}
               </Badge>
             ))}
           </div>
-          <h1 className="text-3xl sm:text-4xl font-bold text-white mb-1">{clinic.name}</h1>
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-1">{clinic.name}</h1>
           <p className="text-white/80 text-lg">{clinic.city}, {clinic.country}</p>
         </div>
       </div>
@@ -212,7 +212,7 @@ export default function ClinicDetail() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-card border rounded-2xl p-6 shadow-sm sticky top-6"
+              className="bg-card border rounded-2xl p-6 shadow-sm lg:sticky lg:top-6"
             >
               <div className="text-sm text-muted-foreground mb-1">Treatments starting from</div>
               <div className="text-3xl font-bold text-primary mb-1">£{Number(clinic.startingFrom).toLocaleString()}</div>

@@ -8,7 +8,7 @@ export default function Treatments() {
   return (
     <div className="container py-12 px-4 mx-auto">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight">Treatments & Procedures</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Treatments & Procedures</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl">
           Browse our extensive catalog of medical procedures, compare prices, and see potential savings.
         </p>

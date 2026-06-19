@@ -136,7 +136,7 @@ export default function Home() {
     <div className="w-full flex flex-col overflow-x-hidden">
 
       {/* ══════════════════════════════ HERO ══════════════════════════════ */}
-      <section ref={heroRef} className="relative w-full min-h-screen flex items-center justify-center overflow-hidden">
+      <section ref={heroRef} className="relative w-full min-h-[80vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
 
         {/* Layered background */}
         <motion.div className="absolute inset-0 -z-10" style={{ y: heroY }}>
@@ -195,7 +195,7 @@ export default function Home() {
               initial={{ y: 80 }}
               animate={{ y: 0 }}
               transition={{ type: "spring", stiffness: 180, damping: 22, delay: 0.08 }}
-              className="font-display font-black tracking-tight-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl text-gray-950 leading-[0.93] max-w-5xl"
+              className="font-display font-black tracking-tight-display text-4xl sm:text-5xl md:text-7xl lg:text-9xl text-gray-950 leading-[0.93] max-w-5xl"
             >
               Your Entire{" "}
               <span className="relative inline-block">
@@ -212,7 +212,7 @@ export default function Home() {
             transition={{ delay: 0.22, type: "spring", stiffness: 200, damping: 24 }}
             className="mb-10 overflow-hidden"
           >
-            <h2 className="font-display font-bold tracking-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl gradient-text">
+            <h2 className="font-display font-bold tracking-display text-2xl sm:text-3xl md:text-5xl lg:text-6xl gradient-text">
               One Trusted Platform.
             </h2>
           </motion.div>
@@ -221,7 +221,7 @@ export default function Home() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.32 }}
-            className="text-lg md:text-xl text-gray-500 max-w-2xl leading-relaxed mb-10 font-medium"
+            className="text-base sm:text-lg md:text-xl text-gray-500 max-w-2xl leading-relaxed mb-6 sm:mb-10 font-medium"
           >
             Compare verified hospitals, reserve treatment slots, book flights and accommodation,
             arrange transfers, secure insurance — all in one seamless platform.
@@ -299,12 +299,12 @@ export default function Home() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-3 mb-14"
+            className="flex flex-col sm:flex-row gap-3 mb-10 sm:mb-14"
           >
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
               <Button
                 size="lg"
-                className="h-14 px-10 text-base rounded-2xl purple-gradient-animated border-0 shadow-lg hover:shadow-xl transition-all font-bold purple-glow-sm"
+                className="h-12 sm:h-14 px-6 sm:px-10 text-base rounded-2xl purple-gradient-animated border-0 shadow-lg hover:shadow-xl transition-all font-bold purple-glow-sm w-full sm:w-auto"
                 asChild
               >
                 <Link href={loc ? loc.href : "/treatments"}>
@@ -316,7 +316,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-14 px-10 text-base rounded-2xl border-2 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 font-bold transition-all"
+                className="h-12 sm:h-14 px-6 sm:px-10 text-base rounded-2xl border-2 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 font-bold transition-all w-full sm:w-auto"
                 asChild
               >
                 <Link href="/destinations">Explore Destinations</Link>
@@ -425,7 +425,7 @@ export default function Home() {
       </div>
 
       {/* ══════════════════════════════ POPULAR TREATMENTS ══════════════════════════════ */}
-      <section className="py-28 bg-white">
+      <section className="py-16 sm:py-28 bg-white">
         <div className="container px-4 md:px-8">
           <motion.div
             initial="hidden"
@@ -503,7 +503,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════ HOW IT WORKS ══════════════════════════════ */}
-      <section className="py-28 relative overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(263 40% 98%) 0%, white 100%)" }}>
+      <section className="py-16 sm:py-28 relative overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(263 40% 98%) 0%, white 100%)" }}>
         {/* Giant background number */}
         <div className="absolute -right-8 top-16 text-[280px] font-black text-purple-100/60 select-none pointer-events-none leading-none tracking-tight hidden lg:block">
           How
@@ -563,7 +563,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════ ANIMATED STATS ══════════════════════════════ */}
-      <section className="py-24 bg-white border-y border-purple-50">
+      <section className="py-16 sm:py-24 bg-white border-y border-purple-50">
         <div className="container px-4 md:px-8">
           <motion.div
             initial="hidden"
@@ -589,7 +589,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════ WHY MEDIBRIDGE ══════════════════════════════ */}
-      <section className="py-28" style={{ background: "linear-gradient(180deg, white 0%, hsl(263 40% 97%) 100%)" }}>
+      <section className="py-16 sm:py-28" style={{ background: "linear-gradient(180deg, white 0%, hsl(263 40% 97%) 100%)" }}>
         <div className="container px-4 md:px-8">
           <motion.div
             initial="hidden"
@@ -645,7 +645,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════ CTA ══════════════════════════════ */}
-      <section className="py-32 relative overflow-hidden">
+      <section className="py-20 sm:py-32 relative overflow-hidden">
         <div className="absolute inset-0 purple-gradient-animated" />
         {/* Noise texture */}
         <div className="absolute inset-0 opacity-[0.08]" style={{
@@ -668,7 +668,7 @@ export default function Home() {
               ✨ Start your journey today — it takes 60 seconds
             </div>
 
-            <h2 className="font-display font-black tracking-tight-display text-5xl md:text-6xl lg:text-7xl text-white mb-6 leading-[0.95]">
+            <h2 className="font-display font-black tracking-tight-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl text-white mb-6 leading-[0.95]">
               Ready to start your<br />
               <span className="italic font-light">medical journey?</span>
             </h2>
@@ -681,7 +681,7 @@ export default function Home() {
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                 <Button
                   size="lg"
-                  className="h-16 px-12 text-lg rounded-2xl bg-white text-purple-700 hover:bg-purple-50 font-black shadow-2xl hover:shadow-white/20 transition-all"
+                  className="h-14 sm:h-16 px-8 sm:px-12 text-lg rounded-2xl bg-white text-purple-700 hover:bg-purple-50 font-black shadow-2xl hover:shadow-white/20 transition-all w-full sm:w-auto"
                   asChild
                 >
                   <Link href="/packages">Build My Package →</Link>
@@ -691,7 +691,7 @@ export default function Home() {
                 <Button
                   size="lg"
                   variant="outline"
-                  className="h-16 px-12 text-lg rounded-2xl text-white border-2 border-white/30 hover:bg-white/10 font-bold backdrop-blur-sm"
+                  className="h-14 sm:h-16 px-8 sm:px-12 text-lg rounded-2xl text-white border-2 border-white/30 hover:bg-white/10 font-bold backdrop-blur-sm w-full sm:w-auto"
                   asChild
                 >
                   <Link href="/clinics">Browse Clinics</Link>

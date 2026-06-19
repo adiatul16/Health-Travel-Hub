@@ -8,13 +8,13 @@ export default function Clinics() {
   return (
     <div className="container py-12 px-4 mx-auto">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold tracking-tight">Verified Partner Clinics</h1>
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Verified Partner Clinics</h1>
         <p className="text-muted-foreground mt-2 max-w-2xl">
           Discover world-class, internationally accredited healthcare facilities.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4 sm:gap-6">
         {isLoading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-64 rounded-xl bg-muted animate-pulse" />

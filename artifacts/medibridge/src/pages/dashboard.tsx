@@ -75,7 +75,7 @@ export default function Dashboard() {
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.05 }}
-                className="text-3xl font-bold text-white"
+                className="text-2xl sm:text-3xl font-bold text-white"
               >
                 Your Medical Journey
               </motion.h1>
@@ -93,7 +93,7 @@ export default function Dashboard() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.15 }}
             >
-              <Button asChild className="bg-white text-purple-700 hover:bg-purple-50 font-semibold rounded-xl shadow-md">
+              <Button asChild className="bg-white text-purple-700 hover:bg-purple-50 font-semibold rounded-xl shadow-md w-full sm:w-auto">
                 <Link href="/packages">+ Build New Package</Link>
               </Button>
             </motion.div>

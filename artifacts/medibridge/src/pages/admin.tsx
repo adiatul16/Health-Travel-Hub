@@ -564,7 +564,7 @@ export default function Admin() {
                 initial={{ opacity: 0, x: -12 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.05 }}
-                className="text-3xl font-bold text-white"
+                className="text-2xl sm:text-3xl font-bold text-white"
               >
                 Admin Console
               </motion.h1>
@@ -576,7 +576,7 @@ export default function Admin() {
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="mt-6 bg-white/10 backdrop-blur rounded-2xl p-5 inline-flex items-center gap-6"
+            className="mt-6 bg-white/10 backdrop-blur rounded-2xl p-5 inline-flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6"
           >
             <div>
               <p className="text-purple-200 text-sm">Total Platform Revenue</p>

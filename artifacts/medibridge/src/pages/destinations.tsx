@@ -8,13 +8,13 @@ export default function Destinations() {
   return (
     <div className="container py-12 px-4 mx-auto">
       <div className="mb-10 text-center">
-        <h1 className="text-4xl font-bold tracking-tight mb-4">Explore Destinations</h1>
+        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">Explore Destinations</h1>
         <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
           Combine world-class healthcare with beautiful travel destinations. Discover the best cities for medical tourism.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
         {isLoading ? (
           Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="h-80 rounded-2xl bg-muted animate-pulse" />
@@ -26,7 +26,7 @@ export default function Destinations() {
               <img 
                 src={destination.imageUrl} 
                 alt={destination.name}
-                className="w-full h-80 object-cover transition-transform duration-700 group-hover:scale-110" 
+                className="w-full h-64 sm:h-80 object-cover transition-transform duration-700 group-hover:scale-110" 
               />
               <div className="absolute inset-0 z-20 p-6 flex flex-col justify-end">
                 <div className="flex items-center gap-2 mb-2">
