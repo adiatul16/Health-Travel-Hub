@@ -5,6 +5,9 @@ import { LocationModal } from "./location-modal";
 import { ChatbotWidget } from "./chatbot-widget";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { LoginDropdown } from "@/pages/login-dropdown";
+
+const PORTAL_PATHS = ["/dashboard", "/clinic-dashboard", "/admin"];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -14,6 +17,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const [scrolled, setScrolled] = useState(false);
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const isPortal = PORTAL_PATHS.includes(location);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -37,6 +41,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
     ...(isClinic ? [{ href: "/clinic-dashboard", label: "Clinic" }] : []),
     ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
+
+  if (isPortal) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-screen flex flex-col font-sans bg-background text-foreground">
@@ -99,14 +107,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
           {/* Actions */}
           <div className="flex items-center gap-2">
             <Show when="signed-out">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden sm:inline-flex text-gray-500 hover:text-purple-700 font-semibold"
-                asChild
-              >
-                <Link href="/sign-in">Log in</Link>
-              </Button>
+              <div className="hidden sm:block">
+                <LoginDropdown compact />
+              </div>
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                 <Button
                   asChild

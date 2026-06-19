@@ -20,6 +20,7 @@ import Admin from "@/pages/admin";
 import AdminLogin from "@/pages/admin-login";
 import ClinicLogin from "@/pages/clinic-login";
 import ClinicDashboard from "@/pages/clinic-dashboard";
+import { PatientPortalShell, ClinicPortalShell, AdminPortalShell } from "@/components/portal-shells";
 
 const queryClient = new QueryClient();
 
@@ -179,19 +180,25 @@ function Router() {
         <Route path="/packages" component={Packages} />
         <Route path="/dashboard">
           <AuthGate>
-            <Dashboard />
+            <PatientPortalShell>
+              <Dashboard />
+            </PatientPortalShell>
           </AuthGate>
         </Route>
         <Route path="/clinic-login" component={ClinicLogin} />
         <Route path="/clinic-dashboard">
           <ClinicGate>
-            <ClinicDashboard />
+            <ClinicPortalShell>
+              <ClinicDashboard />
+            </ClinicPortalShell>
           </ClinicGate>
         </Route>
         <Route path="/admin-login" component={AdminLogin} />
         <Route path="/admin">
           <AdminGate>
-            <Admin />
+            <AdminPortalShell>
+              <Admin />
+            </AdminPortalShell>
           </AdminGate>
         </Route>
         <Route path="/sign-in/*?" component={SignInPage} />

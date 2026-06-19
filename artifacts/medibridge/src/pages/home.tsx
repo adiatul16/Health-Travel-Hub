@@ -1,81 +1,10 @@
 import { motion, AnimatePresence, useInView, useScroll, useTransform } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useGetPopularTreatments } from "@workspace/api-client-react";
+import { LoginDropdown } from "./login-dropdown";
 
-function LoginDropdown() {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const [, setLocation] = useLocation();
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const options = [
-    { label: "Patient Login", icon: "\ud83d\udc65", desc: "Book treatments & manage trips", href: "/sign-in" },
-    { label: "Clinic Portal", icon: "\ud83c\udfe5", desc: "Manage listings & appointments", href: "/clinic-login" },
-    { label: "Admin Console", icon: "\u2699\ufe0f", desc: "Platform analytics & approvals", href: "/admin-login" },
-  ];
-
-  return (
-    <motion.div
-      ref={ref}
-      onMouseEnter={() => { if (timerRef.current) clearTimeout(timerRef.current); setOpen(true); }}
-      onMouseLeave={() => { timerRef.current = setTimeout(() => setOpen(false), 180); }}
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.5 }}
-      className="relative inline-block mb-10 sm:mb-14 z-[60]"
-    >
-      <motion.button
-        whileHover={{ scale: 1.03 }}
-        whileTap={{ scale: 0.97 }}
-        onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-3 h-12 sm:h-14 px-6 sm:px-10 text-base rounded-2xl purple-gradient-animated border-0 shadow-lg hover:shadow-xl transition-all font-bold text-white"
-      >
-        <span>Log In</span>
-        <svg className={`w-4 h-4 transition-transform ${open ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-        </svg>
-      </motion.button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            onMouseEnter={() => { if (timerRef.current) clearTimeout(timerRef.current); setOpen(true); }}
-            onMouseLeave={() => { timerRef.current = setTimeout(() => setOpen(false), 180); }}
-            initial={{ opacity: 0, y: 8, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.97 }}
-            transition={{ type: "spring", stiffness: 400, damping: 30 }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 bg-white rounded-2xl shadow-xl border border-purple-100 overflow-hidden z-50"
-          >
-            {options.map((opt) => (
-              <button
-                key={opt.label}
-                onClick={() => { setOpen(false); setLocation(opt.href); }}
-                className="flex items-center gap-3 w-full px-5 py-4 hover:bg-purple-50 transition-colors text-left"
-              >
-                <span className="text-2xl">{opt.icon}</span>
-                <div>
-                  <p className="font-bold text-gray-900 text-sm">{opt.label}</p>
-                  <p className="text-xs text-gray-400">{opt.desc}</p>
-                </div>
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.div>
-  );
-}
 
 /* ─── Animated counter hook ─── */
 function useCountUp(target: number, duration = 1800) {
