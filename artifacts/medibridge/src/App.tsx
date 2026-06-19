@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
+import React, { useEffect, useRef } from "react";
+import { ClerkProvider, SignIn, SignUp, Show, useClerk, useUser } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { Switch, Route, useLocation, Router as WouterRouter, Redirect } from "wouter";
@@ -17,7 +17,7 @@ import Destinations from "@/pages/destinations";
 import Packages from "@/pages/packages";
 import Dashboard from "@/pages/dashboard";
 import Admin from "@/pages/admin";
-import AdminLoginPageComponent, { verifyAdminToken, getAdminToken, clearAdminToken } from "@/pages/admin-login";
+
 const queryClient = new QueryClient();
 
 const clerkPubKey = publishableKeyFromHost(
@@ -133,47 +133,26 @@ function AuthGate({ children }: { children: React.ReactNode }) {
 }
 
 function AdminGate({ children }: { children: React.ReactNode }) {
-  const [verified, setVerified] = useState<boolean | null>(null);
-  const [, setLocation] = useLocation();
-  const token = getAdminToken();
-
-  useEffect(() => {
-    if (!token) {
-      setVerified(false);
-      return;
-    }
-    verifyAdminToken().then((ok) => {
-      setVerified(ok);
-      if (!ok) clearAdminToken();
-    });
-  }, [token]);
-
-  useEffect(() => {
-    if (verified === false) {
-      setLocation("/admin-login");
-    }
-  }, [verified, setLocation]);
-
-  if (verified === null) {
-    return (
-      <div className="flex min-h-[60vh] items-center justify-center px-4">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin" />
-          <p className="text-purple-700 font-medium">Verifying admin access...</p>
+  const { user } = useUser();
+  const isAdmin = user?.publicMetadata?.role === "admin" || user?.unsafeMetadata?.role === "admin";
+  return (
+    <AuthGate>
+      {isAdmin ? (
+        children
+      ) : (
+        <div className="flex min-h-[60vh] items-center justify-center px-4">
+          <div className="text-center max-w-md">
+            <div className="w-16 h-16 rounded-2xl bg-red-50 flex items-center justify-center text-3xl mx-auto mb-4">🔒</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-2">Admin Access Required</h2>
+            <p className="text-gray-500 mb-6">You don't have permission to view this page. Contact your administrator if you believe this is an error.</p>
+            <a href="/" className="inline-flex items-center justify-center rounded-xl bg-purple-600 text-white font-semibold px-6 py-2.5 hover:bg-purple-700 transition-colors">
+              Back to Home
+            </a>
+          </div>
         </div>
-      </div>
-    );
-  }
-
-  if (!verified) {
-    return null;
-  }
-
-  return children;
-}
-
-function AdminLoginPage() {
-  return <AdminLoginPageComponent />;
+      )}
+    </AuthGate>
+  );
 }
 
 function ClerkQueryClientCacheInvalidator() {
@@ -210,7 +189,6 @@ function Router() {
             <Dashboard />
           </AuthGate>
         </Route>
-        <Route path="/admin-login" component={AdminLoginPage} />
         <Route path="/admin">
           <AdminGate>
             <Admin />

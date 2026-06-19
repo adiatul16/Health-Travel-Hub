@@ -117,17 +117,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </Show>
 
             <Show when="signed-in">
-              <span className="hidden sm:block text-sm text-gray-400 font-medium max-w-[120px] truncate">
-                {user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress}
-              </span>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hidden sm:inline-flex text-gray-500 hover:text-purple-700 rounded-xl font-semibold"
-                asChild
+              <Link
+                href="/dashboard"
+                className="hidden sm:flex items-center gap-2 text-sm text-gray-500 hover:text-purple-700 font-semibold transition-colors px-2 py-1.5 rounded-xl hover:bg-purple-50"
               >
-                <Link href="/dashboard">Dashboard</Link>
-              </Button>
+                <span className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">
+                  {(user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0] ?? "U").toUpperCase()}
+                </span>
+                <span className="max-w-[100px] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress}</span>
+              </Link>
               <Button
                 variant="ghost"
                 size="sm"
