@@ -143,14 +143,7 @@ function Router() {
         <Route path="/clinics/:id" component={ClinicDetail} />
         <Route path="/destinations" component={Destinations} />
         <Route path="/packages" component={Packages} />
-        <Route path="/dashboard">
-          <Show when="signed-in">
-            <Dashboard />
-          </Show>
-          <Show when="signed-out">
-            <SignInPage />
-          </Show>
-        </Route>
+        <Route path="/dashboard" component={Dashboard} />
         <Route path="/admin" component={Admin} />
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
