@@ -1,6 +1,7 @@
 import { useGetAdminMetrics, useListClinics } from "@workspace/api-client-react";
 import { motion } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
+import { useAuth } from "@clerk/react";
 
 function KPICard({
   label,
@@ -95,6 +96,113 @@ const CREDENTIAL_TYPES = [
   "Quality Management Certificate",
   "Other",
 ];
+
+interface ClerkUser {
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  role: string;
+  createdAt?: number;
+}
+
+function UserManagementSection() {
+  const [users, setUsers] = useState<ClerkUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [updating, setUpdating] = useState<string | null>(null);
+  const { getToken } = useAuth();
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/admin/users");
+      if (res.ok) {
+        const data = (await res.json()) as { users: ClerkUser[] };
+        setUsers(data.users);
+      }
+    } catch { /* ignore */ }
+    finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { void fetchUsers(); }, [fetchUsers]);
+
+  const setRole = async (userId: string, role: string) => {
+    setUpdating(userId);
+    try {
+      const token = await getToken();
+      const res = await fetch(`/api/admin/users/${userId}/role`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ role }),
+      });
+      if (res.ok) {
+        setUsers((prev) => prev.map((u) => u.id === userId ? { ...u, role } : u));
+      }
+    } catch { /* ignore */ }
+    finally { setUpdating(null); }
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.4 }}
+      className="bg-white rounded-2xl shadow-sm border border-purple-50 p-6 mb-6"
+    >
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-lg">👤</div>
+        <div>
+          <h3 className="font-bold text-gray-900">User Management</h3>
+          <p className="text-xs text-gray-400">Promote users to admin role</p>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center gap-3 text-gray-400 py-4">
+          <div className="w-5 h-5 border-2 border-purple-200 border-t-purple-500 rounded-full animate-spin" />
+          Loading users...
+        </div>
+      ) : users.length === 0 ? (
+        <p className="text-gray-400 text-sm py-4">No users found.</p>
+      ) : (
+        <div className="space-y-3">
+          {users.map((u) => (
+            <div key={u.id} className="flex items-center gap-4 p-3 rounded-xl border border-gray-100 hover:bg-purple-50/50 transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-violet-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                {u.firstName?.[0] ?? u.email?.[0] ?? "U"}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="font-medium text-gray-900 text-sm truncate">
+                  {u.firstName} {u.lastName}
+                </p>
+                <p className="text-xs text-gray-400 truncate">{u.email}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                  u.role === "admin"
+                    ? "bg-purple-100 text-purple-700"
+                    : "bg-gray-100 text-gray-600"
+                }`}>
+                  {u.role}
+                </span>
+                <button
+                  onClick={() => setRole(u.id, u.role === "admin" ? "user" : "admin")}
+                  disabled={updating === u.id}
+                  className="px-3 py-1 rounded-lg text-xs font-medium bg-purple-600 text-white hover:bg-purple-700 disabled:opacity-50 transition-colors"
+                >
+                  {updating === u.id ? "Saving..." : u.role === "admin" ? "Demote" : "Make Admin"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </motion.div>
+  );
+}
 
 function CredentialQueueSection() {
   const { data: clinics } = useListClinics();
@@ -746,6 +854,9 @@ export default function Admin() {
             </motion.div>
           ))}
         </div>
+
+        {/* User Role Management */}
+        <UserManagementSection />
 
         {/* Credential Approvals */}
         <CredentialQueueSection />
