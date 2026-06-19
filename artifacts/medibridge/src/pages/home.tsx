@@ -7,6 +7,7 @@ import { useGetPopularTreatments } from "@workspace/api-client-react";
 function LoginDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [, setLocation] = useLocation();
 
   useEffect(() => {
@@ -26,10 +27,12 @@ function LoginDropdown() {
   return (
     <motion.div
       ref={ref}
+      onMouseEnter={() => { if (timerRef.current) clearTimeout(timerRef.current); setOpen(true); }}
+      onMouseLeave={() => { timerRef.current = setTimeout(() => setOpen(false), 180); }}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.5 }}
-      className="relative inline-block mb-10 sm:mb-14"
+      className="relative inline-block mb-10 sm:mb-14 z-[60]"
     >
       <motion.button
         whileHover={{ scale: 1.03 }}
@@ -46,6 +49,8 @@ function LoginDropdown() {
       <AnimatePresence>
         {open && (
           <motion.div
+            onMouseEnter={() => { if (timerRef.current) clearTimeout(timerRef.current); setOpen(true); }}
+            onMouseLeave={() => { timerRef.current = setTimeout(() => setOpen(false), 180); }}
             initial={{ opacity: 0, y: 8, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.97 }}
@@ -204,7 +209,7 @@ export default function Home() {
     <div className="w-full flex flex-col overflow-x-hidden">
 
       {/* ══════════════════════════════ HERO ══════════════════════════════ */}
-      <section ref={heroRef} className="relative w-full min-h-[80vh] sm:min-h-screen flex items-center justify-center overflow-hidden">
+      <section ref={heroRef} className="relative w-full min-h-[80vh] sm:min-h-screen flex items-center justify-center">
 
         {/* Layered background */}
         <motion.div className="absolute inset-0 -z-10" style={{ y: heroY }}>
