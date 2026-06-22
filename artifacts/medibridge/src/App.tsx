@@ -20,6 +20,7 @@ import Admin from "@/pages/admin";
 import AdminLogin from "@/pages/admin-login";
 import ClinicLogin from "@/pages/clinic-login";
 import ClinicDashboard from "@/pages/clinic-dashboard";
+import VerifyPage from "@/pages/verify";
 import { PatientPortalShell, ClinicPortalShell, AdminPortalShell } from "@/components/portal-shells";
 
 const queryClient = new QueryClient();
@@ -201,6 +202,7 @@ function Router() {
             </AdminPortalShell>
           </AdminGate>
         </Route>
+        <Route path="/verify" component={VerifyPage} />
         <Route path="/sign-in/*?" component={SignInPage} />
         <Route path="/sign-up/*?" component={SignUpPage} />
         <Route component={NotFound} />

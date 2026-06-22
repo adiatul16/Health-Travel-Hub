@@ -1,0 +1,215 @@
+{
+  "address": "",
+  "chainId": "80002",
+  "abi": [
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "clinic", "type": "address" },
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "accreditation", "type": "string" },
+        { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+      ],
+      "name": "verifyClinic",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "clinic", "type": "address" }],
+      "name": "isClinicVerified",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "doctor", "type": "address" },
+        { "internalType": "address", "name": "clinic", "type": "address" },
+        { "internalType": "string", "name": "license", "type": "string" },
+        { "internalType": "uint256", "name": "expiry", "type": "uint256" }
+      ],
+      "name": "verifyDoctor",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "doctor", "type": "address" }],
+      "name": "isDoctorVerified",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "bytes32", "name": "dataHash", "type": "bytes32" },
+        { "internalType": "string", "name": "ref", "type": "string" },
+        { "internalType": "string", "name": "phase", "type": "string" }
+      ],
+      "name": "addRecord",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getRecordCount",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "doctor", "type": "address" },
+        { "internalType": "bytes32", "name": "recordHash", "type": "bytes32" }
+      ],
+      "name": "grantConsent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "doctor", "type": "address" },
+        { "internalType": "bytes32", "name": "recordHash", "type": "bytes32" }
+      ],
+      "name": "revokeConsent",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "patient", "type": "address" },
+        { "internalType": "address", "name": "doctor", "type": "address" },
+        { "internalType": "bytes32", "name": "recordHash", "type": "bytes32" }
+      ],
+      "name": "hasConsent",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        { "internalType": "address", "name": "clinic", "type": "address" },
+        { "internalType": "uint8", "name": "rating", "type": "uint8" },
+        { "internalType": "string", "name": "comment", "type": "string" }
+      ],
+      "name": "addReview",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "clinic", "type": "address" }],
+      "name": "getReviewCount",
+      "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "name": "clinics",
+      "outputs": [
+        { "internalType": "string", "name": "name", "type": "string" },
+        { "internalType": "string", "name": "accreditation", "type": "string" },
+        { "internalType": "uint256", "name": "expiry", "type": "uint256" },
+        { "internalType": "bool", "name": "verified", "type": "bool" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "name": "doctors",
+      "outputs": [
+        { "internalType": "address", "name": "clinic", "type": "address" },
+        { "internalType": "string", "name": "license", "type": "string" },
+        { "internalType": "uint256", "name": "expiry", "type": "uint256" },
+        { "internalType": "bool", "name": "verified", "type": "bool" }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+      "name": "hasOnChainInteraction",
+      "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "clinic", "type": "address" },
+        { "indexed": false, "internalType": "string", "name": "name", "type": "string" },
+        { "indexed": false, "internalType": "string", "name": "accreditation", "type": "string" },
+        { "indexed": false, "internalType": "uint256", "name": "expiry", "type": "uint256" }
+      ],
+      "name": "ClinicVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "doctor", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "clinic", "type": "address" },
+        { "indexed": false, "internalType": "string", "name": "license", "type": "string" },
+        { "indexed": false, "internalType": "uint256", "name": "expiry", "type": "uint256" }
+      ],
+      "name": "DoctorVerified",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "patient", "type": "address" },
+        { "indexed": true, "internalType": "bytes32", "name": "dataHash", "type": "bytes32" },
+        { "indexed": false, "internalType": "string", "name": "ref", "type": "string" },
+        { "indexed": false, "internalType": "string", "name": "phase", "type": "string" },
+        { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+      ],
+      "name": "RecordAdded",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "patient", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "doctor", "type": "address" },
+        { "indexed": true, "internalType": "bytes32", "name": "recordHash", "type": "bytes32" }
+      ],
+      "name": "ConsentGranted",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "patient", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "doctor", "type": "address" },
+        { "indexed": true, "internalType": "bytes32", "name": "recordHash", "type": "bytes32" }
+      ],
+      "name": "ConsentRevoked",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        { "indexed": true, "internalType": "address", "name": "patient", "type": "address" },
+        { "indexed": true, "internalType": "address", "name": "clinic", "type": "address" },
+        { "indexed": false, "internalType": "uint8", "name": "rating", "type": "uint8" },
+        { "indexed": false, "internalType": "string", "name": "comment", "type": "string" },
+        { "indexed": false, "internalType": "uint256", "name": "timestamp", "type": "uint256" }
+      ],
+      "name": "ReviewAdded",
+      "type": "event"
+    }
+  ]
+}

@@ -2,6 +2,16 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {
+  ensureAmoyNetwork,
+  getConnectedAddress,
+  verifyDoctor,
+  addRecord,
+  sha256,
+  txUrl,
+  getReviewCount,
+  isClinicVerified,
+} from "@workspace/blockchain";
 
 interface ClinicSlot {
   id: number;
@@ -35,6 +45,72 @@ export default function ClinicDashboard() {
   ]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "slots" | "bookings" | "credentials">("overview");
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [isVerified, setIsVerified] = useState<boolean | null>(null);
+  const [reviewCount, setReviewCount] = useState<number | null>(null);
+  const [bcLoading, setBcLoading] = useState(false);
+
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+  async function connectWallet() {
+    try {
+      await ensureAmoyNetwork();
+      const addr = await getConnectedAddress();
+      if (addr) {
+        setWalletAddress(addr);
+        toast({ title: "Wallet connected", description: `${addr.slice(0, 10)}…${addr.slice(-6)}` });
+      } else {
+        toast({ title: "Wallet not found", description: "Please unlock MetaMask and try again.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Connection failed", description: err.message, variant: "destructive" });
+    }
+  }
+
+  async function registerDoctor() {
+    setBcLoading(true);
+    try {
+      await ensureAmoyNetwork();
+      const doctorAddr = prompt("Doctor wallet address (0x...)")?.trim();
+      const license = prompt("License number (e.g., GMC-123456)")?.trim();
+      if (!doctorAddr || !license) { setBcLoading(false); return; }
+      const tx = await verifyDoctor(doctorAddr, walletAddress ?? "0x0000000000000000000000000000000000000000", license, 365);
+      toast({ title: "Doctor verified", description: `TX: ${tx.slice(0, 10)}…` });
+    } catch (err: any) {
+      toast({ title: "Failed", description: err.message, variant: "destructive" });
+    } finally {
+      setBcLoading(false);
+    }
+  }
+
+  async function addRecordHash() {
+    setBcLoading(true);
+    try {
+      await ensureAmoyNetwork();
+      const ref = prompt("Reference for this record (e.g., 'MRI scan result')");
+      if (!ref) { setBcLoading(false); return; }
+      const hash = await sha256(ref + Date.now().toString());
+      const tx = await addRecord(hash, ref, "clinic");
+      toast({ title: "Record anchored", description: `TX: ${tx.slice(0, 10)}…` });
+    } catch (err: any) {
+      toast({ title: "Failed", description: err.message, variant: "destructive" });
+    } finally {
+      setBcLoading(false);
+    }
+  }
+
+  async function checkStatus() {
+    if (!walletAddress) { toast({ title: "No wallet", description: "Connect wallet first", variant: "destructive" }); return; }
+    try {
+      const verified = await isClinicVerified(walletAddress);
+      const count = await getReviewCount(walletAddress);
+      setIsVerified(verified);
+      setReviewCount(Number(count));
+      toast({ title: "Status updated", description: `Verified: ${verified ? "Yes" : "No"} · Reviews: ${count}` });
+    } catch (err: any) {
+      toast({ title: "Failed", description: err.message, variant: "destructive" });
+    }
+  }
 
   useEffect(() => {
     setLoading(true);
@@ -169,6 +245,36 @@ export default function ClinicDashboard() {
                     ))
                   )}
                 </div>
+              </motion.div>
+
+              {/* Blockchain Actions */}
+              <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.42 }} className="bg-white rounded-2xl shadow-sm border border-teal-100 p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">⛓️</div>
+                  <h3 className="font-bold text-gray-900">Blockchain Actions</h3>
+                  {isVerified === true && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">✅ Verified</span>}
+                </div>
+                <div className="space-y-2">
+                  <button onClick={connectWallet} disabled={bcLoading} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50">
+                    <span className="text-lg">🔗</span>
+                    {walletAddress ? `${walletAddress.slice(0, 8)}…${walletAddress.slice(-6)}` : "Connect Wallet"}
+                  </button>
+                  <button onClick={registerDoctor} disabled={bcLoading} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50">
+                    <span className="text-lg">🩺</span> Register Doctor
+                  </button>
+                  <button onClick={addRecordHash} disabled={bcLoading} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50">
+                    <span className="text-lg">📁</span> Add Record Hash
+                  </button>
+                  <button onClick={checkStatus} disabled={bcLoading} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50">
+                    <span className="text-lg">🔍</span> Check Status
+                  </button>
+                  <button onClick={() => { window.location.href = `${basePath}/verify`; }} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left">
+                    <span className="text-lg">📜</span> View Ledger
+                  </button>
+                </div>
+                {reviewCount !== null && (
+                  <p className="text-xs text-gray-400 mt-3">On-chain reviews: {reviewCount}</p>
+                )}
               </motion.div>
             </div>
           </div>

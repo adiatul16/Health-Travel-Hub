@@ -1,0 +1,13 @@
+{
+  "name": "@workspace/blockchain",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "ethers": "^6.16.0"
+  },
+  "main": "./contract.ts",
+  "exports": {
+    ".": "./contract.ts"
+  }
+}

@@ -13,6 +13,13 @@ import {
 } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import {
+  ensureAmoyNetwork,
+  getConnectedAddress,
+  addRecord,
+  addReview,
+  sha256,
+} from "@workspace/blockchain";
 
 function StatCard({
   label,
@@ -203,10 +210,73 @@ export default function Dashboard() {
   const { data: summary, isLoading } = useGetDashboardSummary();
   const { toast } = useToast();
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [recordLoading, setRecordLoading] = useState(false);
+  const [reviewLoading, setReviewLoading] = useState(false);
+
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   function openChat() {
     window.dispatchEvent(new CustomEvent("medibridge-open-chat"));
     toast({ title: "Chat opened", description: "A MediBridge coordinator will assist you shortly." });
+  }
+
+  async function connectWallet() {
+    try {
+      await ensureAmoyNetwork();
+      const addr = await getConnectedAddress();
+      if (addr) {
+        setWalletAddress(addr);
+        toast({ title: "Wallet connected", description: `${addr.slice(0, 10)}…${addr.slice(-6)}` });
+      } else {
+        toast({ title: "Wallet not found", description: "Please unlock MetaMask and try again.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Connection failed", description: err.message, variant: "destructive" });
+    }
+  }
+
+  async function addRecordHash() {
+    setRecordLoading(true);
+    try {
+      await ensureAmoyNetwork();
+      const ref = prompt("Enter a short reference for this record (e.g., 'Pre-op blood test')");
+      if (!ref) { setRecordLoading(false); return; }
+      const hash = await sha256(ref + Date.now().toString());
+      const tx = await addRecord(hash, ref, "pre-op");
+      toast({ title: "Record anchored", description: `TX: ${tx.slice(0, 10)}…` });
+    } catch (err: any) {
+      toast({ title: "Failed to add record", description: err.message, variant: "destructive" });
+    } finally {
+      setRecordLoading(false);
+    }
+  }
+
+  async function leaveReview() {
+    setReviewLoading(true);
+    try {
+      await ensureAmoyNetwork();
+      const clinicAddr = prompt("Enter clinic wallet address (0x...)")?.trim();
+      if (!clinicAddr || !clinicAddr.startsWith("0x")) {
+        toast({ title: "Invalid address", description: "Please enter a valid clinic wallet address.", variant: "destructive" });
+        setReviewLoading(false);
+        return;
+      }
+      const ratingStr = prompt("Rating 1-5:");
+      const rating = ratingStr ? parseInt(ratingStr, 10) : 0;
+      if (!rating || rating < 1 || rating > 5) {
+        toast({ title: "Invalid rating", description: "Please enter a rating between 1 and 5.", variant: "destructive" });
+        setReviewLoading(false);
+        return;
+      }
+      const comment = prompt("Your review comment (optional):") || "";
+      const tx = await addReview(clinicAddr, rating, comment);
+      toast({ title: "Review submitted", description: `TX: ${tx.slice(0, 10)}…` });
+    } catch (err: any) {
+      toast({ title: "Failed to submit review", description: err.message, variant: "destructive" });
+    } finally {
+      setReviewLoading(false);
+    }
   }
 
   if (isLoading) {
@@ -364,6 +434,10 @@ export default function Dashboard() {
                   { icon: "📁", label: "Upload Medical Records", action: () => toast({ title: "Upload records", description: "Please use the secure upload portal on your desktop to submit medical records." }) },
                   { icon: "🩺", label: "Telemedicine Consultation", action: () => toast({ title: "Telemedicine", description: "Booking a video consultation. A coordinator will confirm your appointment within 2 hours." }) },
                   { icon: "🛡️", label: "View Insurance Policy", action: () => toast({ title: "Insurance policy", description: "Your policy documents will be emailed to you shortly." }) },
+                  { icon: "🔗", label: "Connect Wallet", action: connectWallet },
+                  { icon: "📁", label: "Add Record Hash", action: addRecordHash },
+                  { icon: "⭐", label: "Leave Review", action: leaveReview },
+                  { icon: "⛓️", label: "Blockchain Ledger", action: () => { window.location.href = `${basePath}/verify`; } },
                 ].map(({ icon, label, action }) => (
                   <button key={label} onClick={action} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-purple-50 transition-colors text-left">
                     <span className="text-lg">{icon}</span>
@@ -371,6 +445,11 @@ export default function Dashboard() {
                   </button>
                 ))}
               </div>
+              {walletAddress && (
+                <div className="mt-3 px-3 py-2 rounded-xl bg-purple-50 border border-purple-100 text-xs text-purple-700 font-mono truncate">
+                  {walletAddress.slice(0, 10)}…{walletAddress.slice(-6)}
+                </div>
+              )}
             </motion.div>
           </div>
         </div>

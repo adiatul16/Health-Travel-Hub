@@ -1,6 +1,13 @@
 import { useGetAdminMetrics, useListClinics } from "@workspace/api-client-react";
 import { motion } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
+import {
+  ensureAmoyNetwork,
+  getConnectedAddress,
+  verifyClinic,
+  txUrl,
+  addressUrl,
+} from "@workspace/blockchain";
 
 function KPICard({
   label,
@@ -491,6 +498,41 @@ function CredentialQueueSection() {
 
 export default function Admin() {
   const { data: metrics, isLoading } = useGetAdminMetrics();
+  const [adminWallet, setAdminWallet] = useState<string | null>(null);
+  const [bcLoading, setBcLoading] = useState(false);
+  const [bcMsg, setBcMsg] = useState<string | null>(null);
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+  async function connectAdminWallet() {
+    try {
+      await ensureAmoyNetwork();
+      const addr = await getConnectedAddress();
+      if (addr) {
+        setAdminWallet(addr);
+        setBcMsg(`Connected: ${addr.slice(0, 8)}…${addr.slice(-6)}`);
+      }
+    } catch (err: any) {
+      setBcMsg(`Error: ${err.message}`);
+    }
+  }
+
+  async function verifyClinicOnChain() {
+    setBcLoading(true);
+    setBcMsg(null);
+    try {
+      await ensureAmoyNetwork();
+      const clinicAddr = prompt("Clinic wallet address (0x...)")?.trim();
+      const name = prompt("Clinic name")?.trim();
+      const accreditation = prompt("Accreditation (e.g., JCI)")?.trim();
+      if (!clinicAddr || !name || !accreditation) { setBcLoading(false); return; }
+      const tx = await verifyClinic(clinicAddr, name, accreditation, 365);
+      setBcMsg(`Verified! TX: ${tx.slice(0, 10)}…`);
+    } catch (err: any) {
+      setBcMsg(`Failed: ${err.message}`);
+    } finally {
+      setBcLoading(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -630,6 +672,52 @@ export default function Admin() {
             </motion.div>
           ))}
         </div>
+
+        {/* Blockchain Admin Panel */}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg">⛓️</div>
+            <div>
+              <h3 className="font-bold text-gray-900">Blockchain Admin</h3>
+              <p className="text-xs text-gray-400">Polygon Amoy testnet</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <button
+              onClick={connectAdminWallet}
+              className="px-4 py-2 rounded-xl bg-slate-700 text-white text-sm font-semibold hover:bg-slate-800 transition-colors"
+            >
+              🔗 {adminWallet ? `${adminWallet.slice(0, 6)}…${adminWallet.slice(-4)}` : "Connect Wallet"}
+            </button>
+            <button
+              onClick={verifyClinicOnChain}
+              disabled={bcLoading}
+              className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+            >
+              {bcLoading ? "Verifying…" : "🏥 Verify Clinic"}
+            </button>
+            <button
+              onClick={() => { window.location.href = `${basePath}/verify`; }}
+              className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
+            >
+              📜 View Ledger
+            </button>
+          </div>
+          {bcMsg && (
+            <div className={`text-xs px-3 py-2 rounded-lg ${
+              bcMsg.startsWith("Verified") || bcMsg.startsWith("Connected")
+                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                : "bg-red-50 text-red-700 border border-red-200"
+            }`}>
+              {bcMsg}
+            </div>
+          )}
+        </motion.div>
 
         {/* Credential Approvals */}
         <CredentialQueueSection />

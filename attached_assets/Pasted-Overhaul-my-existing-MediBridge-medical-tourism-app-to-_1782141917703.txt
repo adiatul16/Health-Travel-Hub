@@ -1,0 +1,32 @@
+Overhaul my existing MediBridge medical-tourism app to add a real (but free) blockchain trust layer, and wire up my existing dashboard buttons to it. Keep my current design, styling, pages, and navigation. The brand is "MediBridge" everywhere — do not introduce any other brand name. I already have three dashboards — Patient, Admin, and Clinic — but their buttons are placeholders. Make those buttons functional by connecting them to the blockchain features below. Do not rebuild the dashboards; keep their layout and styling and just wire the actions.
+Approach — real chain, free, prototype-grade:
+
+Deploy ONE simple Solidity contract to the Polygon Amoy testnet (free test MATIC from a faucet — no real money).
+Hardhat + TypeScript to compile/deploy; ethers.js v6 + MetaMask to connect the existing front end.
+Reads via a free RPC (public Amoy RPC or a free Alchemy/Infura key in .env); writes via the user's MetaMask. One contract only — keep setup simple.
+No raw health data on-chain — store only SHA-256 hashes + metadata (privacy-safe).
+
+The contract — MediBridgeLedger.sol (one file, well-commented, OpenZeppelin Ownable):
+
+verifyClinic(address clinic, string name, string accreditation, uint expiry) — owner (Admin) only; emits ClinicVerified. View isClinicVerified(clinic).
+verifyDoctor(address doctor, address clinic, string license, uint expiry) — owner or a verified clinic; emits DoctorVerified. View isDoctorVerified(doctor).
+addRecord(bytes32 dataHash, string ref, string phase) — patient stores a pre/post-procedure record hash; emits RecordAdded.
+grantConsent(address doctor, bytes32 recordHash) / revokeConsent(...) — patient controls access; emits events; view hasConsent(...).
+addReview(address clinic, uint8 rating, string comment) — only a patient with a prior on-chain interaction; emits ReviewAdded.
+
+Wire the existing dashboard buttons to these actions:
+
+Admin dashboard (the contract owner / accreditor): "Verify clinic", "Verify doctor / license", and a "Ledger" view listing all on-chain events with links to the Amoy block explorer. Show verification status of every clinic/doctor.
+Clinic dashboard (a verified clinic): "Register / verify doctor", "Add treatment record" (hashes a post-procedure record and stores it), "View patients who granted consent", and the clinic's own "Verified" badge read live from chain.
+Patient dashboard (a patient): "Connect wallet" (MetaMask + Amoy network check), "Add medical record" (browser-side SHA-256 → addRecord), "Grant / revoke doctor access", "My records" history read from chain events, and "Leave a verified review".
+
+Also add a public /verify page anyone can open: lists on-chain verifications, records, and reviews pulled via ethers, each linking to its transaction on PolygonScan Amoy — the visible proof it's really on-chain. Add a short plain-language "How MediBridge uses blockchain" explainer.
+Project requirements:
+
+contracts/MediBridgeLedger.sol; Hardhat config for Amoy reading AMOY_RPC_URL + PRIVATE_KEY from .env (provide .env.example; never hardcode keys); a deploy.ts that prints the address and writes address + ABI to a file the front end imports; a seed.ts adding demo verifications/records so the dashboards and /verify aren't empty.
+A lib/contract.ts front-end helper exposing read/write functions and a wallet/network guard.
+A README: install, get free Amoy test MATIC from the faucet, add Amoy to MetaMask, deploy, run. Copy-pasteable.
+Don't break any existing page or feature. Only add the contract, wallet/ledger wiring, the /verify route, and make the existing dashboard buttons work.
+Give me the full file tree and every new/changed file in full.
+
+Also fix: replace the default Replit meta tags with a proper title, meta description, and Open Graph tags using "MediBridge" and a one-line medical-tourism value prop; remove maximum-scale=1 from the viewport.
