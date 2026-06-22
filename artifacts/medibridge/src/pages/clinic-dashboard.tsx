@@ -247,7 +247,21 @@ export default function ClinicDashboard() {
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">⛓️</div>
                   <h3 className="font-bold text-gray-900">Blockchain Actions</h3>
-                  {isVerified === true && <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">Verified</span>}
+                  {isVerified === true && (
+                    <button onClick={checkStatus} className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium hover:bg-green-200 transition-colors flex items-center gap-1">
+                      <span>✅</span> Verified — Click to Verify
+                    </button>
+                  )}
+                  {isVerified === false && (
+                    <button onClick={checkStatus} className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium hover:bg-amber-200 transition-colors flex items-center gap-1">
+                      <span>⚠️</span> Not Verified — Check Status
+                    </button>
+                  )}
+                  {isVerified === null && (
+                    <button onClick={checkStatus} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium hover:bg-gray-200 transition-colors flex items-center gap-1">
+                      <span>🔍</span> Check Verification
+                    </button>
+                  )}
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   <button onClick={connectWallet} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">

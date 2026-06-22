@@ -229,9 +229,17 @@ export default function Clinics() {
                   </div>
                 )}
                 {clinic.jciAccredited && (
-                  <div className="absolute top-3 left-3 bg-yellow-400 text-yellow-950 px-2 py-1 text-xs font-bold rounded shadow-sm">
-                    JCI Accredited
-                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      alert("Joint Commission International (JCI) accreditation is the gold standard for healthcare quality. This clinic has been independently audited and meets international patient safety standards.");
+                    }}
+                    className="absolute top-3 left-3 bg-yellow-400 text-yellow-950 px-2 py-1 text-xs font-bold rounded shadow-sm hover:bg-yellow-300 transition-colors cursor-help"
+                    title="Click to learn about JCI accreditation"
+                  >
+                    JCI Accredited ✓
+                  </button>
                 )}
               </div>
               <div className="p-6 flex flex-col flex-1">

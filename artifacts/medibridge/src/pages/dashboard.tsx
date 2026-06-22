@@ -413,10 +413,6 @@ export default function Dashboard() {
                   { icon: "📁", label: "Upload Medical Records", action: () => toast({ title: "Upload records", description: "Please use the secure upload portal on your desktop to submit medical records." }) },
                   { icon: "🩺", label: "Telemedicine Consultation", action: () => toast({ title: "Telemedicine", description: "Booking a video consultation. A coordinator will confirm your appointment within 2 hours." }) },
                   { icon: "🛡️", label: "View Insurance Policy", action: () => toast({ title: "Insurance policy", description: "Your policy documents will be emailed to you shortly." }) },
-                  { icon: "🔗", label: "Connect Wallet", action: connectWallet },
-                  { icon: "📁", label: "Add Record Hash", action: addRecordHash },
-                  { icon: "⭐", label: "Leave Review", action: leaveReview },
-                  { icon: "⛓️", label: "Blockchain Ledger", action: () => { window.location.href = `${basePath}/verify`; } },
                 ].map(({ icon, label, action }) => (
                   <button key={label} onClick={action} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-[#F4F7FA] transition-colors text-left">
                     <span className="text-lg">{icon}</span>
@@ -424,9 +420,38 @@ export default function Dashboard() {
                   </button>
                 ))}
               </div>
-              {walletAddress && (
-                <div className="mt-3 px-3 py-2 rounded-xl bg-[#F4F7FA] border border-[#E5E7EB] text-xs text-[#1F7A8C] font-mono truncate">
-                  {walletAddress.slice(0, 10)}…{walletAddress.slice(-6)}
+            </div>
+
+            {/* Trust & Security — friendly blockchain section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4 sm:p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="text-xl">🛡️</span>
+                <h3 className="font-bold text-gray-900">Trust & Security</h3>
+              </div>
+              <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+                Your medical records can be permanently secured on the blockchain — tamper-proof and independently verifiable.
+              </p>
+              {!walletAddress ? (
+                <button onClick={connectWallet} className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium bg-[#F4F7FA] text-[#1F7A8C] hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB]">
+                  <span className="text-lg">🔗</span>
+                  Connect Wallet to Start
+                </button>
+              ) : (
+                <div className="space-y-2">
+                  <div className="px-3 py-2 rounded-xl bg-[#F4F7FA] border border-[#E5E7EB] text-xs text-[#1F7A8C] font-mono truncate">
+                    {walletAddress.slice(0, 10)}…{walletAddress.slice(-6)}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <button onClick={addRecordHash} className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium bg-[#F4F7FA] text-gray-700 hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB]">
+                      <span>📁</span> Secure Record
+                    </button>
+                    <button onClick={leaveReview} className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium bg-[#F4F7FA] text-gray-700 hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB]">
+                      <span>⭐</span> Review
+                    </button>
+                  </div>
+                  <button onClick={() => { window.location.href = `${basePath}/verify`; }} className="w-full flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium text-[#1F7A8C] hover:bg-[#F4F7FA] transition-colors border border-[#E5E7EB]">
+                    <span>⛓️</span> View Public Ledger
+                  </button>
                 </div>
               )}
             </div>

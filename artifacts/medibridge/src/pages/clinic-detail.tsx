@@ -70,9 +70,13 @@ export default function ClinicDetail() {
         <div className="absolute bottom-0 left-0 right-0 container px-4 pb-8 mx-auto max-w-5xl">
           <div className="flex flex-wrap gap-1.5 mb-3">
             {clinic.jciAccredited && (
-              <Badge className="bg-yellow-400 text-yellow-950 hover:bg-yellow-400 font-bold text-xs">
-                JCI Accredited
-              </Badge>
+              <button
+                onClick={() => alert("Joint Commission International (JCI) accreditation is the gold standard for healthcare quality. This clinic has been independently audited and meets international patient safety standards.")}
+                className="bg-yellow-400 text-yellow-950 px-2 py-1 text-xs font-bold rounded hover:bg-yellow-300 transition-colors"
+                title="Click to learn about JCI accreditation"
+              >
+                JCI Accredited ✓
+              </button>
             )}
             {clinic.accreditations.filter(a => a !== "JCI").map((acc) => (
               <Badge key={acc} variant="secondary" className="bg-white/20 text-white border-white/30 text-xs">
