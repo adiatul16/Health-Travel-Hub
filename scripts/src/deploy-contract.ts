@@ -15,8 +15,8 @@
 
 import { ethers } from "ethers";
 import solc from "solc";
-import { readFileSync } from "fs";
-import { resolve, dirname } from "path";
+import { readFileSync, writeFileSync } from "fs";
+import { resolve, dirname, join } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -26,6 +26,7 @@ const SOURCE_PATH = resolve(
   __dirname,
   "../../artifacts/api-server/src/contracts/MediBridgeLedger.sol"
 );
+const LEDGER_PATH = join(__dirname, "../../lib/blockchain/ledger.json");
 
 function compileContract() {
   const source = readFileSync(SOURCE_PATH, "utf8");
@@ -93,12 +94,17 @@ async function deploy() {
   await contract.waitForDeployment();
 
   const address = await contract.getAddress();
+  const net = await provider.getNetwork();
+  const output = {
+    address,
+    chainId: net.chainId.toString(),
+    abi,
+  };
+  writeFileSync(LEDGER_PATH, JSON.stringify(output, null, 2));
   console.log("\n✅ Contract deployed!");
   console.log(`   Address: ${address}`);
   console.log(`   PolygonScan: https://amoy.polygonscan.com/address/${address}`);
-  console.log(
-    "\n✅ Contract address stored in ledger.json\n  View on PolygonScan: https://amoy.polygonscan.com/address/" + address
-  );
+  console.log(`   ledger.json updated: ${LEDGER_PATH}`);
 }
 
 deploy().catch((err) => {

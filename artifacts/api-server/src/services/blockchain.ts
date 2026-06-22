@@ -11,7 +11,7 @@ const AMOY_RPC = "https://rpc-amoy.polygon.technology";
 /* ─── MediBridgeLedger contract (new — deployed at 0x86...) ─── */
 const ledgerPath = join(__dirname, "../../../lib/blockchain/ledger.json");
 const ledgerInfo = JSON.parse(readFileSync(ledgerPath, "utf8"));
-const LEDGER_ADDRESS = process.env.CREDENTIAL_CONTRACT_ADDRESS || ledgerInfo.address;
+export const LEDGER_ADDRESS = ledgerInfo.address;
 const LEDGER_ABI = ledgerInfo.abi;
 
 /* ─── Legacy CredentialRegistry contract (separate — optional) ─── */
@@ -242,14 +242,22 @@ export async function getAllEvents() {
   const consentRevokeFilter = contract.filters.ConsentRevoked();
   const reviewFilter = contract.filters.ReviewAdded();
 
+  const query = async (filter: any) => {
+    try {
+      return await contract.queryFilter(filter, fromBlock, "latest");
+    } catch {
+      return [];
+    }
+  };
+
   const [clinicEvents, doctorEvents, recordEvents, consentGrantEvents, consentRevokeEvents, reviewEvents] =
     await Promise.all([
-      contract.queryFilter(clinicFilter, fromBlock, "latest"),
-      contract.queryFilter(doctorFilter, fromBlock, "latest"),
-      contract.queryFilter(recordFilter, fromBlock, "latest"),
-      contract.queryFilter(consentGrantFilter, fromBlock, "latest"),
-      contract.queryFilter(consentRevokeFilter, fromBlock, "latest"),
-      contract.queryFilter(reviewFilter, fromBlock, "latest"),
+      query(clinicFilter),
+      query(doctorFilter),
+      query(recordFilter),
+      query(consentGrantFilter),
+      query(consentRevokeFilter),
+      query(reviewFilter),
     ]);
 
   return {

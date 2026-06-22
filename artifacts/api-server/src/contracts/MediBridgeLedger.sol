@@ -21,6 +21,8 @@ contract MediBridgeLedger {
     mapping(address => Clinic) public clinics;
     mapping(address => Doctor) public doctors;
     mapping(address => bool) public hasOnChainInteraction;
+    uint256 public recordCount;
+    mapping(address => uint256) public reviewCount;
 
     event ClinicVerified(
         address indexed clinic,
@@ -102,11 +104,12 @@ contract MediBridgeLedger {
         string calldata phase
     ) external {
         hasOnChainInteraction[msg.sender] = true;
+        recordCount++;
         emit RecordAdded(msg.sender, dataHash, ref, phase, block.timestamp);
     }
 
     function getRecordCount() external view returns (uint256) {
-        return 0; // Simplified
+        return recordCount;
     }
 
     function grantConsent(address doctor, bytes32 recordHash) external {
@@ -133,10 +136,11 @@ contract MediBridgeLedger {
         string calldata comment
     ) external {
         require(hasOnChainInteraction[msg.sender], "Not eligible");
+        reviewCount[clinic]++;
         emit ReviewAdded(msg.sender, clinic, rating, comment, block.timestamp);
     }
 
     function getReviewCount(address clinic) external view returns (uint256) {
-        return 0; // Simplified for demo
+        return reviewCount[clinic];
     }
 }

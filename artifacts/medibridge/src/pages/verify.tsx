@@ -106,15 +106,20 @@ export default function VerifyPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("all");
+  const [stats, setStats] = useState<{ contractAddress: string; recordCount: number; polygonScan: string } | null>(null);
 
   useEffect(() => {
     async function load() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/blockchain/events", { credentials: "include" });
-        if (!res.ok) throw new Error("Failed to fetch events");
-        const all = await res.json();
+        const [eventsRes, statsRes] = await Promise.all([
+          fetch("/api/blockchain/events", { credentials: "include" }),
+          fetch("/api/blockchain/stats", { credentials: "include" }),
+        ]);
+        const all = await eventsRes.json();
+        const statsData = await statsRes.json();
+        setStats(statsData);
         const merged: ChainEvent[] = [
           ...(all.clinicEvents || []),
           ...(all.doctorEvents || []),
@@ -224,6 +229,27 @@ export default function VerifyPage() {
           ))}
         </div>
 
+        {/* Contract Stats */}
+        {stats && (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="text-sm text-gray-500 mb-1">Total Records</div>
+              <div className="text-3xl font-bold text-slate-900">{stats.recordCount}</div>
+              <div className="text-xs text-gray-400 mt-1">SHA-256 hashes stored on-chain</div>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="text-sm text-gray-500 mb-1">Contract Address</div>
+              <div className="text-sm font-mono text-slate-900 truncate">{stats.contractAddress}</div>
+              <a href={stats.polygonScan} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-600 hover:underline mt-1 inline-block">View on PolygonScan ↗</a>
+            </div>
+            <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="text-sm text-gray-500 mb-1">Network</div>
+              <div className="text-xl font-bold text-slate-900">Polygon Amoy</div>
+              <div className="text-xs text-gray-400 mt-1">Testnet · Chain ID 80002</div>
+            </div>
+          </div>
+        )}
+
         {/* Events list */}
         {loading ? (
           <div className="flex flex-col items-center py-16 gap-4">
@@ -242,8 +268,8 @@ export default function VerifyPage() {
         ) : filtered.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-4xl mb-3">⛓️</div>
-            <p className="text-gray-500 font-medium">No events on-chain yet</p>
-            <p className="text-gray-400 text-sm mt-1">Deploy the contract and run the seed script to populate data.</p>
+            <p className="text-gray-500 font-medium">No recent events in the last 50 blocks</p>
+            <p className="text-gray-400 text-sm mt-1">Contract data is live above — events are only fetched for recent blocks due to RPC limits.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

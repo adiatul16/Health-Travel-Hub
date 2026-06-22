@@ -15,6 +15,7 @@ import {
   getAllEvents,
   isBlockchainConfigured,
   txUrl,
+  LEDGER_ADDRESS,
 } from "../services/blockchain.js";
 
 const router = Router();
@@ -22,6 +23,19 @@ const router = Router();
 /* Health check */
 router.get("/health", (_req, res) => {
   res.json({ configured: isBlockchainConfigured() });
+});
+
+router.get("/stats", async (_req, res) => {
+  try {
+    const count = await getRecordCount();
+    res.json({
+      contractAddress: LEDGER_ADDRESS,
+      recordCount: count,
+      polygonScan: `https://amoy.polygonscan.com/address/${LEDGER_ADDRESS}`,
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /* ─── Write operations (backend wallet) ─── */
@@ -153,43 +167,57 @@ router.get("/has-interaction/:address", async (req, res) => {
   }
 });
 
+function serializeArgs(args: any): any {
+  if (args == null) return args;
+  if (typeof args === "bigint") return args.toString();
+  if (Array.isArray(args)) return args.map(serializeArgs);
+  if (typeof args === "object") {
+    const out: any = {};
+    for (const k of Object.keys(args)) {
+      out[k] = serializeArgs(args[k]);
+    }
+    return out;
+  }
+  return args;
+}
+
 router.get("/events", async (_req, res) => {
   try {
     const all = await getAllEvents();
     res.json({
       clinicEvents: all.clinicEvents.map((e: any) => ({
         name: "ClinicVerified",
-        args: e.args,
+        args: serializeArgs(e.args),
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
       })),
       doctorEvents: all.doctorEvents.map((e: any) => ({
         name: "DoctorVerified",
-        args: e.args,
+        args: serializeArgs(e.args),
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
       })),
       recordEvents: all.recordEvents.map((e: any) => ({
         name: "RecordAdded",
-        args: e.args,
+        args: serializeArgs(e.args),
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
       })),
       consentGrantEvents: all.consentGrantEvents.map((e: any) => ({
         name: "ConsentGranted",
-        args: e.args,
+        args: serializeArgs(e.args),
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
       })),
       consentRevokeEvents: all.consentRevokeEvents.map((e: any) => ({
         name: "ConsentRevoked",
-        args: e.args,
+        args: serializeArgs(e.args),
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
       })),
       reviewEvents: all.reviewEvents.map((e: any) => ({
         name: "ReviewAdded",
-        args: e.args,
+        args: serializeArgs(e.args),
         txHash: e.transactionHash,
         blockNumber: e.blockNumber,
       })),
