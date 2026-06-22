@@ -24,14 +24,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const AMOY_RPC = "https://rpc-amoy.polygon.technology";
 const SOURCE_PATH = resolve(
   __dirname,
-  "../../artifacts/api-server/src/contracts/CredentialRegistry.sol"
+  "../../artifacts/api-server/src/contracts/MediBridgeLedger.sol"
 );
 
 function compileContract() {
   const source = readFileSync(SOURCE_PATH, "utf8");
   const input = {
     language: "Solidity",
-    sources: { "CredentialRegistry.sol": { content: source } },
+    sources: { "MediBridgeLedger.sol": { content: source } },
     settings: {
       outputSelection: { "*": { "*": ["abi", "evm.bytecode"] } },
       optimizer: { enabled: true, runs: 200 },
@@ -55,7 +55,7 @@ function compileContract() {
   }
 
   const contract =
-    output.contracts["CredentialRegistry.sol"]["CredentialRegistry"];
+    output.contracts["MediBridgeLedger.sol"]["MediBridgeLedger"];
   console.log("✓ Compiled successfully");
   return { abi: contract.abi, bytecode: "0x" + contract.evm.bytecode.object };
 }
