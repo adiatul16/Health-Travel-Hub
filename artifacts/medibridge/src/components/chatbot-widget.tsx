@@ -8,7 +8,7 @@ interface Message {
   content: string;
 }
 
-const SYSTEM_CONTEXT = "You are MediBot, a helpful healthcare travel assistant for MediBridge Global. You help UK patients discover affordable medical treatments abroad, particularly in Turkey and China. You can answer questions about procedures, costs, clinics, destinations, recovery, travel and insurance. Keep responses concise and helpful. Always recommend consulting a qualified medical professional for specific medical advice.";
+const SYSTEM_CONTEXT = "You are MediBot, a helpful healthcare travel assistant for VitaVia. You help UK patients discover affordable medical treatments abroad, particularly in Turkey and China. You can answer questions about procedures, costs, clinics, destinations, recovery, travel and insurance. Keep responses concise and helpful. Always recommend consulting a qualified medical professional for specific medical advice.";
 
 const SUGGESTIONS = [
   "What treatments are available?",
@@ -38,8 +38,8 @@ export function ChatbotWidget() {
       setHasNotification(false);
       setTimeout(() => inputRef.current?.focus(), 300);
     };
-    window.addEventListener("medibridge-open-chat", handler);
-    return () => window.removeEventListener("medibridge-open-chat", handler);
+    window.addEventListener("vitavia-open-chat", handler);
+    return () => window.removeEventListener("vitavia-open-chat", handler);
   }, []);
 
   useEffect(() => {
@@ -131,7 +131,7 @@ export function ChatbotWidget() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.92, y: 16 }}
             transition={{ type: "spring", stiffness: 380, damping: 30 }}
-            className="w-[360px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-purple-100 flex flex-col overflow-hidden"
+            className="w-[360px] max-w-[calc(100vw-2rem)] bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] flex flex-col overflow-hidden"
             style={{ height: "520px" }}
           >
             {/* Header */}
@@ -175,9 +175,9 @@ export function ChatbotWidget() {
                   >
                     {msg.content || (
                       <span className="flex gap-1 items-center h-4">
-                        <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                        <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                        <span className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[#7FD1D8] rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[#7FD1D8] rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                        <span className="w-1.5 h-1.5 bg-[#7FD1D8] rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
                       </span>
                     )}
                   </div>
@@ -193,7 +193,7 @@ export function ChatbotWidget() {
                   <button
                     key={s}
                     onClick={() => sendMessage(s)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200 hover:bg-purple-100 transition-colors"
+                    className="text-xs px-3 py-1.5 rounded-full bg-[#F4F7FA] text-[#1F7A8C] border border-[#B0C4DE] hover:bg-[#E5E7EB] transition-colors"
                   >
                     {s}
                   </button>
@@ -210,7 +210,7 @@ export function ChatbotWidget() {
                 onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && sendMessage(input)}
                 placeholder="Ask about treatments, costs, clinics..."
                 disabled={isLoading}
-                className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-purple-400 focus:ring-2 focus:ring-purple-100 transition-all disabled:opacity-50 bg-gray-50"
+                className="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 outline-none focus:border-[#1F7A8C] focus:ring-2 focus:ring-[#E5E7EB] transition-all disabled:opacity-50 bg-gray-50"
               />
               <Button
                 onClick={() => sendMessage(input)}

@@ -236,7 +236,7 @@ export function PatientPortalShell({ children }: { children: React.ReactNode }) 
   return (
     <PortalShellInternal
       children={children}
-      title="MediBridge"
+      title="VitaVia"
       subtitle="Your Medical Journey"
       userName="Patient"
       userRole="Patient Portal"
@@ -244,15 +244,15 @@ export function PatientPortalShell({ children }: { children: React.ReactNode }) 
       logoEmoji="🩺"
       signOutKey=""
       signOutRedirect="/"
-      accent="purple"
-      bgMain="bg-purple-50"
-      bgSidebar="bg-gradient-to-b from-purple-800 to-violet-900"
+      accent="navy"
+      bgMain="bg-[#F4F7FA]"
+      bgSidebar="bg-gradient-to-b from-[#1E293B] to-[#0F4C81]"
       sidebarText="text-white"
-      sidebarTextMuted="text-purple-200/70 hover:text-white"
-      activeBg="bg-purple-600"
+      sidebarTextMuted="text-[#B0C4DE]/70 hover:text-white"
+      activeBg="bg-[#0F4C81]"
       activeText="text-white"
       hoverBg="hover:bg-white/10"
-      headerGradient="bg-gradient-to-r from-purple-700 to-violet-800"
+      headerGradient="bg-gradient-to-r from-[#0F4C81] to-#1E293B"
       iconBg="bg-white/20"
       items={[
         { label: "Journey", icon: "🏥", href: "#overview", section: "overview" },
@@ -281,7 +281,7 @@ export function ClinicPortalShell({ children }: { children: React.ReactNode }) {
   return (
     <PortalShellInternal
       children={children}
-      title="MediBridge Clinic"
+      title="VitaVia Clinic"
       subtitle="Partner Dashboard"
       userName="Clinic Partner"
       userRole="Clinic Portal"
@@ -323,7 +323,7 @@ export function AdminPortalShell({ children }: { children: React.ReactNode }) {
   return (
     <PortalShellInternal
       children={children}
-      title="MediBridge Admin"
+      title="VitaVia Admin"
       subtitle="Admin Console"
       userName="Administrator"
       userRole="Admin Portal"

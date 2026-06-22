@@ -58,13 +58,13 @@ export function LocationModal() {
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-md px-4"
           >
-            <div className="bg-white rounded-2xl shadow-2xl border border-purple-100 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-2xl border border-[#E5E7EB] overflow-hidden">
               <div className="purple-gradient px-6 py-5 text-white text-center relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/3" />
                 <div className="relative z-10">
                   <div className="text-2xl mb-1">👋</div>
                   <h2 className="text-xl font-bold">Where are you based?</h2>
-                  <p className="text-purple-100 text-sm mt-1">
+                  <p className="text-[#E5E7EB] text-sm mt-1">
                     We personalise treatment options and savings based on your location.
                   </p>
                 </div>
@@ -78,8 +78,8 @@ export function LocationModal() {
                     data-testid={`location-${loc.id}`}
                     className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 text-left transition-all duration-150 ${
                       selected === loc.id
-                        ? "border-purple-500 bg-purple-50"
-                        : "border-gray-200 hover:border-purple-300 hover:bg-purple-50/40"
+                        ? "border-[#0F4C81] bg-[#F4F7FA]"
+                        : "border-gray-200 hover:border-[#B0C4DE] hover:bg-[#F4F7FA]/40"
                     }`}
                   >
                     <span className="text-3xl">{loc.flag}</span>

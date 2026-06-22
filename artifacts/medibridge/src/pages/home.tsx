@@ -64,7 +64,7 @@ const LOCATIONS = [
     label: "United Kingdom",
     short: "UK",
     headline: "Tired of NHS waiting lists?",
-    subtext: "UK patients wait an average of 18 months. MediBridge gets you treated abroad in just 2–4 weeks — at a fraction of the NHS private cost.",
+    subtext: "UK patients wait an average of 18 months. VitaVia gets you treated abroad in just 2–4 weeks — at a fraction of the NHS private cost.",
     stat: "18mo → 2wk",
     statSub: "Treatment wait time",
     cta: "Find UK Treatments",
@@ -76,7 +76,7 @@ const LOCATIONS = [
     label: "Europe",
     short: "EU",
     headline: "Save 40–70% vs European prices.",
-    subtext: "Even compared to European private clinics, MediBridge partner clinics deliver identical JCI-accredited quality at dramatically lower cost.",
+    subtext: "Even compared to European private clinics, VitaVia partner clinics deliver identical JCI-accredited quality at dramatically lower cost.",
     stat: "40–70%",
     statSub: "vs European private care",
     cta: "Compare Clinics",
@@ -88,7 +88,7 @@ const LOCATIONS = [
     label: "Worldwide",
     short: "Global",
     headline: "World-class care, wherever you are.",
-    subtext: "MediBridge connects global patients to 48+ verified, JCI-accredited clinics across Istanbul, Antalya, Shanghai and Shenzhen.",
+    subtext: "VitaVia connects global patients to 48+ verified, JCI-accredited clinics across Istanbul, Antalya, Shanghai and Shenzhen.",
     stat: "48+ Clinics",
     statSub: "Verified worldwide",
     cta: "Browse Global Clinics",
@@ -177,11 +177,11 @@ export default function Home() {
             initial={{ opacity: 0, y: -12, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ type: "spring", stiffness: 300, damping: 24 }}
-            className="inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-sm text-purple-700 rounded-full px-5 py-2 text-sm font-semibold mb-10 border border-purple-200/70 shadow-sm"
+            className="inline-flex items-center gap-2.5 bg-white/80 backdrop-blur-sm text-[#1F7A8C] rounded-full px-5 py-2 text-sm font-semibold mb-10 border border-[#B0C4DE]/70 shadow-sm"
           >
             <span className="relative flex h-2 w-2">
-              <span className="pulse-ring animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500" />
+              <span className="pulse-ring animate-ping absolute inline-flex h-full w-full rounded-full bg-[#7FD1D8] opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#0F4C81]" />
             </span>
             The Healthcare Travel Operating System
           </motion.div>
@@ -239,10 +239,10 @@ export default function Home() {
             <p className="text-sm text-gray-400 mb-3 font-semibold flex items-center justify-center gap-1.5">
               <span>📍</span>
               Where are you travelling from?{" "}
-              <span className="text-purple-500">Get personalised results</span>
+              <span className="text-[#0F4C81]">Get personalised results</span>
             </p>
 
-            <div className="flex gap-2 bg-white/90 backdrop-blur-md rounded-2xl p-1.5 border border-purple-100/80 shadow-lg">
+            <div className="flex gap-2 bg-white/90 backdrop-blur-md rounded-2xl p-1.5 border border-[#E5E7EB]/80 shadow-lg">
               {LOCATIONS.map((l) => (
                 <motion.button
                   key={l.id}
@@ -252,7 +252,7 @@ export default function Home() {
                   className={`flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-bold transition-all flex-1 relative ${
                     selectedLocation === l.id
                       ? "text-white shadow-md"
-                      : "text-gray-600 hover:text-purple-700 hover:bg-purple-50"
+                      : "text-gray-600 hover:text-[#1F7A8C] hover:bg-[#F4F7FA]"
                   }`}
                 >
                   {selectedLocation === l.id && (
@@ -278,7 +278,7 @@ export default function Home() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -8, scale: 0.97 }}
                   transition={{ type: "spring", stiffness: 320, damping: 28 }}
-                  className="mt-3 bg-white/95 backdrop-blur-sm rounded-2xl px-5 py-4 border border-purple-100 shadow-md text-left"
+                  className="mt-3 bg-white/95 backdrop-blur-sm rounded-2xl px-5 py-4 border border-[#E5E7EB] shadow-md text-left"
                 >
                   <div className="flex items-center gap-4">
                     <div className="text-3xl flex-shrink-0">{loc.flag}</div>
@@ -308,7 +308,7 @@ export default function Home() {
               <Button
                 size="lg"
                 variant="outline"
-                className="h-12 sm:h-14 px-6 sm:px-10 text-base rounded-2xl border-2 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 font-bold transition-all w-full sm:w-auto"
+                className="h-12 sm:h-14 px-6 sm:px-10 text-base rounded-2xl border-2 border-[#B0C4DE] text-[#1F7A8C] hover:bg-[#F4F7FA] hover:border-[#B0C4DE] font-bold transition-all w-full sm:w-auto"
                 asChild
               >
                 <Link href="/destinations">Explore Destinations</Link>
@@ -404,13 +404,13 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════ MARQUEE STRIP ══════════════════════════════ */}
-      <div className="relative w-full border-y border-purple-100/60 bg-gradient-to-r from-purple-50/80 via-white to-purple-50/80 py-4 overflow-hidden">
+      <div className="relative w-full border-y border-[#E5E7EB]/60 bg-gradient-to-r from-[#F4F7FA]/80 via-white to-[#F4F7FA]/80 py-4 overflow-hidden">
         <div className="flex w-max marquee-track gap-0">
           {[...MARQUEE, ...MARQUEE].map((item, i) => (
             <div key={i} className="flex items-center gap-2 px-8 text-sm font-semibold text-gray-600 flex-shrink-0 whitespace-nowrap">
               <span className="text-base">{item.icon}</span>
               <span>{item.text}</span>
-              <span className="ml-8 text-purple-300">◆</span>
+              <span className="ml-8 text-[#B0C4DE]">◆</span>
             </div>
           ))}
         </div>
@@ -427,7 +427,7 @@ export default function Home() {
             className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6"
           >
             <div>
-              <motion.p variants={fadeSlide} className="text-purple-600 font-bold text-xs uppercase tracking-widest mb-3">
+              <motion.p variants={fadeSlide} className="text-[#0F4C81] font-bold text-xs uppercase tracking-widest mb-3">
                 Most Booked
               </motion.p>
               <motion.h2 variants={fadeSlide} className="font-display font-black tracking-display text-4xl md:text-5xl lg:text-6xl text-gray-950">
@@ -438,7 +438,7 @@ export default function Home() {
               </motion.p>
             </div>
             <motion.div variants={fadeSlide}>
-              <Button variant="outline" className="border-2 border-purple-200 text-purple-700 hover:bg-purple-50 hover:border-purple-300 rounded-xl font-bold" asChild>
+              <Button variant="outline" className="border-2 border-[#B0C4DE] text-[#1F7A8C] hover:bg-[#F4F7FA] hover:border-[#B0C4DE] rounded-xl font-bold" asChild>
                 <Link href="/treatments">View all treatments →</Link>
               </Button>
             </motion.div>
@@ -453,15 +453,15 @@ export default function Home() {
           >
             {isLoadingPopular
               ? Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-72 rounded-3xl bg-purple-50 animate-pulse" />
+                  <div key={i} className="h-72 rounded-3xl bg-[#F4F7FA] animate-pulse" />
                 ))
               : popularTreatments?.slice(0, 4).map((treatment) => (
                   <motion.div key={treatment.id} variants={fadePop}>
                     <Link
                       href="/packages"
-                      className="group block rounded-3xl overflow-hidden border border-purple-100/80 hover:border-purple-300 hover:shadow-xl transition-all duration-300 bg-white"
+                      className="group block rounded-3xl overflow-hidden border border-[#E5E7EB]/80 hover:border-[#B0C4DE] hover:shadow-xl transition-all duration-300 bg-white"
                     >
-                      <div className="relative h-52 overflow-hidden bg-purple-50">
+                      <div className="relative h-52 overflow-hidden bg-[#F4F7FA]">
                         {treatment.imageUrl && (
                           <motion.img
                             src={treatment.imageUrl}
@@ -479,11 +479,11 @@ export default function Home() {
                         </div>
                       </div>
                       <div className="p-5">
-                        <h3 className="font-bold text-gray-900 text-base group-hover:text-purple-700 transition-colors leading-snug">
+                        <h3 className="font-bold text-gray-900 text-base group-hover:text-[#1F7A8C] transition-colors leading-snug">
                           {treatment.name}
                         </h3>
                         <p className="text-xs text-gray-400 mt-2 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 bg-purple-400 rounded-full flex-shrink-0" />
+                          <span className="w-1.5 h-1.5 bg-[#7FD1D8] rounded-full flex-shrink-0" />
                           {treatment.bookingsThisMonth} bookings this month
                         </p>
                       </div>
@@ -497,7 +497,7 @@ export default function Home() {
       {/* ══════════════════════════════ HOW IT WORKS ══════════════════════════════ */}
       <section className="py-16 sm:py-28 relative overflow-hidden" style={{ background: "linear-gradient(180deg, hsl(263 40% 98%) 0%, white 100%)" }}>
         {/* Giant background number */}
-        <div className="absolute -right-8 top-16 text-[280px] font-black text-purple-100/60 select-none pointer-events-none leading-none tracking-tight hidden lg:block">
+        <div className="absolute -right-8 top-16 text-[280px] font-black text-[#E5E7EB]/60 select-none pointer-events-none leading-none tracking-tight hidden lg:block">
           How
         </div>
 
@@ -509,7 +509,7 @@ export default function Home() {
             variants={stagger}
             className="text-center max-w-2xl mx-auto mb-20"
           >
-            <motion.p variants={fadeSlide} className="text-purple-600 font-bold text-xs uppercase tracking-widest mb-3">
+            <motion.p variants={fadeSlide} className="text-[#0F4C81] font-bold text-xs uppercase tracking-widest mb-3">
               Simple Process
             </motion.p>
             <motion.h2 variants={fadeSlide} className="font-display font-black tracking-display text-4xl md:text-5xl lg:text-6xl text-gray-950">
@@ -522,7 +522,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative">
             {/* Connector line desktop */}
-            <div className="absolute top-10 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-purple-200 to-transparent hidden lg:block" />
+            <div className="absolute top-10 left-[12%] right-[12%] h-px bg-gradient-to-r from-transparent via-[#B0C4DE] to-transparent hidden lg:block" />
 
             {[
               { num: "01", icon: "🔍", title: "Choose Treatment", desc: "Compare procedures, verified clinics and transparent pricing from our global network." },
@@ -537,12 +537,12 @@ export default function Home() {
                 viewport={{ once: true, margin: "-40px" }}
                 transition={{ delay: i * 0.1, type: "spring", stiffness: 240, damping: 24 }}
                 whileHover={{ y: -6 }}
-                className="relative bg-white border border-purple-100 rounded-3xl p-7 shadow-sm hover:shadow-lg transition-all duration-300"
+                className="relative bg-white border border-[#E5E7EB] rounded-3xl p-7 shadow-sm hover:shadow-lg transition-all duration-300"
               >
                 <div className="absolute -top-4 left-7 w-8 h-8 rounded-full purple-gradient flex items-center justify-center text-white text-xs font-black shadow-md">
                   {i + 1}
                 </div>
-                <div className="absolute top-4 right-5 text-4xl font-black text-purple-100 leading-none select-none">
+                <div className="absolute top-4 right-5 text-4xl font-black text-[#E5E7EB] leading-none select-none">
                   {step.num}
                 </div>
                 <div className="text-3xl mb-5 mt-2">{step.icon}</div>
@@ -555,7 +555,7 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════ ANIMATED STATS ══════════════════════════════ */}
-      <section className="py-16 sm:py-24 bg-white border-y border-purple-50">
+      <section className="py-16 sm:py-24 bg-white border-y border-[#F4F7FA]">
         <div className="container px-4 md:px-8">
           <motion.div
             initial="hidden"
@@ -580,7 +580,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ══════════════════════════════ WHY MEDIBRIDGE ══════════════════════════════ */}
+      {/* ══════════════════════════════ WHY VitaVia ══════════════════════════════ */}
       <section className="py-16 sm:py-28" style={{ background: "linear-gradient(180deg, white 0%, hsl(263 40% 97%) 100%)" }}>
         <div className="container px-4 md:px-8">
           <motion.div
@@ -590,11 +590,11 @@ export default function Home() {
             variants={stagger}
             className="text-center max-w-2xl mx-auto mb-16"
           >
-            <motion.p variants={fadeSlide} className="text-purple-600 font-bold text-xs uppercase tracking-widest mb-3">
+            <motion.p variants={fadeSlide} className="text-[#0F4C81] font-bold text-xs uppercase tracking-widest mb-3">
               Everything Included
             </motion.p>
             <motion.h2 variants={fadeSlide} className="font-display font-black tracking-display text-4xl md:text-5xl lg:text-6xl text-gray-950">
-              Why MediBridge?
+              Why VitaVia?
             </motion.h2>
             <motion.p variants={fadeSlide} className="text-gray-500 mt-4 text-lg">
               One platform — every part of your medical journey covered.
@@ -623,7 +623,7 @@ export default function Home() {
                 key={f.title}
                 variants={fadePop}
                 whileHover={{ y: -4, boxShadow: "0 12px 28px hsl(263 70% 58% / 0.12)" }}
-                className="flex items-center gap-4 bg-white rounded-2xl px-5 py-4 border border-purple-100 hover:border-purple-300 transition-all duration-200 cursor-default"
+                className="flex items-center gap-4 bg-white rounded-2xl px-5 py-4 border border-[#E5E7EB] hover:border-[#B0C4DE] transition-all duration-200 cursor-default"
               >
                 <span className="text-2xl flex-shrink-0">{f.icon}</span>
                 <div>
@@ -673,7 +673,7 @@ export default function Home() {
               <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
                 <Button
                   size="lg"
-                  className="h-14 sm:h-16 px-8 sm:px-12 text-lg rounded-2xl bg-white text-purple-700 hover:bg-purple-50 font-black shadow-2xl hover:shadow-white/20 transition-all w-full sm:w-auto"
+                  className="h-14 sm:h-16 px-8 sm:px-12 text-lg rounded-2xl bg-white text-[#1F7A8C] hover:bg-[#F4F7FA] font-black shadow-2xl hover:shadow-white/20 transition-all w-full sm:w-auto"
                   asChild
                 >
                   <Link href="/packages">Build My Package →</Link>

@@ -20,12 +20,12 @@ export function LoginDropdown({ compact = false }: { compact?: boolean }) {
 
       {/* Bridge gap so hover isn't lost crossing from button to menu */}
       <div className="absolute top-full left-1/2 -translate-x-1/2 w-40 h-3 bg-transparent z-[70] opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible" />
-      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 bg-white rounded-2xl shadow-xl border border-purple-100 overflow-hidden z-[70] opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200">
+      <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-72 bg-white rounded-2xl shadow-xl border border-[#E5E7EB] overflow-hidden z-[70] opacity-0 invisible group-hover/dropdown:opacity-100 group-hover/dropdown:visible transition-all duration-200">
         {options.map((opt) => (
           <button
             key={opt.label}
             onClick={() => setLocation(opt.href)}
-            className="flex items-center gap-3 w-full px-5 py-4 hover:bg-purple-50 transition-colors text-left"
+            className="flex items-center gap-3 w-full px-5 py-4 hover:bg-[#F4F7FA] transition-colors text-left"
           >
             <span className="text-2xl">{opt.icon}</span>
             <div>

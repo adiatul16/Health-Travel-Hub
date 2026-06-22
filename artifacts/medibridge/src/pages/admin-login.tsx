@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { motion } from "framer-motion";
 
-const ADMIN_EMAIL = "admin@medibridge.com";
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+const ADMIN_EMAIL = "admin@vitavia.com";
 const ADMIN_PASSWORD = "medi2025";
 
 export default function AdminLogin() {
@@ -26,11 +28,11 @@ export default function AdminLogin() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm bg-white rounded-2xl shadow-lg border border-purple-100 p-8"
+        className="w-full max-w-sm bg-white rounded-2xl shadow-lg border border-[#E5E7EB] p-8"
       >
         <div className="text-center mb-6">
-          <div className="w-12 h-12 rounded-xl purple-gradient flex items-center justify-center text-white font-bold text-xl mx-auto mb-3">
-            M
+          <div className="w-12 h-12 rounded-xl overflow-hidden mx-auto mb-3">
+            <img src={`${basePath}/logo-vitavia.png`} alt="VitaVia" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-xl font-bold text-gray-900">Admin Access</h2>
           <p className="text-sm text-gray-400 mt-1">Restricted area</p>
@@ -43,8 +45,8 @@ export default function AdminLogin() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-gray-900 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
-              placeholder="admin@medibridge.com"
+              className="w-full rounded-xl border border-[#E5E7EB] bg-[#F4F7FA]/30 px-4 py-2.5 text-sm text-gray-900 focus:border-[#1F7A8C] focus:outline-none focus:ring-2 focus:ring-[#B0C4DE]"
+              placeholder="admin@vitavia.com"
             />
           </div>
           <div>
@@ -53,7 +55,7 @@ export default function AdminLogin() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-purple-100 bg-purple-50/30 px-4 py-2.5 text-sm text-gray-900 focus:border-purple-400 focus:outline-none focus:ring-2 focus:ring-purple-200"
+              className="w-full rounded-xl border border-[#E5E7EB] bg-[#F4F7FA]/30 px-4 py-2.5 text-sm text-gray-900 focus:border-[#1F7A8C] focus:outline-none focus:ring-2 focus:ring-[#B0C4DE]"
               placeholder="Enter password"
             />
           </div>
@@ -62,14 +64,14 @@ export default function AdminLogin() {
           )}
           <button
             type="submit"
-            className="w-full rounded-xl bg-purple-600 text-white font-semibold py-2.5 hover:bg-purple-700 transition-colors"
+            className="w-full rounded-xl bg-[#0F4C81] text-white font-semibold py-2.5 hover:bg-[#1F7A8C] transition-colors"
           >
             Sign In
           </button>
         </form>
 
         <p className="text-center text-xs text-gray-400 mt-6">
-          MediBridge Global Admin
+          VitaVia Admin
         </p>
       </motion.div>
     </div>

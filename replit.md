@@ -1,6 +1,6 @@
-# MediBridge Global
+# VitaVia
 
-A world-class healthcare travel platform — the first Healthcare Travel Operating System helping UK patients discover, compare, and book verified treatments abroad, with full travel, insurance, and recovery coordination.
+A world-class healthcare travel platform — the first Healthcare Travel Operating System helping patients discover, compare, and book verified treatments abroad, with full travel, insurance, and recovery coordination. Built on blockchain-verified trust.
 
 ## Run & Operate
 
@@ -56,6 +56,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 - `pnpm run typecheck:libs` must be run before leaf artifact typechecks after any `lib/*` changes
 - Do not rename `info.title` in `openapi.yaml` — Orval uses it to derive generated filenames
 - Body schemas in OpenAPI must use entity-shaped names (e.g. `PackageRequest`, not `OptimizePackageBody`) to avoid TS2308 collisions
+- Brand palette: Primary navy #0F4C81, Secondary teal #1F7A8C, Tertiary aqua #7FD1D8, Success green #00A878, Dark slate #1E293B
 
 ## Pointers
 

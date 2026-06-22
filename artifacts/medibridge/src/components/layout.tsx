@@ -54,7 +54,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <motion.header
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           scrolled
-            ? "bg-white/95 backdrop-blur-md shadow-md border-b border-purple-100/60"
+            ? "bg-white/95 backdrop-blur-md shadow-md border-b border-[#E5E7EB]/60"
             : "bg-white/80 backdrop-blur-sm border-b border-transparent"
         }`}
         animate={{ height: scrolled ? 60 : 68 }}
@@ -66,17 +66,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <motion.div
               animate={{ width: scrolled ? 32 : 38, height: scrolled ? 32 : 38 }}
               transition={{ duration: 0.3 }}
-              className="rounded-xl purple-gradient flex items-center justify-center text-white font-black shadow-sm group-hover:shadow-md transition-shadow overflow-hidden"
-              style={{ fontSize: scrolled ? 15 : 18 }}
+              className="rounded-xl flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow overflow-hidden"
             >
-              M
+              <img src={`${basePath}/logo-vitavia.png`} alt="VitaVia" className="w-full h-full object-contain" />
             </motion.div>
             <motion.span
               animate={{ fontSize: scrolled ? "1.125rem" : "1.25rem" }}
               transition={{ duration: 0.3 }}
-              className="font-black tracking-tight bg-gradient-to-r from-purple-700 to-violet-600 bg-clip-text text-transparent"
+              className="font-black tracking-tight bg-gradient-to-r from-[#0F4C81] to-[#1F7A8C] bg-clip-text text-transparent"
             >
-              MediBridge
+              VitaVia
             </motion.span>
           </Link>
 
@@ -88,14 +87,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 className={`relative px-3.5 py-2 rounded-xl text-sm font-semibold transition-colors duration-150 ${
                   location === item.href
-                    ? "text-purple-700"
-                    : "text-gray-500 hover:text-purple-700"
+                    ? "text-[#1F7A8C]"
+                    : "text-gray-500 hover:text-[#1F7A8C]"
                 }`}
               >
                 {location === item.href && (
                   <motion.span
                     layoutId="nav-pill"
-                    className="absolute inset-0 bg-purple-50 rounded-xl"
+                    className="absolute inset-0 bg-[#F4F7FA] rounded-xl"
                     transition={{ type: "spring", stiffness: 400, damping: 30 }}
                   />
                 )}
@@ -124,9 +123,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Show when="signed-in">
               <Link
                 href="/dashboard"
-                className="hidden sm:flex items-center gap-2 text-sm text-gray-500 hover:text-purple-700 font-semibold transition-colors px-2 py-1.5 rounded-xl hover:bg-purple-50"
+                className="hidden sm:flex items-center gap-2 text-sm text-gray-500 hover:text-[#1F7A8C] font-semibold transition-colors px-2 py-1.5 rounded-xl hover:bg-[#F4F7FA]"
               >
-                <span className="w-7 h-7 rounded-full bg-purple-100 text-purple-700 flex items-center justify-center text-xs font-bold">
+                <span className="w-7 h-7 rounded-full bg-[#E5E7EB] text-[#1F7A8C] flex items-center justify-center text-xs font-bold">
                   {(user?.firstName?.[0] ?? user?.emailAddresses?.[0]?.emailAddress?.[0] ?? "U").toUpperCase()}
                 </span>
                 <span className="max-w-[100px] truncate">{user?.firstName ?? user?.emailAddresses?.[0]?.emailAddress}</span>
@@ -152,7 +151,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
             {/* Mobile hamburger */}
             <motion.button
-              className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-[5px] text-gray-600 rounded-xl hover:bg-purple-50 transition-colors"
+              className="md:hidden w-9 h-9 flex flex-col items-center justify-center gap-[5px] text-gray-600 rounded-xl hover:bg-[#F4F7FA] transition-colors"
               onClick={() => setMobileOpen((v) => !v)}
               whileTap={{ scale: 0.92 }}
             >
@@ -183,7 +182,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="md:hidden border-t border-purple-100 bg-white/98 backdrop-blur-md overflow-hidden"
+              className="md:hidden border-t border-[#E5E7EB] bg-white/98 backdrop-blur-md overflow-hidden"
             >
               <motion.div
                 initial="hidden"
@@ -203,8 +202,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
                       href={item.href}
                       className={`block px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
                         location === item.href
-                          ? "text-purple-700 bg-purple-50"
-                          : "text-gray-600 hover:text-purple-700 hover:bg-purple-50/70"
+                          ? "text-[#1F7A8C] bg-[#F4F7FA]"
+                          : "text-gray-600 hover:text-[#1F7A8C] hover:bg-[#F4F7FA]/70"
                       }`}
                     >
                       {item.label}
@@ -222,14 +221,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </main>
 
       {/* ─── Footer ─── */}
-      <footer className="border-t border-purple-100/60 bg-gradient-to-b from-white to-purple-50/50 pt-16 pb-10">
+      <footer className="border-t border-[#E5E7EB]/60 bg-gradient-to-b from-white to-[#F4F7FA]/50 pt-16 pb-10">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
             <div>
               <div className="flex items-center gap-2.5 mb-4">
-                <div className="w-9 h-9 rounded-xl purple-gradient flex items-center justify-center text-white font-black text-base">M</div>
-                <span className="text-lg font-black bg-gradient-to-r from-purple-700 to-violet-600 bg-clip-text text-transparent tracking-tight">
-                  MediBridge
+                <div className="w-9 h-9 rounded-xl overflow-hidden flex-shrink-0">
+                  <img src={`${basePath}/logo-vitavia.png`} alt="VitaVia" className="w-full h-full object-contain" />
+                </div>
+                <span className="text-lg font-black bg-gradient-to-r from-[#0F4C81] to-[#1F7A8C] bg-clip-text text-transparent tracking-tight">
+                  VitaVia
                 </span>
               </div>
               <p className="text-sm text-gray-500 leading-relaxed max-w-xs">
@@ -261,7 +262,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <ul className="space-y-2.5">
                   {links.map(({ href, label }) => (
                     <li key={label}>
-                      <Link href={href} className="text-sm text-gray-500 hover:text-purple-700 transition-colors font-medium">
+                      <Link href={href} className="text-sm text-gray-500 hover:text-[#1F7A8C] transition-colors font-medium">
                         {label}
                       </Link>
                     </li>
@@ -271,9 +272,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
             ))}
           </div>
 
-          <div className="border-t border-purple-100 pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div className="border-t border-[#E5E7EB] pt-6 flex flex-col md:flex-row items-center justify-between gap-3">
             <p className="text-sm text-gray-400 font-medium">
-              &copy; {new Date().getFullYear()} MediBridge Global. All rights reserved.
+              &copy; {new Date().getFullYear()} VitaVia. All rights reserved.
             </p>
             <p className="text-xs text-gray-400">Helping patients access world-class healthcare abroad</p>
           </div>

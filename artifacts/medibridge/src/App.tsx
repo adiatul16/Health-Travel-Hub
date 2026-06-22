@@ -53,46 +53,46 @@ const clerkAppearance = {
   options: {
     logoPlacement: "inside" as const,
     logoLinkUrl: basePath || "/",
-    logoImageUrl: `${window.location.origin}${basePath}/logo.svg`,
+    logoImageUrl: `${window.location.origin}${basePath}/logo-vitavia.png`,
     socialButtonsPlacement: "top" as const,
     socialButtonsVariant: "blockButton" as const,
   },
   variables: {
-    colorPrimary: "#7C3AED",
-    colorForeground: "#1e1030",
-    colorMutedForeground: "#6b5e87",
+    colorPrimary: "#0F4C81",
+    colorForeground: "#1e293b",
+    colorMutedForeground: "#5a6b7c",
     colorDanger: "#ef4444",
     colorBackground: "#ffffff",
-    colorInput: "#faf9ff",
-    colorInputForeground: "#1e1030",
-    colorNeutral: "#ede9f7",
+    colorInput: "#f4f7fa",
+    colorInputForeground: "#1e293b",
+    colorNeutral: "#e5e7eb",
     fontFamily: "Inter, system-ui, sans-serif",
     borderRadius: "0.75rem",
   },
   elements: {
     rootBox: "w-full flex justify-center",
-    cardBox: "bg-white rounded-2xl w-[440px] max-w-full overflow-hidden shadow-xl border border-purple-100",
+    cardBox: "bg-white rounded-2xl w-[440px] max-w-full overflow-hidden shadow-xl border border-[#0F4C81]/20",
     card: "!shadow-none !border-0 !bg-transparent !rounded-none",
     footer: "!shadow-none !border-0 !bg-transparent !rounded-none",
     headerTitle: "text-gray-900 font-bold text-2xl",
     headerSubtitle: "text-gray-500",
     socialButtonsBlockButtonText: "text-gray-900 font-semibold",
     formFieldLabel: "text-gray-700 font-medium",
-    footerActionLink: "text-purple-600 font-semibold hover:text-purple-800",
+    footerActionLink: "text-[#0F4C81] font-semibold hover:text-[#1F7A8C]",
     footerActionText: "text-gray-500",
     dividerText: "text-gray-400",
-    identityPreviewEditButton: "text-purple-600",
-    formFieldSuccessText: "text-green-600",
+    identityPreviewEditButton: "text-[#0F4C81]",
+    formFieldSuccessText: "text-[#00A878]",
     alertText: "text-gray-700",
     logoBox: "flex items-center justify-center py-2",
     logoImage: "h-10 w-auto",
-    socialButtonsBlockButton: "w-full border-2 border-purple-300 hover:border-purple-500 bg-white hover:bg-purple-50/50 shadow-sm hover:shadow-md transition-all h-12 font-semibold text-gray-900",
-    formButtonPrimary: "bg-purple-600 hover:bg-purple-700 text-white font-semibold",
-    formFieldInput: "border-purple-100 bg-purple-50/30 text-gray-900 focus:border-purple-400",
-    footerAction: "bg-purple-50/40 border-t border-purple-100",
-    dividerLine: "bg-purple-100",
+    socialButtonsBlockButton: "w-full border-2 border-[#0F4C81]/30 hover:border-[#0F4C81] bg-white hover:bg-[#0F4C81]/5 shadow-sm hover:shadow-md transition-all h-12 font-semibold text-gray-900",
+    formButtonPrimary: "bg-[#0F4C81] hover:bg-[#1F7A8C] text-white font-semibold",
+    formFieldInput: "border-[#0F4C81]/20 bg-[#0F4C81]/5 text-gray-900 focus:border-[#0F4C81]",
+    footerAction: "bg-[#0F4C81]/5 border-t border-[#0F4C81]/10",
+    dividerLine: "bg-[#0F4C81]/10",
     alert: "bg-red-50 border border-red-200",
-    otpCodeFieldInput: "border-purple-100 bg-purple-50/30",
+    otpCodeFieldInput: "border-[#0F4C81]/20 bg-[#0F4C81]/5",
     formFieldRow: "gap-3",
     main: "px-6 py-4",
   },
@@ -100,10 +100,11 @@ const clerkAppearance = {
 
 function SignInPage() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-white px-4">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-[#F8FAFC] via-[#F4F7FA] to-white px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <p className="text-purple-500 text-sm font-medium">The Healthcare Travel Operating System</p>
+          <img src={`${basePath}/logo-vitavia.png`} alt="VitaVia" className="w-16 h-16 mx-auto mb-4" />
+          <p className="text-[#1F7A8C] text-sm font-medium">The Healthcare Travel Operating System</p>
         </div>
         <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} fallbackRedirectUrl={`${basePath}/dashboard`} />
       </div>
@@ -113,10 +114,11 @@ function SignInPage() {
 
 function SignUpPage() {
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-violet-50 via-purple-50 to-white px-4">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-gradient-to-br from-[#F8FAFC] via-[#F4F7FA] to-white px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <p className="text-purple-500 text-sm font-medium">Join thousands of patients saving on world-class healthcare</p>
+          <img src={`${basePath}/logo-vitavia.png`} alt="VitaVia" className="w-16 h-16 mx-auto mb-4" />
+          <p className="text-[#1F7A8C] text-sm font-medium">Join thousands of patients saving on world-class healthcare</p>
         </div>
         <SignUp
           routing="path"
@@ -224,13 +226,13 @@ function ClerkProviderWithRoutes() {
       localization={{
         signIn: {
           start: {
-            title: "Welcome back to MediBridge",
+            title: "Welcome back to VitaVia",
             subtitle: "Sign in to your account",
           },
         },
         signUp: {
           start: {
-            title: "Create your MediBridge account",
+            title: "Create your VitaVia account",
             subtitle: "Start your healthcare journey today",
           },
         },

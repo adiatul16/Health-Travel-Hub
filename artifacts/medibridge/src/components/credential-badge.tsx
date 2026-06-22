@@ -24,7 +24,7 @@ function CopyButton({ text }: { text: string }) {
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }}
-      className="ml-2 text-xs px-2 py-0.5 rounded bg-purple-100 text-purple-700 hover:bg-purple-200 transition-colors flex-shrink-0"
+      className="ml-2 text-xs px-2 py-0.5 rounded bg-[#E5E7EB] text-[#1F7A8C] hover:bg-[#B0C4DE] transition-colors flex-shrink-0"
     >
       {copied ? "Copied!" : "Copy"}
     </button>
@@ -74,12 +74,12 @@ function VerifyHashPanel({ credential }: { credential: CredentialData }) {
           value={inputHash}
           onChange={(e) => setInputHash(e.target.value)}
           placeholder="0x…sha256 hash…"
-          className="flex-1 text-xs font-mono border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+          className="flex-1 text-xs font-mono border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#B0C4DE]"
         />
         <button
           onClick={verify}
           disabled={loading || !inputHash.trim()}
-          className="px-3 py-2 rounded-lg bg-purple-600 text-white text-xs font-medium hover:bg-purple-700 disabled:opacity-50 transition-colors"
+          className="px-3 py-2 rounded-lg bg-[#0F4C81] text-white text-xs font-medium hover:bg-[#1F7A8C] disabled:opacity-50 transition-colors"
         >
           {loading ? "…" : "Check"}
         </button>
@@ -204,7 +204,7 @@ function CredentialModal({
               href={credential.polygonScanUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 mt-2 px-3 py-2.5 rounded-xl border border-purple-200 bg-purple-50 text-purple-700 text-xs font-semibold hover:bg-purple-100 transition-colors"
+              className="flex items-center gap-2 mt-2 px-3 py-2.5 rounded-xl border border-[#B0C4DE] bg-[#F4F7FA] text-[#1F7A8C] text-xs font-semibold hover:bg-[#E5E7EB] transition-colors"
             >
               <span>🔗</span>
               <span>View transaction on PolygonScan</span>
@@ -217,7 +217,7 @@ function CredentialModal({
 
         <p className="mt-5 text-xs text-gray-400 text-center">
           This hash is permanently recorded on the Polygon blockchain.
-          No party — including MediBridge — can alter it.
+          No party — including VitaVia — can alter it.
         </p>
       </motion.div>
     </div>

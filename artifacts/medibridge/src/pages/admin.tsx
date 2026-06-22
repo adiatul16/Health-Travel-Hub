@@ -570,7 +570,7 @@ export default function Admin() {
 
         {/* KPI Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <KPICard label="Total Patients" value={(metrics?.totalPatients || 0).toLocaleString()} icon="👥" trend="12%" trendUp={true} accent="from-violet-500 to-purple-600" delay={0} />
+          <KPICard label="Total Patients" value={(metrics?.totalPatients || 0).toLocaleString()} icon="👥" trend="12%" trendUp={true} accent="from-[#0F4C81] to-[#1F7A8C]" delay={0} />
           <KPICard label="Treatment Revenue" value={`£${(metrics?.treatmentRevenue || 0).toLocaleString()}`} icon="💊" trend="8%" trendUp={true} accent="from-blue-500 to-indigo-600" delay={0.08} />
           <KPICard label="Conversion Rate" value={`${metrics?.conversionRate || 0}%`} icon="📈" trend="2.4%" trendUp={true} accent="from-emerald-500 to-teal-600" delay={0.16} />
           <KPICard label="Inventory Utilisation" value={`${metrics?.inventoryUtilization || 0}%`} icon="📦" trend="5%" trendUp={false} accent="from-amber-500 to-orange-600" delay={0.24} />

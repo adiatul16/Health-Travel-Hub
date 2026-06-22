@@ -107,7 +107,7 @@ export function BookingModal({ pkg, onClose }: BookingModalProps) {
                 </div>
 
                 <div className="bg-sky-50 border border-sky-100 rounded-lg p-3 text-xs text-sky-700">
-                  A MediBridge patient coordinator will contact you within 2 hours to confirm your package and answer any questions.
+                  A VitaVia patient coordinator will contact you within 2 hours to confirm your package and answer any questions.
                 </div>
 
                 <div className="flex gap-3 pt-1">

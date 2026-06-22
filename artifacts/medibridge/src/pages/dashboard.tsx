@@ -39,7 +39,7 @@ function StatCard({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, type: "spring", stiffness: 260, damping: 22 }}
-      className={`bg-white rounded-2xl p-6 shadow-sm border border-purple-100 overflow-hidden group hover:shadow-md transition-shadow`}
+      className={`bg-white rounded-2xl p-6 shadow-sm border border-[#E5E7EB] overflow-hidden group hover:shadow-md transition-shadow`}
     >
       <div className={`absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity bg-gradient-to-br ${accent}`} />
       <div className="relative z-10 flex items-start justify-between">
@@ -121,7 +121,7 @@ function ItineraryModal({
         </DialogHeader>
 
         <div className="space-y-5 mt-2">
-          <div className="rounded-xl border border-purple-100 p-4 bg-purple-50/30">
+          <div className="rounded-xl border border-[#E5E7EB] p-4 bg-[#F4F7FA]/30">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-xl">✈️</span>
               <h4 className="font-semibold text-gray-900">Flights</h4>
@@ -184,12 +184,12 @@ function ItineraryModal({
             </div>
           </div>
 
-          <div className="rounded-xl border border-purple-200 p-4 bg-purple-50">
+          <div className="rounded-xl border border-[#B0C4DE] p-4 bg-[#F4F7FA]">
             <div className="flex justify-between items-center">
               <span className="font-semibold text-gray-900">Total Package</span>
-              <span className="text-xl font-bold text-purple-700">£{booking.packageTotal.toLocaleString()}</span>
+              <span className="text-xl font-bold text-[#1F7A8C]">£{booking.packageTotal.toLocaleString()}</span>
             </div>
-            <p className="text-xs text-gray-500 mt-1">Includes all taxes and MediBridge coordination fees</p>
+            <p className="text-xs text-gray-500 mt-1">Includes all taxes and VitaVia coordination fees</p>
           </div>
         </div>
 
@@ -197,7 +197,7 @@ function ItineraryModal({
           <DialogClose asChild>
             <Button variant="outline" className="rounded-xl">Close</Button>
           </DialogClose>
-          <Button asChild className="rounded-xl bg-purple-600 hover:bg-purple-700">
+          <Button asChild className="rounded-xl bg-[#0F4C81] hover:bg-[#1F7A8C]">
             <Link href="/packages">Modify Package</Link>
           </Button>
         </DialogFooter>
@@ -217,8 +217,8 @@ export default function Dashboard() {
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   function openChat() {
-    window.dispatchEvent(new CustomEvent("medibridge-open-chat"));
-    toast({ title: "Chat opened", description: "A MediBridge coordinator will assist you shortly." });
+    window.dispatchEvent(new CustomEvent("vitavia-open-chat"));
+    toast({ title: "Chat opened", description: "A VitaVia coordinator will assist you shortly." });
   }
 
   async function connectWallet() {
@@ -283,8 +283,8 @@ export default function Dashboard() {
     return (
       <div className="flex items-center justify-center h-96">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-4 border-purple-200 border-t-purple-600 animate-spin" />
-          <p className="text-purple-700 font-medium">Loading your dashboard...</p>
+          <div className="w-12 h-12 rounded-full border-4 border-[#B0C4DE] border-t-[#0F4C81] animate-spin" />
+          <p className="text-[#1F7A8C] font-medium">Loading your dashboard...</p>
         </div>
       </div>
     );
@@ -298,7 +298,7 @@ export default function Dashboard() {
         {/* KPI grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
           <StatCard label="Total Saved vs UK" value={`£${(summary?.totalSavings || 0).toLocaleString()}`} icon="💰" accent="from-emerald-400 to-teal-500" delay={0} />
-          <StatCard label="Upcoming Treatments" value={String(summary?.upcomingTreatments?.length || 0)} icon="🏥" accent="from-purple-500 to-violet-600" delay={0.08} />
+          <StatCard label="Upcoming Treatments" value={String(summary?.upcomingTreatments?.length || 0)} icon="🏥" accent="from-[#0F4C81] to-[#1F7A8C]" delay={0.08} />
           <StatCard label="Unread Messages" value={String(summary?.messageCount || 0)} icon="✉️" accent="from-blue-400 to-indigo-500" delay={0.16} />
           <StatCard label="Recovery Progress" value={`${recoveryPct}%`} icon="❤️" accent="from-rose-400 to-pink-500" delay={0.24} />
         </div>
@@ -308,21 +308,21 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl p-5 shadow-sm border border-purple-100"
+          className="bg-white rounded-2xl p-5 shadow-sm border border-[#E5E7EB]"
         >
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-semibold text-gray-900">Recovery Milestone</h3>
               <p className="text-sm text-gray-500 mt-0.5">Post-procedure progress tracker</p>
             </div>
-            <span className="text-2xl font-bold text-purple-700">{recoveryPct}%</span>
+            <span className="text-2xl font-bold text-[#1F7A8C]">{recoveryPct}%</span>
           </div>
-          <div className="w-full bg-purple-100 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-[#E5E7EB] rounded-full h-3 overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${recoveryPct}%` }}
               transition={{ delay: 0.6, duration: 1.2, ease: "easeOut" }}
-              className="h-3 rounded-full bg-gradient-to-r from-purple-500 to-violet-600"
+              className="h-3 rounded-full bg-gradient-to-r from-[#0F4C81] to-[#1F7A8C]"
             />
           </div>
           <div className="flex justify-between text-xs text-gray-400 mt-2">
@@ -338,14 +338,14 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.35 }}
-              className="bg-white rounded-2xl shadow-sm border border-purple-100 overflow-hidden"
+              className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden"
             >
               <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Upcoming Bookings</h2>
                   <p className="text-sm text-gray-500 mt-0.5">Your scheduled procedures and appointments</p>
                 </div>
-                <span className="w-8 h-8 rounded-lg bg-purple-50 flex items-center justify-center text-lg">📋</span>
+                <span className="w-8 h-8 rounded-lg bg-[#F4F7FA] flex items-center justify-center text-lg">📋</span>
               </div>
               <div className="divide-y divide-gray-50">
                 {summary?.upcomingTreatments?.length ? (
@@ -355,7 +355,7 @@ export default function Dashboard() {
                       initial={{ opacity: 0, x: -12 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.4 + i * 0.08 }}
-                      className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-purple-50/40 transition-colors"
+                      className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-[#F4F7FA]/40 transition-colors"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1.5">
@@ -372,12 +372,12 @@ export default function Dashboard() {
                       <div className="flex items-center gap-3">
                         <div className="text-right">
                           <p className="text-xs text-gray-400">Package total</p>
-                          <p className="font-bold text-purple-700 text-lg">£{booking.packageTotal.toLocaleString()}</p>
+                          <p className="font-bold text-[#1F7A8C] text-lg">£{booking.packageTotal.toLocaleString()}</p>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
-                          className="rounded-xl border-purple-200 text-purple-700 hover:bg-purple-50"
+                          className="rounded-xl border-[#B0C4DE] text-[#1F7A8C] hover:bg-[#F4F7FA]"
                           onClick={() => setSelectedBooking(generateMockDetails(booking))}
                         >
                           Details
@@ -390,7 +390,7 @@ export default function Dashboard() {
                     <div className="text-5xl">✈️</div>
                     <p className="font-semibold text-gray-700">No upcoming treatments</p>
                     <p className="text-sm text-gray-400">Build your first package to start your medical journey</p>
-                    <Button asChild size="sm" className="rounded-xl bg-gradient-to-r from-purple-500 to-violet-600 text-white border-0">
+                    <Button asChild size="sm" className="rounded-xl bg-gradient-to-r from-[#0F4C81] to-[#1F7A8C] text-white border-0">
                       <Link href="/packages">Build a Package</Link>
                     </Button>
                   </div>
@@ -401,16 +401,16 @@ export default function Dashboard() {
 
           {/* Sidebar cards */}
           <div className="space-y-5">
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white rounded-2xl shadow-sm border border-purple-100 p-5">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">✈️</span>
                 <h3 className="font-bold text-gray-900">Travel Itinerary</h3>
               </div>
               {summary?.nextFlightDate ? (
-                <div className="p-4 rounded-xl bg-gradient-to-r from-purple-50 to-violet-50 border border-purple-100">
-                  <p className="text-xs text-purple-500 uppercase tracking-wider font-semibold mb-1">Next Departure</p>
+                <div className="p-4 rounded-xl bg-gradient-to-r from-[#F4F7FA] to-[#F4F7FA] border border-[#E5E7EB]">
+                  <p className="text-xs text-[#0F4C81] uppercase tracking-wider font-semibold mb-1">Next Departure</p>
                   <p className="font-semibold text-gray-800">{new Date(summary.nextFlightDate).toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" })}</p>
-                  <button className="text-sm text-purple-600 font-medium hover:text-purple-800 mt-2 flex items-center gap-1"
+                  <button className="text-sm text-[#0F4C81] font-medium hover:text-[#1E293B] mt-2 flex items-center gap-1"
                     onClick={() => toast({ title: "Boarding pass", description: "Your boarding pass will be available 24 hours before departure." })}>
                     View boarding pass →
                   </button>
@@ -423,7 +423,7 @@ export default function Dashboard() {
               )}
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.52 }} className="bg-white rounded-2xl shadow-sm border border-purple-100 p-5">
+            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.52 }} className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">⚡</span>
                 <h3 className="font-bold text-gray-900">Quick Actions</h3>
@@ -439,14 +439,14 @@ export default function Dashboard() {
                   { icon: "⭐", label: "Leave Review", action: leaveReview },
                   { icon: "⛓️", label: "Blockchain Ledger", action: () => { window.location.href = `${basePath}/verify`; } },
                 ].map(({ icon, label, action }) => (
-                  <button key={label} onClick={action} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-purple-50 transition-colors text-left">
+                  <button key={label} onClick={action} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-[#F4F7FA] transition-colors text-left">
                     <span className="text-lg">{icon}</span>
                     {label}
                   </button>
                 ))}
               </div>
               {walletAddress && (
-                <div className="mt-3 px-3 py-2 rounded-xl bg-purple-50 border border-purple-100 text-xs text-purple-700 font-mono truncate">
+                <div className="mt-3 px-3 py-2 rounded-xl bg-[#F4F7FA] border border-[#E5E7EB] text-xs text-[#1F7A8C] font-mono truncate">
                   {walletAddress.slice(0, 10)}…{walletAddress.slice(-6)}
                 </div>
               )}

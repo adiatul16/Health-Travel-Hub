@@ -157,7 +157,7 @@ export default function ClinicDetail() {
               ) : credentials.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center">
                   <p className="text-sm text-muted-foreground">
-                    No on-chain credentials yet. Credentials submitted by the clinic are reviewed by MediBridge and anchored on the Polygon blockchain.
+                    No on-chain credentials yet. Credentials submitted by the clinic are reviewed by VitaVia and anchored on the Polygon blockchain.
                   </p>
                 </div>
               ) : (
@@ -200,7 +200,7 @@ export default function ClinicDetail() {
                 <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Internationally accredited with verified patient outcomes</li>
                 <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> {new Date().getFullYear() - clinic.yearsEstablished} years of clinical excellence since {clinic.yearsEstablished}</li>
                 <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> English-speaking patient coordinators available 24/7</li>
-                <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> MediBridge-verified for safety, quality, and transparency</li>
+                <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> VitaVia-verified for safety, quality, and transparency</li>
                 <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Includes complimentary airport transfer and aftercare guide</li>
               </ul>
             </motion.section>

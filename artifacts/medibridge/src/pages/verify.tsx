@@ -174,7 +174,7 @@ export default function VerifyPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-3xl font-bold"
               >
-                ⛓️ MediBridge Blockchain Ledger
+                ⛓️ VitaVia Blockchain Ledger
               </motion.h1>
               <p className="text-slate-300 mt-2 max-w-xl">
                 Every verification, record, and review is stored permanently on the Polygon Amoy blockchain.
@@ -202,7 +202,7 @@ export default function VerifyPage() {
       {/* Explainer */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-8">
-          <h2 className="font-bold text-blue-900 text-lg mb-3">How MediBridge uses blockchain</h2>
+          <h2 className="font-bold text-blue-900 text-lg mb-3">How VitaVia uses blockchain</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-blue-800">
             <div className="bg-white rounded-xl p-4 border border-blue-100">
               <div className="text-2xl mb-2">🏥</div>
