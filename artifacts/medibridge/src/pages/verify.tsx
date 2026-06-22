@@ -46,7 +46,7 @@ function EventCard({ event, index }: { event: ChainEvent; index: number }) {
       <div className="space-y-1 text-sm mb-2">
         {event.name === "ClinicVerified" && (
           <>
-            <p><span className="text-gray-500">Clinic:</span> <a href={addressUrl(event.args.clinic)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.clinic.slice(0, 12)}…</a></p>
+            <p><span className="text-gray-500">Clinic:</span> <a href={addressUrl(event.args.clinic)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.clinic?.slice(0, 12) ?? "unknown"}…</a></p>
             <p><span className="text-gray-500">Name:</span> {event.args.name}</p>
             <p><span className="text-gray-500">Accreditation:</span> {event.args.accreditation}</p>
             <p><span className="text-gray-500">Expires:</span> {formatTimestamp(event.args.expiry)}</p>
@@ -54,35 +54,35 @@ function EventCard({ event, index }: { event: ChainEvent; index: number }) {
         )}
         {event.name === "DoctorVerified" && (
           <>
-            <p><span className="text-gray-500">Doctor:</span> <a href={addressUrl(event.args.doctor)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.doctor.slice(0, 12)}…</a></p>
-            <p><span className="text-gray-500">Clinic:</span> <a href={addressUrl(event.args.clinic)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.clinic.slice(0, 12)}…</a></p>
+            <p><span className="text-gray-500">Doctor:</span> <a href={addressUrl(event.args.doctor)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.doctor?.slice(0, 12) ?? "unknown"}…</a></p>
+            <p><span className="text-gray-500">Clinic:</span> <a href={addressUrl(event.args.clinic)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.clinic?.slice(0, 12) ?? "unknown"}…</a></p>
             <p><span className="text-gray-500">License:</span> {event.args.license}</p>
           </>
         )}
         {event.name === "RecordAdded" && (
           <>
-            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient.slice(0, 12)}…</a></p>
-            <p><span className="text-gray-500">Hash:</span> <span className="font-mono text-xs text-gray-700">{event.args.dataHash?.slice(0, 20)}…</span></p>
+            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient?.slice(0, 12) ?? "unknown"}…</a></p>
+            <p><span className="text-gray-500">Hash:</span> <span className="font-mono text-xs text-gray-700">{event.args.dataHash?.slice(0, 20) ?? "N/A"}…</span></p>
             <p><span className="text-gray-500">Reference:</span> {event.args.ref}</p>
             <p><span className="text-gray-500">Phase:</span> {event.args.phase}</p>
           </>
         )}
         {event.name === "ConsentGranted" && (
           <>
-            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient.slice(0, 12)}…</a></p>
-            <p><span className="text-gray-500">Doctor:</span> <a href={addressUrl(event.args.doctor)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.doctor.slice(0, 12)}…</a></p>
+            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient?.slice(0, 12) ?? "unknown"}…</a></p>
+            <p><span className="text-gray-500">Doctor:</span> <a href={addressUrl(event.args.doctor)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.doctor?.slice(0, 12) ?? "unknown"}…</a></p>
           </>
         )}
         {event.name === "ConsentRevoked" && (
           <>
-            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient.slice(0, 12)}…</a></p>
-            <p><span className="text-gray-500">Doctor:</span> <a href={addressUrl(event.args.doctor)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.doctor.slice(0, 12)}…</a></p>
+            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient?.slice(0, 12) ?? "unknown"}…</a></p>
+            <p><span className="text-gray-500">Doctor:</span> <a href={addressUrl(event.args.doctor)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.doctor?.slice(0, 12) ?? "unknown"}…</a></p>
           </>
         )}
         {event.name === "ReviewAdded" && (
           <>
-            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient.slice(0, 12)}…</a></p>
-            <p><span className="text-gray-500">Clinic:</span> <a href={addressUrl(event.args.clinic)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.clinic.slice(0, 12)}…</a></p>
+            <p><span className="text-gray-500">Patient:</span> <a href={addressUrl(event.args.patient)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.patient?.slice(0, 12) ?? "unknown"}…</a></p>
+            <p><span className="text-gray-500">Clinic:</span> <a href={addressUrl(event.args.clinic)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline font-mono text-xs">{event.args.clinic?.slice(0, 12) ?? "unknown"}…</a></p>
             <p><span className="text-gray-500">Rating:</span> {"⭐".repeat(Number(event.args.rating))}</p>
             <p><span className="text-gray-500">Comment:</span> {event.args.comment}</p>
           </>
