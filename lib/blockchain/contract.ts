@@ -49,7 +49,7 @@ export async function ensureAmoyNetwork() {
             {
               chainId: "0x" + AMOY_CHAIN_ID.toString(16),
               chainName: "Polygon Amoy",
-              nativeCurrency: { name: "MATIC", symbol: "MATIC", decimals: 18 },
+              nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
               rpcUrls: [AMOY_RPC],
               blockExplorerUrls: [POLYGONSCAN_AMOY],
             },

@@ -4,7 +4,7 @@
  * Compiles CredentialRegistry.sol and deploys it to Polygon Amoy testnet.
  *
  * Prerequisites:
- *   1. Get free test MATIC from https://faucet.polygon.technology (select Amoy)
+ *   1. Get free test POL from https://faucet.polygon.technology (select Amoy)
  *   2. Export your wallet private key (WITHOUT 0x prefix) as POLYGON_PRIVATE_KEY
  *
  * Usage:
@@ -79,11 +79,11 @@ async function deploy() {
   console.log(`Deployer address: ${wallet.address}`);
 
   const balance = await provider.getBalance(wallet.address);
-  console.log(`Balance: ${ethers.formatEther(balance)} MATIC`);
+  console.log(`Balance: ${ethers.formatEther(balance)} POL`);
 
   if (balance === 0n) {
     throw new Error(
-      "Wallet has no MATIC. Get free test MATIC from https://faucet.polygon.technology (Amoy network)"
+      "Wallet has no POL. Get free test POL from https://faucet.polygon.technology (Amoy network)"
     );
   }
 

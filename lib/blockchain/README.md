@@ -20,7 +20,7 @@ A Solidity-based trust layer on the **Polygon Amoy** testnet for MediBridge Glob
 
 1. **MetaMask** browser extension installed
 2. **Polygon Amoy** testnet added to MetaMask (or let the app add it)
-3. **MATIC** test tokens from the [Amoy faucet](https://faucet.polygon.technology)
+3. **POL** test tokens from the [Amoy faucet](https://faucet.polygon.technology)
 
 ---
 
@@ -142,6 +142,6 @@ No backend blockchain integration. All reads are free RPC calls. All writes go t
 |---------|----------|
 | "MetaMask not installed" | Install the extension and refresh the page |
 | "Wrong network" | The app will auto-prompt to switch to Polygon Amoy |
-| "No funds" | Request MATIC from the [Amoy faucet](https://faucet.polygon.technology) |
+| "No funds" | Request POL from the [Amoy faucet](https://faucet.polygon.technology) |
 | "Contract not deployed" | Run `pnpm run deploy-contract` and check `ledger.json` has a non-empty address |
 | "TX reverted" | Check the clinic address format (0x...) and verify the admin wallet is the contract owner |
