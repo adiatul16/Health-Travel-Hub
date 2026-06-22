@@ -216,7 +216,9 @@ export default function Dashboard() {
   async function connectWallet() {
     try {
       await ensureAmoyNetwork();
-      const addr = await getConnectedAddress();
+      // Always request accounts so MetaMask prompts the user to connect the site
+      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+      const addr = accounts[0] ?? (await getConnectedAddress());
       if (addr) {
         setWalletAddress(addr);
         toast({ title: "Wallet connected", description: `${addr.slice(0, 10)}…${addr.slice(-6)}` });
