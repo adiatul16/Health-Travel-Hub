@@ -1,15 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import {
-  isClinicVerified,
-  isDoctorVerified,
-  getAllEvents,
-  txUrl,
-  addressUrl,
-  ensureAmoyNetwork,
-  getConnectedAddress,
-  AMOY_RPC,
-} from "@workspace/blockchain";
+import { txUrl, addressUrl } from "@workspace/blockchain";
 
 interface ChainEvent {
   name: string;
@@ -114,7 +105,6 @@ export default function VerifyPage() {
   const [events, setEvents] = useState<ChainEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [wallet, setWallet] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>("all");
 
   useEffect(() => {
@@ -122,18 +112,19 @@ export default function VerifyPage() {
       setLoading(true);
       setError(null);
       try {
-        const all = await getAllEvents();
+        const res = await fetch("/api/blockchain/events");
+        if (!res.ok) throw new Error("Failed to fetch events");
+        const all = await res.json();
         const merged: ChainEvent[] = [
-          ...all.clinicEvents.map((e: any) => ({ name: "ClinicVerified", args: e.args, txHash: e.transactionHash, blockNumber: e.blockNumber })),
-          ...all.doctorEvents.map((e: any) => ({ name: "DoctorVerified", args: e.args, txHash: e.transactionHash, blockNumber: e.blockNumber })),
-          ...all.recordEvents.map((e: any) => ({ name: "RecordAdded", args: e.args, txHash: e.transactionHash, blockNumber: e.blockNumber })),
-          ...all.consentGrantEvents.map((e: any) => ({ name: "ConsentGranted", args: e.args, txHash: e.transactionHash, blockNumber: e.blockNumber })),
-          ...all.consentRevokeEvents.map((e: any) => ({ name: "ConsentRevoked", args: e.args, txHash: e.transactionHash, blockNumber: e.blockNumber })),
-          ...all.reviewEvents.map((e: any) => ({ name: "ReviewAdded", args: e.args, txHash: e.transactionHash, blockNumber: e.blockNumber })),
-        ].sort((a, b) => b.blockNumber - a.blockNumber);
+          ...(all.clinicEvents || []),
+          ...(all.doctorEvents || []),
+          ...(all.recordEvents || []),
+          ...(all.consentGrantEvents || []),
+          ...(all.consentRevokeEvents || []),
+          ...(all.reviewEvents || []),
+        ].sort((a: ChainEvent, b: ChainEvent) => b.blockNumber - a.blockNumber);
         setEvents(merged);
       } catch (err: any) {
-        // If RPC can't fetch events due to block range limits, that's fine — the contract is still deployed.
         setEvents([]);
       } finally {
         setLoading(false);
@@ -141,16 +132,6 @@ export default function VerifyPage() {
     }
     void load();
   }, []);
-
-  async function connectWallet() {
-    try {
-      await ensureAmoyNetwork();
-      const addr = await getConnectedAddress();
-      setWallet(addr);
-    } catch (err: any) {
-      setError(err.message);
-    }
-  }
 
   const filtered = filter === "all" ? events : events.filter((e) => e.name === filter);
   const counts: Record<string, number> = {
@@ -183,18 +164,9 @@ export default function VerifyPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              {wallet ? (
-                <div className="px-4 py-2 rounded-xl bg-white/10 text-sm font-mono">
-                  {wallet.slice(0, 8)}…{wallet.slice(-6)}
-                </div>
-              ) : (
-                <button
-                  onClick={connectWallet}
-                  className="px-4 py-2 rounded-xl bg-white text-slate-900 font-semibold text-sm hover:bg-slate-100 transition-colors"
-                >
-                  Connect MetaMask
-                </button>
-              )}
+              <span className="text-xs text-slate-400 bg-white/10 px-3 py-1.5 rounded-lg">
+                Backend-managed · Polygon Amoy
+              </span>
             </div>
           </div>
         </div>
@@ -264,7 +236,7 @@ export default function VerifyPage() {
             <p className="text-red-600 text-sm">{error}</p>
             <p className="text-gray-400 text-xs mt-3">
               Make sure the contract is deployed and the RPC endpoint is reachable.
-              <br />RPC: {AMOY_RPC}
+              <br />Backend queries Polygon Amoy directly.
             </p>
           </div>
         ) : filtered.length === 0 ? (

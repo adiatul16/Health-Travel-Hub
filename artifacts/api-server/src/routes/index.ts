@@ -13,6 +13,7 @@ import adminRouter from "./admin";
 import chatRouter from "./chat";
 import credentialsRouter from "./credentials";
 import doctorsRouter from "./doctors";
+import blockchainRouter from "./blockchain";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use("/admin", adminRouter);
 router.use("/chat", chatRouter);
 router.use("/credentials", credentialsRouter);
 router.use("/doctors", doctorsRouter);
+router.use("/blockchain", blockchainRouter);
 
 export default router;

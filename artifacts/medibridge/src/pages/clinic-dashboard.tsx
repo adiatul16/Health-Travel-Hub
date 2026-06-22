@@ -1,15 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import {
-  ensureAmoyNetwork,
-  getConnectedAddress,
-  verifyDoctor,
-  addRecord,
-  sha256,
-  getReviewCount,
-  isClinicVerified,
-} from "@workspace/blockchain";
+import { sha256 } from "@workspace/blockchain";
 
 interface ClinicSlot {
   id: number;
@@ -43,38 +35,30 @@ export default function ClinicDashboard() {
   ]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"overview" | "slots" | "bookings" | "credentials">("overview");
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const [isVerified, setIsVerified] = useState<boolean | null>(null);
-  const [reviewCount, setReviewCount] = useState<number | null>(null);
   const [bcLoading, setBcLoading] = useState(false);
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-  async function connectWallet() {
-    try {
-      await ensureAmoyNetwork();
-      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
-      const addr = accounts[0] ?? (await getConnectedAddress());
-      if (addr) {
-        setWalletAddress(addr);
-        toast({ title: "Wallet connected", description: `${addr.slice(0, 10)}…${addr.slice(-6)}` });
-      } else {
-        toast({ title: "Wallet not found", description: "Please unlock MetaMask and try again.", variant: "destructive" });
-      }
-    } catch (err: any) {
-      toast({ title: "Connection failed", description: err.message, variant: "destructive" });
-    }
+  async function apiPost(path: string, body: Record<string, any>) {
+    const res = await fetch(`/api${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
   }
 
   async function registerDoctor() {
     setBcLoading(true);
     try {
-      await ensureAmoyNetwork();
       const doctorAddr = prompt("Doctor wallet address (0x...)")?.trim();
       const license = prompt("License number (e.g., GMC-123456)")?.trim();
-      if (!doctorAddr || !license) { setBcLoading(false); return; }
-      const tx = await verifyDoctor(doctorAddr, walletAddress ?? "0x0000000000000000000000000000000000000000", license, 365);
-      toast({ title: "Doctor verified", description: `TX: ${tx.slice(0, 10)}…` });
+      const clinicAddr = prompt("Your clinic wallet address (0x...)")?.trim();
+      if (!doctorAddr || !license || !clinicAddr) { setBcLoading(false); return; }
+      const data = await apiPost("/blockchain/verify-doctor", { doctorAddress: doctorAddr, clinicAddress: clinicAddr, license, expiryDays: 365 });
+      toast({ title: "Doctor verified", description: `TX: ${data.txHash.slice(0, 10)}…` });
     } catch (err: any) {
       toast({ title: "Failed", description: err.message, variant: "destructive" });
     } finally {
@@ -85,29 +69,15 @@ export default function ClinicDashboard() {
   async function addRecordHash() {
     setBcLoading(true);
     try {
-      await ensureAmoyNetwork();
       const ref = prompt("Reference for this record (e.g., 'MRI scan result')");
       if (!ref) { setBcLoading(false); return; }
       const hash = await sha256(ref + Date.now().toString());
-      const tx = await addRecord(hash, ref, "clinic");
-      toast({ title: "Record anchored", description: `TX: ${tx.slice(0, 10)}…` });
+      const data = await apiPost("/blockchain/record", { dataHash: hash, ref, phase: "clinic" });
+      toast({ title: "Record anchored", description: `TX: ${data.txHash.slice(0, 10)}…` });
     } catch (err: any) {
       toast({ title: "Failed", description: err.message, variant: "destructive" });
     } finally {
       setBcLoading(false);
-    }
-  }
-
-  async function checkStatus() {
-    if (!walletAddress) { toast({ title: "No wallet", description: "Connect wallet first", variant: "destructive" }); return; }
-    try {
-      const verified = await isClinicVerified(walletAddress);
-      const count = await getReviewCount(walletAddress);
-      setIsVerified(verified);
-      setReviewCount(Number(count));
-      toast({ title: "Status updated", description: `Verified: ${verified ? "Yes" : "No"} · Reviews: ${count}` });
-    } catch (err: any) {
-      toast({ title: "Failed", description: err.message, variant: "destructive" });
     }
   }
 
@@ -168,7 +138,7 @@ export default function ClinicDashboard() {
                 { label: "Active Slots", value: slots.length.toString(), icon: "📅", color: "from-teal-500 to-teal-600" },
                 { label: "Pending Bookings", value: bookings.filter((b) => b.status === "pending").length.toString(), icon: "📋", color: "from-amber-500 to-orange-600" },
                 { label: "Confirmed", value: bookings.filter((b) => b.status === "confirmed").length.toString(), icon: "✅", color: "from-emerald-500 to-teal-600" },
-                { label: "Revenue", value: `\u00a3${totalRevenue.toLocaleString()}`, icon: "💎", color: "from-blue-500 to-indigo-600" },
+                { label: "Revenue", value: `£${totalRevenue.toLocaleString()}`, icon: "💎", color: "from-blue-500 to-indigo-600" },
               ].map(({ label, value, icon, color }) => (
                 <div
                   key={label}
@@ -243,47 +213,27 @@ export default function ClinicDashboard() {
                 </div>
               </div>
 
+              {/* Blockchain Actions — backend-managed */}
               <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6 lg:col-span-2">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">⛓️</div>
                   <h3 className="font-bold text-gray-900">Blockchain Actions</h3>
-                  {isVerified === true && (
-                    <button onClick={checkStatus} className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium hover:bg-green-200 transition-colors flex items-center gap-1">
-                      <span>✅</span> Verified — Click to Verify
-                    </button>
-                  )}
-                  {isVerified === false && (
-                    <button onClick={checkStatus} className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium hover:bg-amber-200 transition-colors flex items-center gap-1">
-                      <span>⚠️</span> Not Verified — Check Status
-                    </button>
-                  )}
-                  {isVerified === null && (
-                    <button onClick={checkStatus} className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium hover:bg-gray-200 transition-colors flex items-center gap-1">
-                      <span>🔍</span> Check Verification
-                    </button>
-                  )}
+                  <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
+                    Backend-managed
+                  </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  <button onClick={connectWallet} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
-                    <span className="text-lg">🔗</span>
-                    {walletAddress ? `${walletAddress.slice(0, 8)}…${walletAddress.slice(-6)}` : "Connect Wallet"}
-                  </button>
                   <button onClick={registerDoctor} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
                     <span className="text-lg">🩺</span> Register Doctor
                   </button>
                   <button onClick={addRecordHash} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
                     <span className="text-lg">📁</span> Add Record Hash
                   </button>
-                  <button onClick={checkStatus} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
-                    <span className="text-lg">🔍</span> Check Status
-                  </button>
                   <button onClick={() => { window.location.href = `${basePath}/verify`; }} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left border border-gray-100">
                     <span className="text-lg">📜</span> View Ledger
                   </button>
                 </div>
-                {reviewCount !== null && (
-                  <p className="text-xs text-gray-400 mt-3">On-chain reviews: {reviewCount}</p>
-                )}
               </div>
             </div>
           </div>

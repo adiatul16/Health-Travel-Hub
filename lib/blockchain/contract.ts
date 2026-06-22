@@ -1,4 +1,4 @@
-import { ethers, BrowserProvider, Contract, JsonRpcProvider } from "ethers";
+import { ethers, Contract, JsonRpcProvider } from "ethers";
 import ledgerInfo from "./ledger.json";
 
 export const AMOY_CHAIN_ID = 80002;
@@ -8,7 +8,6 @@ export const POLYGONSCAN_AMOY = "https://amoy.polygonscan.com";
 const ABI = ledgerInfo.abi;
 const CONTRACT_ADDRESS = ledgerInfo.address;
 
-/* ─── Provider / read-only ─── */
 function getReadProvider() {
   return new JsonRpcProvider(AMOY_RPC);
 }
@@ -16,56 +15,6 @@ function getReadProvider() {
 function getReadContract() {
   if (!CONTRACT_ADDRESS) throw new Error("Contract not deployed yet");
   return new Contract(CONTRACT_ADDRESS, ABI, getReadProvider());
-}
-
-/* ─── MetaMask / signer ─── */
-export async function getSigner() {
-  if (!(window as any).ethereum) throw new Error("MetaMask not installed");
-  const provider = new BrowserProvider((window as any).ethereum);
-  await provider.send("eth_requestAccounts", []);
-  return provider.getSigner();
-}
-
-export async function getWriteContract() {
-  const signer = await getSigner();
-  if (!CONTRACT_ADDRESS) throw new Error("Contract not deployed yet");
-  return new Contract(CONTRACT_ADDRESS, ABI, signer);
-}
-
-export async function ensureAmoyNetwork() {
-  if (!(window as any).ethereum) throw new Error("MetaMask not installed");
-  const chainId = await (window as any).ethereum.request({ method: "eth_chainId" });
-  if (Number(chainId) !== AMOY_CHAIN_ID) {
-    try {
-      await (window as any).ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: "0x" + AMOY_CHAIN_ID.toString(16) }],
-      });
-    } catch (switchError: any) {
-      if (switchError.code === 4902) {
-        await (window as any).ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [
-            {
-              chainId: "0x" + AMOY_CHAIN_ID.toString(16),
-              chainName: "Polygon Amoy",
-              nativeCurrency: { name: "POL", symbol: "POL", decimals: 18 },
-              rpcUrls: [AMOY_RPC],
-              blockExplorerUrls: [POLYGONSCAN_AMOY],
-            },
-          ],
-        });
-      } else {
-        throw switchError;
-      }
-    }
-  }
-}
-
-export async function getConnectedAddress() {
-  if (!(window as any).ethereum) return null;
-  const accounts = await (window as any).ethereum.request({ method: "eth_accounts" });
-  return accounts[0] ?? null;
 }
 
 /* ─── Read functions (free, no wallet) ─── */
@@ -121,7 +70,6 @@ export async function getAllEvents() {
   const consentRevokeFilter = contract.filters.ConsentRevoked();
   const reviewFilter = contract.filters.ReviewAdded();
 
-  // Amoy RPC limits block range for eth_getLogs; use a recent window to avoid the error
   const latestBlock = await provider.getBlockNumber();
   const fromBlock = Math.max(0, latestBlock - 50);
 
@@ -151,61 +99,6 @@ export function txUrl(txHash: string) {
 
 export function addressUrl(addr: string) {
   return `${POLYGONSCAN_AMOY}/address/${addr}`;
-}
-
-/* ─── Write helpers (requires MetaMask) ─── */
-export async function verifyClinic(
-  clinic: string,
-  name: string,
-  accreditation: string,
-  expiryDays: number
-) {
-  const contract = await getWriteContract();
-  const expiry = Math.floor(Date.now() / 1000) + expiryDays * 24 * 3600;
-  const tx = await contract.verifyClinic(clinic, name, accreditation, expiry);
-  await tx.wait();
-  return tx.hash;
-}
-
-export async function verifyDoctor(
-  doctor: string,
-  clinic: string,
-  license: string,
-  expiryDays: number
-) {
-  const contract = await getWriteContract();
-  const expiry = Math.floor(Date.now() / 1000) + expiryDays * 24 * 3600;
-  const tx = await contract.verifyDoctor(doctor, clinic, license, expiry);
-  await tx.wait();
-  return tx.hash;
-}
-
-export async function addRecord(dataHash: string, ref: string, phase: string) {
-  const contract = await getWriteContract();
-  const tx = await contract.addRecord(dataHash, ref, phase);
-  await tx.wait();
-  return tx.hash;
-}
-
-export async function grantConsent(doctor: string, recordHash: string) {
-  const contract = await getWriteContract();
-  const tx = await contract.grantConsent(doctor, recordHash);
-  await tx.wait();
-  return tx.hash;
-}
-
-export async function revokeConsent(doctor: string, recordHash: string) {
-  const contract = await getWriteContract();
-  const tx = await contract.revokeConsent(doctor, recordHash);
-  await tx.wait();
-  return tx.hash;
-}
-
-export async function addReview(clinic: string, rating: number, comment: string) {
-  const contract = await getWriteContract();
-  const tx = await contract.addReview(clinic, rating, comment);
-  await tx.wait();
-  return tx.hash;
 }
 
 /* ─── SHA-256 hash helper (browser-side) ─── */

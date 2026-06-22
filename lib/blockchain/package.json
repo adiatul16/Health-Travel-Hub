@@ -8,6 +8,7 @@
   },
   "main": "./contract.ts",
   "exports": {
-    ".": "./contract.ts"
+    ".": "./contract.ts",
+    "./ledger.json": "./ledger.json"
   }
 }

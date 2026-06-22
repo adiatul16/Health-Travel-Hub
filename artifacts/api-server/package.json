@@ -15,6 +15,7 @@
     "@clerk/express": "^2.1.26",
     "@clerk/shared": "^4.17.1",
     "@workspace/api-zod": "workspace:*",
+    "@workspace/blockchain": "workspace:*",
     "@workspace/db": "workspace:*",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",

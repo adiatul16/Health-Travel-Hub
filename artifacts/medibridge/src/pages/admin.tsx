@@ -1,12 +1,6 @@
 import { useGetAdminMetrics, useListClinics } from "@workspace/api-client-react";
 import { useState, useEffect, useCallback } from "react";
-import {
-  ensureAmoyNetwork,
-  getConnectedAddress,
-  verifyClinic,
-  txUrl,
-  addressUrl,
-} from "@workspace/blockchain";
+import { txUrl } from "@workspace/blockchain";
 
 function KPICard({
   label,
@@ -487,36 +481,31 @@ function CredentialQueueSection() {
 
 export default function Admin() {
   const { data: metrics, isLoading } = useGetAdminMetrics();
-  const [adminWallet, setAdminWallet] = useState<string | null>(null);
   const [bcLoading, setBcLoading] = useState(false);
   const [bcMsg, setBcMsg] = useState<string | null>(null);
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-  async function connectAdminWallet() {
-    try {
-      await ensureAmoyNetwork();
-      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
-      const addr = accounts[0] ?? (await getConnectedAddress());
-      if (addr) {
-        setAdminWallet(addr);
-        setBcMsg(`Connected: ${addr.slice(0, 8)}…${addr.slice(-6)}`);
-      }
-    } catch (err: any) {
-      setBcMsg(`Error: ${err.message}`);
-    }
+  async function apiPost(path: string, body: Record<string, any>) {
+    const res = await fetch(`/api${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
   }
 
   async function verifyClinicOnChain() {
     setBcLoading(true);
     setBcMsg(null);
     try {
-      await ensureAmoyNetwork();
       const clinicAddr = prompt("Clinic wallet address (0x...)")?.trim();
       const name = prompt("Clinic name")?.trim();
       const accreditation = prompt("Accreditation (e.g., JCI)")?.trim();
       if (!clinicAddr || !name || !accreditation) { setBcLoading(false); return; }
-      const tx = await verifyClinic(clinicAddr, name, accreditation, 365);
-      setBcMsg(`Verified! TX: ${tx.slice(0, 10)}…`);
+      const data = await apiPost("/blockchain/verify-clinic", { clinicAddress: clinicAddr, name, accreditation, expiryDays: 365 });
+      setBcMsg(`Verified! TX: ${data.txHash.slice(0, 10)}…`);
     } catch (err: any) {
       setBcMsg(`Failed: ${err.message}`);
     } finally {
@@ -656,16 +645,10 @@ export default function Admin() {
             <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg">⛓️</div>
             <div>
               <h3 className="font-bold text-gray-900">Blockchain Admin</h3>
-              <p className="text-xs text-gray-400">Polygon Amoy testnet</p>
+              <p className="text-xs text-gray-400">Backend-managed Polygon Amoy</p>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
-            <button
-              onClick={connectAdminWallet}
-              className="px-4 py-2 rounded-xl bg-slate-700 text-white text-sm font-semibold hover:bg-slate-800 transition-colors"
-            >
-              🔗 {adminWallet ? `${adminWallet.slice(0, 6)}…${adminWallet.slice(-4)}` : "Connect Wallet"}
-            </button>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
             <button
               onClick={verifyClinicOnChain}
               disabled={bcLoading}
@@ -682,7 +665,7 @@ export default function Admin() {
           </div>
           {bcMsg && (
             <div className={`text-xs px-3 py-2 rounded-lg ${
-              bcMsg.startsWith("Verified") || bcMsg.startsWith("Connected")
+              bcMsg.startsWith("Verified")
                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                 : "bg-red-50 text-red-700 border border-red-200"
             }`}>

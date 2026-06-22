@@ -12,13 +12,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import {
-  ensureAmoyNetwork,
-  getConnectedAddress,
-  addRecord,
-  addReview,
-  sha256,
-} from "@workspace/blockchain";
+import { sha256 } from "@workspace/blockchain";
 
 function StatCard({
   label,
@@ -202,7 +196,6 @@ export default function Dashboard() {
   const { data: summary, isLoading } = useGetDashboardSummary();
   const { toast } = useToast();
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
-  const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [recordLoading, setRecordLoading] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
 
@@ -213,32 +206,25 @@ export default function Dashboard() {
     toast({ title: "Chat opened", description: "A VitaVia coordinator will assist you shortly." });
   }
 
-  async function connectWallet() {
-    try {
-      await ensureAmoyNetwork();
-      // Always request accounts so MetaMask prompts the user to connect the site
-      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
-      const addr = accounts[0] ?? (await getConnectedAddress());
-      if (addr) {
-        setWalletAddress(addr);
-        toast({ title: "Wallet connected", description: `${addr.slice(0, 10)}…${addr.slice(-6)}` });
-      } else {
-        toast({ title: "Wallet not found", description: "Please unlock MetaMask and try again.", variant: "destructive" });
-      }
-    } catch (err: any) {
-      toast({ title: "Connection failed", description: err.message, variant: "destructive" });
-    }
+  async function apiPost(path: string, body: Record<string, any>) {
+    const res = await fetch(`/api${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Request failed");
+    return data;
   }
 
   async function addRecordHash() {
     setRecordLoading(true);
     try {
-      await ensureAmoyNetwork();
       const ref = prompt("Enter a short reference for this record (e.g., 'Pre-op blood test')");
       if (!ref) { setRecordLoading(false); return; }
       const hash = await sha256(ref + Date.now().toString());
-      const tx = await addRecord(hash, ref, "pre-op");
-      toast({ title: "Record anchored", description: `TX: ${tx.slice(0, 10)}…` });
+      const data = await apiPost("/blockchain/record", { dataHash: hash, ref, phase: "pre-op" });
+      toast({ title: "Record anchored", description: `TX: ${data.txHash.slice(0, 10)}…` });
     } catch (err: any) {
       toast({ title: "Failed to add record", description: err.message, variant: "destructive" });
     } finally {
@@ -249,7 +235,6 @@ export default function Dashboard() {
   async function leaveReview() {
     setReviewLoading(true);
     try {
-      await ensureAmoyNetwork();
       const clinicAddr = prompt("Enter clinic wallet address (0x...)")?.trim();
       if (!clinicAddr || !clinicAddr.startsWith("0x")) {
         toast({ title: "Invalid address", description: "Please enter a valid clinic wallet address.", variant: "destructive" });
@@ -264,8 +249,8 @@ export default function Dashboard() {
         return;
       }
       const comment = prompt("Your review comment (optional):") || "";
-      const tx = await addReview(clinicAddr, rating, comment);
-      toast({ title: "Review submitted", description: `TX: ${tx.slice(0, 10)}…` });
+      const data = await apiPost("/blockchain/review", { clinicAddress: clinicAddr, rating, comment });
+      toast({ title: "Review submitted", description: `TX: ${data.txHash.slice(0, 10)}…` });
     } catch (err: any) {
       toast({ title: "Failed to submit review", description: err.message, variant: "destructive" });
     } finally {
@@ -291,7 +276,7 @@ export default function Dashboard() {
       <div className="max-w-7xl mx-auto space-y-6">
         {/* KPI grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          <StatCard label="Total Saved vs UK" value={`\u00a3${(summary?.totalSavings || 0).toLocaleString()}`} icon="💰" accent="from-emerald-400 to-teal-500" />
+          <StatCard label="Total Saved vs UK" value={`£${(summary?.totalSavings || 0).toLocaleString()}`} icon="💰" accent="from-emerald-400 to-teal-500" />
           <StatCard label="Upcoming Treatments" value={String(summary?.upcomingTreatments?.length || 0)} icon="🏥" accent="from-[#0F4C81] to-[#1F7A8C]" />
           <StatCard label="Unread Messages" value={String(summary?.messageCount || 0)} icon="✉️" accent="from-blue-400 to-indigo-500" />
           <StatCard label="Recovery Progress" value={`${recoveryPct}%`} icon="❤️" accent="from-rose-400 to-pink-500" />
@@ -422,38 +407,28 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Trust & Security — friendly blockchain section */}
+            {/* Trust & Security — one-click backend blockchain */}
             <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-xl">🛡️</span>
                 <h3 className="font-bold text-gray-900">Trust & Security</h3>
               </div>
               <p className="text-xs text-gray-500 mb-3 leading-relaxed">
-                Your medical records can be permanently secured on the blockchain — tamper-proof and independently verifiable.
+                Your medical records are secured on the blockchain by VitaVia — no wallet setup needed.
               </p>
-              {!walletAddress ? (
-                <button onClick={connectWallet} className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium bg-[#F4F7FA] text-[#1F7A8C] hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB]">
-                  <span className="text-lg">🔗</span>
-                  Connect Wallet to Start
-                </button>
-              ) : (
-                <div className="space-y-2">
-                  <div className="px-3 py-2 rounded-xl bg-[#F4F7FA] border border-[#E5E7EB] text-xs text-[#1F7A8C] font-mono truncate">
-                    {walletAddress.slice(0, 10)}…{walletAddress.slice(-6)}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button onClick={addRecordHash} className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium bg-[#F4F7FA] text-gray-700 hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB]">
-                      <span>📁</span> Secure Record
-                    </button>
-                    <button onClick={leaveReview} className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium bg-[#F4F7FA] text-gray-700 hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB]">
-                      <span>⭐</span> Review
-                    </button>
-                  </div>
-                  <button onClick={() => { window.location.href = `${basePath}/verify`; }} className="w-full flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium text-[#1F7A8C] hover:bg-[#F4F7FA] transition-colors border border-[#E5E7EB]">
-                    <span>⛓️</span> View Public Ledger
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <button onClick={addRecordHash} disabled={recordLoading} className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium bg-[#F4F7FA] text-gray-700 hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB] disabled:opacity-50">
+                    <span>📁</span> {recordLoading ? "Anchoring…" : "Secure Record"}
+                  </button>
+                  <button onClick={leaveReview} disabled={reviewLoading} className="flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium bg-[#F4F7FA] text-gray-700 hover:bg-[#E5E7EB] transition-colors border border-[#E5E7EB] disabled:opacity-50">
+                    <span>⭐</span> {reviewLoading ? "Submitting…" : "Review"}
                   </button>
                 </div>
-              )}
+                <button onClick={() => { window.location.href = `${basePath}/verify`; }} className="w-full flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs font-medium text-[#1F7A8C] hover:bg-[#F4F7FA] transition-colors border border-[#E5E7EB]">
+                  <span>⛓️</span> View Public Ledger
+                </button>
+              </div>
             </div>
           </div>
         </div>
