@@ -121,14 +121,18 @@ export async function getAllEvents() {
   const consentRevokeFilter = contract.filters.ConsentRevoked();
   const reviewFilter = contract.filters.ReviewAdded();
 
+  // Amoy RPC limits block range for eth_getLogs; use a recent window to avoid the error
+  const latestBlock = await provider.getBlockNumber();
+  const fromBlock = Math.max(0, latestBlock - 5000);
+
   const [clinicEvents, doctorEvents, recordEvents, consentGrantEvents, consentRevokeEvents, reviewEvents] =
     await Promise.all([
-      contract.queryFilter(clinicFilter),
-      contract.queryFilter(doctorFilter),
-      contract.queryFilter(recordFilter),
-      contract.queryFilter(consentGrantFilter),
-      contract.queryFilter(consentRevokeFilter),
-      contract.queryFilter(reviewFilter),
+      contract.queryFilter(clinicFilter, fromBlock, "latest"),
+      contract.queryFilter(doctorFilter, fromBlock, "latest"),
+      contract.queryFilter(recordFilter, fromBlock, "latest"),
+      contract.queryFilter(consentGrantFilter, fromBlock, "latest"),
+      contract.queryFilter(consentRevokeFilter, fromBlock, "latest"),
+      contract.queryFilter(reviewFilter, fromBlock, "latest"),
     ]);
 
   return {
