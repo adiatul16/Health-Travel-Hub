@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogClose,
 } from "@/components/ui/dialog";
-import { motion } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import {
   ensureAmoyNetwork,
@@ -26,32 +25,25 @@ function StatCard({
   value,
   icon,
   accent,
-  delay = 0,
 }: {
   label: string;
   value: string;
   icon: string;
   accent: string;
-  delay?: number;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, type: "spring", stiffness: 260, damping: 22 }}
-      className={`bg-white rounded-2xl p-6 shadow-sm border border-[#E5E7EB] overflow-hidden group hover:shadow-md transition-shadow`}
-    >
-      <div className={`absolute inset-0 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity bg-gradient-to-br ${accent}`} />
+    <div className={`bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#E5E7EB] overflow-hidden hover:shadow-md transition-shadow duration-300`}>
+      <div className={`absolute inset-0 opacity-[0.03] bg-gradient-to-br ${accent}`} />
       <div className="relative z-10 flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500 mb-2">{label}</p>
-          <p className="text-3xl font-bold text-gray-900">{value}</p>
+          <p className="text-sm font-medium text-gray-500 mb-1">{label}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{value}</p>
         </div>
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${accent} flex items-center justify-center text-2xl shadow-sm`}>
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${accent} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`}>
           {icon}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -296,20 +288,15 @@ export default function Dashboard() {
     <div className="p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* KPI grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <StatCard label="Total Saved vs UK" value={`£${(summary?.totalSavings || 0).toLocaleString()}`} icon="💰" accent="from-emerald-400 to-teal-500" delay={0} />
-          <StatCard label="Upcoming Treatments" value={String(summary?.upcomingTreatments?.length || 0)} icon="🏥" accent="from-[#0F4C81] to-[#1F7A8C]" delay={0.08} />
-          <StatCard label="Unread Messages" value={String(summary?.messageCount || 0)} icon="✉️" accent="from-blue-400 to-indigo-500" delay={0.16} />
-          <StatCard label="Recovery Progress" value={`${recoveryPct}%`} icon="❤️" accent="from-rose-400 to-pink-500" delay={0.24} />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          <StatCard label="Total Saved vs UK" value={`\u00a3${(summary?.totalSavings || 0).toLocaleString()}`} icon="💰" accent="from-emerald-400 to-teal-500" />
+          <StatCard label="Upcoming Treatments" value={String(summary?.upcomingTreatments?.length || 0)} icon="🏥" accent="from-[#0F4C81] to-[#1F7A8C]" />
+          <StatCard label="Unread Messages" value={String(summary?.messageCount || 0)} icon="✉️" accent="from-blue-400 to-indigo-500" />
+          <StatCard label="Recovery Progress" value={`${recoveryPct}%`} icon="❤️" accent="from-rose-400 to-pink-500" />
         </div>
 
         {/* Recovery bar */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-2xl p-5 shadow-sm border border-[#E5E7EB]"
-        >
+        <div className="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-[#E5E7EB]">
           <div className="flex items-center justify-between mb-3">
             <div>
               <h3 className="font-semibold text-gray-900">Recovery Milestone</h3>
@@ -318,44 +305,34 @@ export default function Dashboard() {
             <span className="text-2xl font-bold text-[#1F7A8C]">{recoveryPct}%</span>
           </div>
           <div className="w-full bg-[#E5E7EB] rounded-full h-3 overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${recoveryPct}%` }}
-              transition={{ delay: 0.6, duration: 1.2, ease: "easeOut" }}
-              className="h-3 rounded-full bg-gradient-to-r from-[#0F4C81] to-[#1F7A8C]"
+            <div
+              className="h-3 rounded-full bg-gradient-to-r from-[#0F4C81] to-[#1F7A8C] transition-all duration-1000 ease-out"
+              style={{ width: `${recoveryPct}%` }}
             />
           </div>
           <div className="flex justify-between text-xs text-gray-400 mt-2">
             <span>Pre-procedure</span>
             <span>Recovery complete</span>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Bookings */}
           <div className="lg:col-span-2">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden"
-            >
-              <div className="px-6 py-5 border-b border-gray-50 flex items-center justify-between">
+            <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] overflow-hidden">
+              <div className="px-4 sm:px-6 py-4 sm:py-5 border-b border-gray-50 flex items-center justify-between">
                 <div>
                   <h2 className="text-lg font-bold text-gray-900">Upcoming Bookings</h2>
                   <p className="text-sm text-gray-500 mt-0.5">Your scheduled procedures and appointments</p>
                 </div>
-                <span className="w-8 h-8 rounded-lg bg-[#F4F7FA] flex items-center justify-center text-lg">📋</span>
+                <span className="w-8 h-8 rounded-lg bg-[#F4F7FA] flex items-center justify-center text-lg flex-shrink-0">📋</span>
               </div>
               <div className="divide-y divide-gray-50">
                 {summary?.upcomingTreatments?.length ? (
-                  summary.upcomingTreatments.map((booking, i) => (
-                    <motion.div
+                  summary.upcomingTreatments.map((booking) => (
+                    <div
                       key={booking.id}
-                      initial={{ opacity: 0, x: -12 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.4 + i * 0.08 }}
-                      className="px-6 py-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-[#F4F7FA]/40 transition-colors"
+                      className="px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center gap-4 hover:bg-[#F4F7FA]/40 transition-colors"
                     >
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1.5">
@@ -377,13 +354,13 @@ export default function Dashboard() {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="rounded-xl border-[#B0C4DE] text-[#1F7A8C] hover:bg-[#F4F7FA]"
+                          className="rounded-xl border-[#B0C4DE] text-[#1F7A8C] hover:bg-[#F4F7FA] flex-shrink-0"
                           onClick={() => setSelectedBooking(generateMockDetails(booking))}
                         >
                           Details
                         </Button>
                       </div>
-                    </motion.div>
+                    </div>
                   ))
                 ) : (
                   <div className="py-16 flex flex-col items-center text-center gap-3">
@@ -396,12 +373,12 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-            </motion.div>
+            </div>
           </div>
 
           {/* Sidebar cards */}
-          <div className="space-y-5">
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }} className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
+          <div className="space-y-4 sm:space-y-5">
+            <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">✈️</span>
                 <h3 className="font-bold text-gray-900">Travel Itinerary</h3>
@@ -421,14 +398,14 @@ export default function Dashboard() {
                   <p className="text-sm text-gray-400">No upcoming flights scheduled</p>
                 </div>
               )}
-            </motion.div>
+            </div>
 
-            <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.52 }} className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-5">
+            <div className="bg-white rounded-2xl shadow-sm border border-[#E5E7EB] p-4 sm:p-5">
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-xl">⚡</span>
                 <h3 className="font-bold text-gray-900">Quick Actions</h3>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-1">
                 {[
                   { icon: "💬", label: "Message Concierge", action: openChat },
                   { icon: "📁", label: "Upload Medical Records", action: () => toast({ title: "Upload records", description: "Please use the secure upload portal on your desktop to submit medical records." }) },
@@ -450,7 +427,7 @@ export default function Dashboard() {
                   {walletAddress.slice(0, 10)}…{walletAddress.slice(-6)}
                 </div>
               )}
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>

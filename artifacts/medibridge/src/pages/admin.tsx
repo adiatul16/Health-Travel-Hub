@@ -1,5 +1,4 @@
 import { useGetAdminMetrics, useListClinics } from "@workspace/api-client-react";
-import { motion } from "framer-motion";
 import { useState, useEffect, useCallback } from "react";
 import {
   ensureAmoyNetwork,
@@ -16,7 +15,6 @@ function KPICard({
   trend,
   trendUp,
   accent,
-  delay = 0,
 }: {
   label: string;
   value: string;
@@ -24,14 +22,10 @@ function KPICard({
   trend?: string;
   trendUp?: boolean;
   accent: string;
-  delay?: number;
 }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, type: "spring", stiffness: 280, damping: 22 }}
-      className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden group hover:shadow-md transition-shadow"
+    <div
+      className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 relative overflow-hidden group hover:shadow-md transition-shadow duration-300"
     >
       <div className={`absolute top-0 right-0 w-28 h-28 bg-gradient-to-br ${accent} opacity-5 group-hover:opacity-10 transition-opacity rounded-bl-full`} />
       <div className="relative z-10">
@@ -48,11 +42,11 @@ function KPICard({
         <p className="text-2xl font-bold text-gray-900">{value}</p>
         <p className="text-sm text-gray-500 mt-1">{label}</p>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-function RevenueBar({ label, value, max, color, delay = 0 }: { label: string; value: number; max: number; color: string; delay?: number }) {
+function RevenueBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="space-y-2">
@@ -61,11 +55,9 @@ function RevenueBar({ label, value, max, color, delay = 0 }: { label: string; va
         <span className="font-bold text-gray-900">£{value.toLocaleString()}</span>
       </div>
       <div className="w-full bg-gray-100 rounded-full h-2.5 overflow-hidden">
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ delay, duration: 1.0, ease: "easeOut" }}
-          className={`h-2.5 rounded-full ${color}`}
+        <div
+          className={`h-2.5 rounded-full ${color} transition-all duration-700 ease-out`}
+          style={{ width: `${pct}%` }}
         />
       </div>
       <div className="text-xs text-gray-400">{pct}% of total</div>
@@ -213,10 +205,7 @@ function CredentialQueueSection() {
   const blockchainReady = credentials[0]?.blockchainConfigured ?? false;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6 }}
+    <div
       className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden"
     >
       <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
@@ -492,7 +481,7 @@ function CredentialQueueSection() {
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -551,10 +540,7 @@ export default function Admin() {
     <div className="p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
         {/* Revenue banner */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
+        <div
           className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6"
         >
           <div>
@@ -566,22 +552,19 @@ export default function Admin() {
             <p className="text-slate-300 text-sm">Conversion Rate</p>
             <p className="text-3xl font-bold text-white mt-1">{metrics?.conversionRate}%</p>
           </div>
-        </motion.div>
+        </div>
 
         {/* KPI Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          <KPICard label="Total Patients" value={(metrics?.totalPatients || 0).toLocaleString()} icon="👥" trend="12%" trendUp={true} accent="from-[#0F4C81] to-[#1F7A8C]" delay={0} />
-          <KPICard label="Treatment Revenue" value={`£${(metrics?.treatmentRevenue || 0).toLocaleString()}`} icon="💊" trend="8%" trendUp={true} accent="from-blue-500 to-indigo-600" delay={0.08} />
-          <KPICard label="Conversion Rate" value={`${metrics?.conversionRate || 0}%`} icon="📈" trend="2.4%" trendUp={true} accent="from-emerald-500 to-teal-600" delay={0.16} />
-          <KPICard label="Inventory Utilisation" value={`${metrics?.inventoryUtilization || 0}%`} icon="📦" trend="5%" trendUp={false} accent="from-amber-500 to-orange-600" delay={0.24} />
+          <KPICard label="Total Patients" value={(metrics?.totalPatients || 0).toLocaleString()} icon="👥" trend="12%" trendUp={true} accent="from-[#0F4C81] to-[#1F7A8C]" />
+          <KPICard label="Treatment Revenue" value={`£${(metrics?.treatmentRevenue || 0).toLocaleString()}`} icon="💊" trend="8%" trendUp={true} accent="from-blue-500 to-indigo-600" />
+          <KPICard label="Conversion Rate" value={`${metrics?.conversionRate || 0}%`} icon="📈" trend="2.4%" trendUp={true} accent="from-emerald-500 to-teal-600" />
+          <KPICard label="Inventory Utilisation" value={`${metrics?.inventoryUtilization || 0}%`} icon="📦" trend="5%" trendUp={false} accent="from-amber-500 to-orange-600" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Revenue Distribution */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.30 }}
+          <div
             className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -592,21 +575,18 @@ export default function Admin() {
               </div>
             </div>
             <div className="space-y-6">
-              <RevenueBar label="Treatment Fees" value={metrics?.treatmentRevenue || 0} max={totalRevenue} color="bg-gradient-to-r from-slate-600 to-slate-700" delay={0.5} />
-              <RevenueBar label="Hotel & Travel Affiliate" value={metrics?.hotelRevenue || 0} max={totalRevenue} color="bg-gradient-to-r from-blue-500 to-indigo-500" delay={0.65} />
-              <RevenueBar label="Insurance Premiums" value={metrics?.insuranceRevenue || 0} max={totalRevenue} color="bg-gradient-to-r from-emerald-500 to-teal-500" delay={0.8} />
+              <RevenueBar label="Treatment Fees" value={metrics?.treatmentRevenue || 0} max={totalRevenue} color="bg-gradient-to-r from-slate-600 to-slate-700" />
+              <RevenueBar label="Hotel & Travel Affiliate" value={metrics?.hotelRevenue || 0} max={totalRevenue} color="bg-gradient-to-r from-blue-500 to-indigo-500" />
+              <RevenueBar label="Insurance Premiums" value={metrics?.insuranceRevenue || 0} max={totalRevenue} color="bg-gradient-to-r from-emerald-500 to-teal-500" />
             </div>
             <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
               <span className="text-sm text-gray-500">Total</span>
               <span className="font-bold text-slate-700 text-lg">£{totalRevenue.toLocaleString()}</span>
             </div>
-          </motion.div>
+          </div>
 
           {/* Popular Treatments */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.36 }}
+          <div
             className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
           >
             <div className="flex items-center gap-3 mb-6">
@@ -618,11 +598,8 @@ export default function Admin() {
             </div>
             <div className="space-y-3">
               {metrics?.popularTreatments.map((t, i) => (
-                <motion.div
+                <div
                   key={i}
-                  initial={{ opacity: 0, x: 12 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.45 + i * 0.07 }}
                   className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors"
                 >
                   <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0 ${
@@ -641,10 +618,10 @@ export default function Admin() {
                     <p className="font-bold text-slate-700 text-sm">£{t.revenue.toLocaleString()}</p>
                     <p className="text-xs text-gray-400">revenue</p>
                   </div>
-                </motion.div>
+                </div>
               ))}
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* Bottom stats row */}
@@ -654,11 +631,8 @@ export default function Admin() {
             { title: "Destinations", value: "2", icon: "🌍", desc: "Turkey & China networks", color: "from-blue-500 to-indigo-500" },
             { title: "Avg Patient Saving", value: "65%", icon: "💎", desc: "vs UK private healthcare", color: "from-emerald-500 to-teal-500" },
           ].map(({ title, value, icon, desc, color }, i) => (
-            <motion.div
+            <div
               key={title}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 + i * 0.08 }}
               className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex items-center gap-4"
             >
               <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-2xl shadow-sm flex-shrink-0`}>
@@ -669,15 +643,12 @@ export default function Admin() {
                 <p className="text-sm font-medium text-gray-700">{title}</p>
                 <p className="text-xs text-gray-400">{desc}</p>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
 
         {/* Blockchain Admin Panel */}
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
+        <div
           className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
         >
           <div className="flex items-center gap-3 mb-4">
@@ -717,7 +688,7 @@ export default function Admin() {
               {bcMsg}
             </div>
           )}
-        </motion.div>
+        </div>
 
         {/* Credential Approvals */}
         <CredentialQueueSection />

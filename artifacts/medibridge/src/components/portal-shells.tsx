@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useState, useEffect, useCallback } from "react";
+import { Link } from "wouter";
 
 /* ─── Shared Types ─── */
 interface PortalShellProps {
@@ -60,7 +60,7 @@ function SidebarNav({
 }) {
   return (
     <aside
-      className={`${bgSidebar} ${sidebarText} h-screen flex flex-col transition-all duration-300 ease-in-out z-40 fixed lg:relative ${
+      className={`${bgSidebar} ${sidebarText} h-[100dvh] flex flex-col transition-all duration-300 ease-in-out z-40 fixed lg:relative ${
         collapsed ? "w-0 lg:w-20 overflow-hidden" : "w-64"
       }`}
     >
@@ -77,7 +77,10 @@ function SidebarNav({
           return (
             <button
               key={item.section}
-              onClick={() => setSection(item.section)}
+              onClick={() => {
+                setSection(item.section);
+                window.location.hash = item.section;
+              }}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors text-left ${
                 isActive ? `${activeBg} ${activeText}` : `${sidebarTextMuted} ${hoverBg}`
               }`}
@@ -99,7 +102,10 @@ function SidebarNav({
               return (
                 <button
                   key={sec.id}
-                  onClick={() => setSection(sec.id)}
+                  onClick={() => {
+                    setSection(sec.id);
+                    window.location.hash = sec.id;
+                  }}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-colors text-left ${
                     isActive ? `${activeBg} ${activeText}` : `${sidebarTextMuted} ${hoverBg}`
                   }`}
@@ -131,14 +137,23 @@ function SidebarNav({
 function PortalShellInternal(props: PortalShellProps) {
   const { children, userName, userRole, avatar, subtitle, accent, bgMain, headerGradient, iconBg, signOutKey, signOutRedirect } = props;
   const [collapsed, setCollapsed] = useState(false);
-  const [activeSection, setActiveSection] = useState(props.items[0]?.section ?? "overview");
+  const [activeSection, setActiveSection] = useState(() => {
+    const hash = typeof window !== "undefined" ? window.location.hash.replace("#", "") : "";
+    return hash || (props.items[0]?.section ?? "overview");
+  });
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const currentItems = props.items.filter((i) => i.section === activeSection);
-  const currentSections = props.sections;
+  useEffect(() => {
+    const handleHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      if (hash) setActiveSection(hash);
+    };
+    window.addEventListener("hashchange", handleHash);
+    return () => window.removeEventListener("hashchange", handleHash);
+  }, []);
 
   return (
-    <div className={`flex h-screen overflow-hidden ${bgMain}`}>
+    <div className={`flex h-[100dvh] overflow-hidden ${bgMain}`}>
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <SidebarNav
@@ -151,37 +166,28 @@ function PortalShellInternal(props: PortalShellProps) {
       </div>
 
       {/* Mobile sidebar overlay */}
-      <AnimatePresence>
-        {mobileOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/40 z-50 lg:hidden"
-            onClick={() => setMobileOpen(false)}
+      {mobileOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-50 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        >
+          <div
+            className="absolute left-0 top-0 h-full w-64"
+            onClick={(e) => e.stopPropagation()}
           >
-            <motion.div
-              initial={{ x: -280 }}
-              animate={{ x: 0 }}
-              exit={{ x: -280 }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="absolute left-0 top-0 h-full w-64"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <SidebarNav
-                {...props}
-                activeSection={activeSection}
-                setSection={(s) => {
-                  setActiveSection(s);
-                  setMobileOpen(false);
-                }}
-                collapsed={false}
-                setCollapsed={() => {}}
-              />
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <SidebarNav
+              {...props}
+              activeSection={activeSection}
+              setSection={(s) => {
+                setActiveSection(s);
+                setMobileOpen(false);
+              }}
+              collapsed={false}
+              setCollapsed={() => {}}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main content */}
       <main className="flex-1 flex flex-col overflow-hidden min-w-0">
@@ -230,7 +236,7 @@ function PortalShellInternal(props: PortalShellProps) {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   PATIENT PORTAL — Warm, caring, purple
+   PATIENT PORTAL — Warm, caring, navy
    ════════════════════════════════════════════════════════════════ */
 export function PatientPortalShell({ children }: { children: React.ReactNode }) {
   return (
@@ -252,7 +258,7 @@ export function PatientPortalShell({ children }: { children: React.ReactNode }) 
       activeBg="bg-[#0F4C81]"
       activeText="text-white"
       hoverBg="hover:bg-white/10"
-      headerGradient="bg-gradient-to-r from-[#0F4C81] to-#1E293B"
+      headerGradient="bg-gradient-to-r from-[#0F4C81] to-[#1E293B]"
       iconBg="bg-white/20"
       items={[
         { label: "Journey", icon: "🏥", href: "#overview", section: "overview" },
@@ -311,6 +317,7 @@ export function ClinicPortalShell({ children }: { children: React.ReactNode }) {
         { label: "Slots", icon: "📅", id: "slots" },
         { label: "Bookings", icon: "👥", id: "bookings" },
         { label: "Credentials", icon: "🔒", id: "credentials" },
+        { label: "Profile", icon: "🏥", id: "profile" },
       ]}
     />
   );
@@ -354,6 +361,8 @@ export function AdminPortalShell({ children }: { children: React.ReactNode }) {
         { label: "Bookings", icon: "📋", id: "bookings" },
         { label: "Credentials", icon: "⛓️", id: "credentials" },
         { label: "Clinics", icon: "🏥", id: "clinics" },
+        { label: "Affiliates", icon: "🔗", id: "affiliates" },
+        { label: "Settings", icon: "⚙️", id: "settings" },
       ]}
     />
   );
