@@ -190,7 +190,7 @@ function PortalShellInternal(props: PortalShellProps) {
       )}
 
       {/* Main content */}
-      <main className="flex-1 flex flex-col overflow-hidden min-w-0">
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
         <header className={`h-16 flex-shrink-0 ${headerGradient} flex items-center justify-between px-4 lg:px-6 border-b`}>
           <div className="flex items-center gap-3">
@@ -227,7 +227,7 @@ function PortalShellInternal(props: PortalShellProps) {
         </header>
 
         {/* Scrollable content */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overscroll-y-contain">
           {children}
         </div>
       </main>

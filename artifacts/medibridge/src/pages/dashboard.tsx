@@ -32,7 +32,7 @@ function StatCard({
   accent: string;
 }) {
   return (
-    <div className={`bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#E5E7EB] overflow-hidden hover:shadow-md transition-shadow duration-300`}>
+    <div className={`relative bg-white rounded-2xl p-4 sm:p-6 shadow-sm border border-[#E5E7EB] overflow-hidden hover:shadow-md transition-shadow duration-300`}>
       <div className={`absolute inset-0 opacity-[0.03] bg-gradient-to-br ${accent}`} />
       <div className="relative z-10 flex items-start justify-between">
         <div>
