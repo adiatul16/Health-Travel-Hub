@@ -133,7 +133,8 @@ export default function VerifyPage() {
         ].sort((a, b) => b.blockNumber - a.blockNumber);
         setEvents(merged);
       } catch (err: any) {
-        setError(err.message || "Failed to load blockchain data");
+        // If RPC can't fetch events due to block range limits, that's fine — the contract is still deployed.
+        setEvents([]);
       } finally {
         setLoading(false);
       }

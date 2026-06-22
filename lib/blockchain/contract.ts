@@ -123,7 +123,7 @@ export async function getAllEvents() {
 
   // Amoy RPC limits block range for eth_getLogs; use a recent window to avoid the error
   const latestBlock = await provider.getBlockNumber();
-  const fromBlock = Math.max(0, latestBlock - 5000);
+  const fromBlock = Math.max(0, latestBlock - 50);
 
   const [clinicEvents, doctorEvents, recordEvents, consentGrantEvents, consentRevokeEvents, reviewEvents] =
     await Promise.all([
