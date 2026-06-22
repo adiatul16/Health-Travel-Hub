@@ -495,7 +495,8 @@ export default function Admin() {
   async function connectAdminWallet() {
     try {
       await ensureAmoyNetwork();
-      const addr = await getConnectedAddress();
+      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+      const addr = accounts[0] ?? (await getConnectedAddress());
       if (addr) {
         setAdminWallet(addr);
         setBcMsg(`Connected: ${addr.slice(0, 8)}…${addr.slice(-6)}`);

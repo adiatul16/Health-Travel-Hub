@@ -53,7 +53,8 @@ export default function ClinicDashboard() {
   async function connectWallet() {
     try {
       await ensureAmoyNetwork();
-      const addr = await getConnectedAddress();
+      const accounts = await (window as any).ethereum.request({ method: "eth_requestAccounts" });
+      const addr = accounts[0] ?? (await getConnectedAddress());
       if (addr) {
         setWalletAddress(addr);
         toast({ title: "Wallet connected", description: `${addr.slice(0, 10)}…${addr.slice(-6)}` });
