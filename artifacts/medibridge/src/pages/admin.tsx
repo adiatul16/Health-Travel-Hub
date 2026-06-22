@@ -75,7 +75,7 @@ interface AdminCredential {
   submittedAt: string;
   anchoredAt: string | null;
   polygonScanUrl: string | null;
-  blockchainConfigured: boolean;
+  vcnConfigured: boolean;
 }
 
 const CREDENTIAL_TYPES = [
@@ -196,7 +196,7 @@ function CredentialQueueSection() {
   const pending = credentials.filter((c) => c.status === "pending");
   const anchored = credentials.filter((c) => c.status === "anchored");
   const rejected = credentials.filter((c) => c.status === "rejected");
-  const blockchainReady = credentials[0]?.blockchainConfigured ?? false;
+  const vcnReady = credentials[0]?.vcnConfigured ?? false;
 
   return (
     <div
@@ -204,10 +204,10 @@ function CredentialQueueSection() {
     >
       <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg">⛓️</div>
+          <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg">🔒</div>
           <div>
             <h3 className="font-bold text-gray-900">Credential Approvals</h3>
-            <p className="text-xs text-gray-400">Review and anchor clinic credentials on-chain</p>
+            <p className="text-xs text-gray-400">Review and verify clinic credentials on VCN</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -216,14 +216,14 @@ function CredentialQueueSection() {
               {pending.length} pending
             </span>
           )}
-          {blockchainReady ? (
+          {vcnReady ? (
             <span className="bg-emerald-100 text-emerald-700 text-xs font-semibold px-2.5 py-1 rounded-full flex items-center gap-1">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-              Polygon connected
+              VCN Active
             </span>
           ) : (
             <span className="bg-gray-100 text-gray-500 text-xs font-semibold px-2.5 py-1 rounded-full">
-              Blockchain not configured
+              VCN initializing
             </span>
           )}
         </div>
@@ -248,11 +248,11 @@ function CredentialQueueSection() {
       <div className="p-6">
         {tab === "pending" && (
           <div>
-            {!blockchainReady && (
+            {!vcnReady && (
               <div className="mb-4 p-4 rounded-xl bg-amber-50 border border-amber-200 text-sm text-amber-800">
-                <p className="font-semibold mb-1">⚠️ Blockchain not configured</p>
+                <p className="font-semibold mb-1">⚠️ VCN not configured</p>
                 <p className="text-xs">
-                  To anchor credentials on Polygon Amoy, add these to Replit Secrets:
+                  To verify credentials on VCN, add these to Replit Secrets:
                   <br />
                   <code className="font-mono">POLYGON_PRIVATE_KEY</code> — your wallet's private key
                   <br />
@@ -308,7 +308,7 @@ function CredentialQueueSection() {
                         className="flex-1 py-2 rounded-lg bg-emerald-600 text-white text-xs font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
                         title={!c.documentHash ? "No document hash to anchor" : ""}
                       >
-                        {actionLoading === c.id ? "Anchoring…" : "⛓️ Approve & Anchor"}
+                        {actionLoading === c.id ? "Verifying…" : "🔒 Verify & Approve"}
                       </button>
                       <button
                         onClick={() => reject(c.id)}
@@ -352,7 +352,7 @@ function CredentialQueueSection() {
 
         {tab === "add" && (
           <div className="max-w-lg space-y-4">
-            <p className="text-sm text-gray-500">Add a credential for a clinic. It will sit in "Pending" until you approve and anchor it on-chain.</p>
+            <p className="text-sm text-gray-500">Add a credential for a clinic. It will sit in "Pending" until you approve and verify it on VCN.</p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-gray-600 mb-1">Clinic *</label>
@@ -446,8 +446,8 @@ function CredentialQueueSection() {
               </div>
             ) : anchored.length === 0 ? (
               <div className="text-center py-10">
-                <div className="text-3xl mb-2">⛓️</div>
-                <p className="text-gray-500 text-sm">No credentials anchored yet. Approve a pending item to anchor it on Polygon.</p>
+                <div className="text-3xl mb-2">🔒</div>
+                <p className="text-gray-500 text-sm">No credentials verified yet. Approve a pending item to verify it on VCN.</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -461,7 +461,7 @@ function CredentialQueueSection() {
                           <div className="text-xs font-mono text-gray-400 mt-1 truncate max-w-xs">{c.documentHash.slice(0, 20)}…</div>
                         )}
                       </div>
-                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0">⛓️ Anchored</span>
+                      <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium flex-shrink-0">✓ Verified</span>
                     </div>
                     {c.polygonScanUrl && (
                       <a href={c.polygonScanUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-slate-600 hover:underline">
@@ -484,6 +484,7 @@ export default function Admin() {
   const [bcLoading, setBcLoading] = useState(false);
   const [bcMsg, setBcMsg] = useState<string | null>(null);
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  const activeSection = typeof window !== "undefined" ? window.location.hash.replace("#", "") || "overview" : "overview";
 
   async function apiPost(path: string, body: Record<string, any>) {
     const res = await fetch(`/api${path}`, {
@@ -530,6 +531,8 @@ export default function Admin() {
   return (
     <div className="p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
+        {activeSection === "overview" && (
+          <>
         {/* Revenue banner */}
         <div
           className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-2xl p-6 text-white flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6"
@@ -615,68 +618,76 @@ export default function Admin() {
           </div>
         </div>
 
-        {/* Bottom stats row */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-          {[
-            { title: "Active Clinics", value: "48", icon: "🏥", desc: "JCI-accredited partners", color: "from-slate-500 to-slate-600" },
-            { title: "Destinations", value: "2", icon: "🌍", desc: "Turkey & China networks", color: "from-blue-500 to-indigo-500" },
-            { title: "Avg Patient Saving", value: "65%", icon: "💎", desc: "vs UK private healthcare", color: "from-emerald-500 to-teal-500" },
-          ].map(({ title, value, icon, desc, color }, i) => (
-            <div
-              key={title}
-              className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 flex items-center gap-4"
-            >
-              <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-2xl shadow-sm flex-shrink-0`}>
-                {icon}
-              </div>
+          </>
+        )}
+
+        {activeSection === "bookings" && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">All Bookings</h2>
+            <p className="text-sm text-gray-500">Booking management coming soon. Use this section to view and manage all patient bookings across the platform.</p>
+          </div>
+        )}
+
+        {activeSection === "vcn" && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg">🛡️</div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{value}</p>
-                <p className="text-sm font-medium text-gray-700">{title}</p>
-                <p className="text-xs text-gray-400">{desc}</p>
+                <h3 className="font-bold text-gray-900">VitaVia Care Network (VCN)</h3>
+                <p className="text-xs text-gray-400">Backend trust verification system</p>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* Blockchain Admin Panel */}
-        <div
-          className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6"
-        >
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center text-lg">⛓️</div>
-            <div>
-              <h3 className="font-bold text-gray-900">Blockchain Admin</h3>
-              <p className="text-xs text-gray-400">Backend-managed Polygon Amoy</p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
+              <button
+                onClick={verifyClinicOnChain}
+                disabled={bcLoading}
+                className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
+              >
+                {bcLoading ? "Verifying…" : "🏥 Verify Clinic on VCN"}
+              </button>
+              <button
+                onClick={() => { window.location.href = `${basePath}/verify`; }}
+                className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
+              >
+                📜 View VCN Ledger
+              </button>
             </div>
+            {bcMsg && (
+              <div className={`text-xs px-3 py-2 rounded-lg ${
+                bcMsg.startsWith("Verified")
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-red-50 text-red-700 border border-red-200"
+              }`}>
+                {bcMsg}
+              </div>
+            )}
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4">
-            <button
-              onClick={verifyClinicOnChain}
-              disabled={bcLoading}
-              className="px-4 py-2 rounded-xl bg-emerald-600 text-white text-sm font-semibold hover:bg-emerald-700 disabled:opacity-50 transition-colors"
-            >
-              {bcLoading ? "Verifying…" : "🏥 Verify Clinic"}
-            </button>
-            <button
-              onClick={() => { window.location.href = `${basePath}/verify`; }}
-              className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors"
-            >
-              📜 View Ledger
-            </button>
-          </div>
-          {bcMsg && (
-            <div className={`text-xs px-3 py-2 rounded-lg ${
-              bcMsg.startsWith("Verified")
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                : "bg-red-50 text-red-700 border border-red-200"
-            }`}>
-              {bcMsg}
-            </div>
-          )}
-        </div>
+        )}
 
-        {/* Credential Approvals */}
-        <CredentialQueueSection />
+        {activeSection === "clinics" && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Clinic Directory</h2>
+            <p className="text-sm text-gray-500">Manage all partner clinics, view accreditation status, and update clinic profiles.</p>
+          </div>
+        )}
+
+        {activeSection === "affiliates" && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Affiliate Tracking</h2>
+            <p className="text-sm text-gray-500">Track affiliate referrals, commissions, and partner performance metrics.</p>
+          </div>
+        )}
+
+        {activeSection === "settings" && (
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Settings</h2>
+            <p className="text-sm text-gray-500">Platform settings and configuration options.</p>
+          </div>
+        )}
+
+        {activeSection === "overview" && (
+          <CredentialQueueSection />
+        )}
       </div>
     </div>
   );

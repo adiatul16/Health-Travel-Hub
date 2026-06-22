@@ -38,8 +38,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
     { href: "/destinations", label: "Destinations" },
     { href: "/packages", label: "Packages" },
     { href: "/dashboard", label: "Dashboard" },
-    ...(isClinic ? [{ href: "/clinic-dashboard", label: "Clinic" }] : []),
-    ...(isAdmin ? [{ href: "/admin", label: "Admin" }] : []),
   ];
 
   if (isPortal) {

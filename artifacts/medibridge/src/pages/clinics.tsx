@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useListClinics } from "@workspace/api-client-react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,26 @@ const SORT_OPTIONS = [
   { value: "name", label: "Name (A-Z)" },
   { value: "established", label: "Most Experienced" },
 ];
+
+const DEMO_CLINIC_ADDRESSES: Record<string, string> = {
+  "Istanbul Aesthetic Center": "0x1111111111111111111111111111111111111111",
+  "Antalya Dental Excellence": "0x2222222222222222222222222222222222222222",
+  "Shanghai Medical": "0x3333333333333333333333333333333333333333",
+  "Shenzhen Health": "0x4444444444444444444444444444444444444444",
+};
+
+async function checkClinicVerified(name: string): Promise<boolean> {
+  const addr = DEMO_CLINIC_ADDRESSES[name];
+  if (!addr) return false;
+  try {
+    const res = await fetch(`/api/blockchain/clinic-verified/${addr}`, { credentials: "include" });
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.verified === true;
+  } catch {
+    return false;
+  }
+}
 
 export default function Clinics() {
   const [filters, setFilters] = useState<{
@@ -50,6 +70,23 @@ export default function Clinics() {
       },
     }
   );
+
+  const [verifiedMap, setVerifiedMap] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    const list = clinics;
+    if (!list || !Array.isArray(list)) return;
+    async function load(clinicList: any[]) {
+      const map: Record<string, boolean> = {};
+      await Promise.all(
+        clinicList.map(async (c: any) => {
+          map[c.name] = await checkClinicVerified(c.name);
+        })
+      );
+      setVerifiedMap(map);
+    }
+    void load(list);
+  }, [clinics]);
 
   const allCountries = useMemo(() => {
     const set = new Set(clinics?.map((c) => c.country) ?? []);
@@ -240,6 +277,15 @@ export default function Clinics() {
                   >
                     JCI Accredited ✓
                   </button>
+                )}
+                {verifiedMap[clinic.name] && (
+                  <div
+                    className="absolute top-3 right-3 bg-[#0F4C81] text-white px-2 py-1 text-xs font-bold rounded shadow-sm flex items-center gap-1"
+                    title="Verified by VitaVia Care Network"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                    Verified
+                  </div>
                 )}
               </div>
               <div className="p-6 flex flex-col flex-1">

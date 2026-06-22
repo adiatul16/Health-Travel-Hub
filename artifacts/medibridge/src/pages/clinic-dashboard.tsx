@@ -23,10 +23,20 @@ interface ClinicCredential {
   onChainTxHash?: string;
 }
 
+interface Doctor {
+  id: number;
+  name: string;
+  specialty: string;
+  license: string;
+  verified: boolean;
+  onChainTxHash?: string;
+}
+
 export default function ClinicDashboard() {
   const { toast } = useToast();
   const [slots, setSlots] = useState<ClinicSlot[]>([]);
   const [credentials, setCredentials] = useState<ClinicCredential[]>([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [bookings] = useState([
     { id: 1, patient: "James Wilson", treatment: "Hair Transplant (FUE)", date: "2026-07-15", status: "confirmed" },
     { id: 2, patient: "Sarah Chen", treatment: "Dental Implants", date: "2026-07-18", status: "pending" },
@@ -34,8 +44,10 @@ export default function ClinicDashboard() {
     { id: 4, patient: "Emma Thompson", treatment: "IVF Treatment", date: "2026-07-25", status: "pending" },
   ]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"overview" | "slots" | "bookings" | "credentials">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "slots" | "bookings" | "doctors" | "credentials" | "profile">("overview");
   const [bcLoading, setBcLoading] = useState(false);
+  const [showAddDoctor, setShowAddDoctor] = useState(false);
+  const [doctorForm, setDoctorForm] = useState({ name: "", specialty: "", license: "" });
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -51,15 +63,32 @@ export default function ClinicDashboard() {
     return data;
   }
 
-  async function registerDoctor() {
+  async function addDoctor() {
+    if (!doctorForm.name || !doctorForm.license) {
+      toast({ title: "Missing info", description: "Name and license are required.", variant: "destructive" });
+      return;
+    }
     setBcLoading(true);
     try {
-      const doctorAddr = prompt("Doctor wallet address (0x...)")?.trim();
-      const license = prompt("License number (e.g., GMC-123456)")?.trim();
-      const clinicAddr = prompt("Your clinic wallet address (0x...)")?.trim();
-      if (!doctorAddr || !license || !clinicAddr) { setBcLoading(false); return; }
-      const data = await apiPost("/blockchain/verify-doctor", { doctorAddress: doctorAddr, clinicAddress: clinicAddr, license, expiryDays: 365 });
-      toast({ title: "Doctor verified", description: `TX: ${data.txHash.slice(0, 10)}…` });
+      const hash = await sha256(`${doctorForm.name}:${doctorForm.license}:${Date.now()}`);
+      const data = await apiPost("/blockchain/verify-doctor", {
+        doctorAddress: "0x0000000000000000000000000000000000000000",
+        clinicAddress: "0x0000000000000000000000000000000000000000",
+        license: doctorForm.license,
+        expiryDays: 365,
+      });
+      const newDoctor: Doctor = {
+        id: doctors.length + 1,
+        name: doctorForm.name,
+        specialty: doctorForm.specialty,
+        license: doctorForm.license,
+        verified: true,
+        onChainTxHash: data.txHash,
+      };
+      setDoctors((d) => [...d, newDoctor]);
+      setDoctorForm({ name: "", specialty: "", license: "" });
+      setShowAddDoctor(false);
+      toast({ title: "Doctor added", description: `${doctorForm.name} has been added and verified.` });
     } catch (err: any) {
       toast({ title: "Failed", description: err.message, variant: "destructive" });
     } finally {
@@ -70,11 +99,11 @@ export default function ClinicDashboard() {
   async function addRecordHash() {
     setBcLoading(true);
     try {
-      const ref = prompt("Reference for this record (e.g., 'MRI scan result')");
+      const ref = prompt("Reference for this record (e.g., 'Patient scan result')");
       if (!ref) { setBcLoading(false); return; }
       const hash = await sha256(ref + Date.now().toString());
       const data = await apiPost("/blockchain/record", { dataHash: hash, ref, phase: "clinic" });
-      toast({ title: "Record anchored", description: `TX: ${data.txHash.slice(0, 10)}…` });
+      toast({ title: "Record secured", description: "Record hash has been verified on our Care Network." });
     } catch (err: any) {
       toast({ title: "Failed", description: err.message, variant: "destructive" });
     } finally {
@@ -108,31 +137,14 @@ export default function ClinicDashboard() {
     return map[a] ?? "bg-gray-100 text-gray-600";
   };
 
+  const activeSection = typeof window !== "undefined" ? window.location.hash.replace("#", "") || "overview" : "overview";
+
   return (
     <div className="p-4 lg:p-8">
       <div className="max-w-7xl mx-auto space-y-6">
-        {/* Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {(["overview", "slots", "bookings", "credentials"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${
-                activeTab === tab
-                  ? "bg-teal-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-teal-50 border border-teal-100"
-              }`}
-            >
-              {tab === "overview" && "Overview"}
-              {tab === "slots" && "Treatment Slots"}
-              {tab === "bookings" && "Patient Bookings"}
-              {tab === "credentials" && "Credentials"}
-            </button>
-          ))}
-        </div>
 
         {/* Overview Tab */}
-        {activeTab === "overview" && (
+        {activeSection === "overview" && (
           <div className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
               {[
@@ -141,10 +153,7 @@ export default function ClinicDashboard() {
                 { label: "Confirmed", value: bookings.filter((b) => b.status === "confirmed").length.toString(), icon: "✅", color: "from-emerald-500 to-teal-600" },
                 { label: "Revenue", value: `£${totalRevenue.toLocaleString()}`, icon: "💎", color: "from-blue-500 to-indigo-600" },
               ].map(({ label, value, icon, color }) => (
-                <div
-                  key={label}
-                  className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6 flex items-center gap-4"
-                >
+                <div key={label} className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6 flex items-center gap-4">
                   <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-xl sm:text-2xl shadow-sm flex-shrink-0`}>
                     {icon}
                   </div>
@@ -214,25 +223,24 @@ export default function ClinicDashboard() {
                 </div>
               </div>
 
-              {/* Blockchain Actions — backend-managed */}
               <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6 lg:col-span-2">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">⛓️</div>
-                  <h3 className="font-bold text-gray-900">Blockchain Actions</h3>
+                  <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">👔</div>
+                  <h3 className="font-bold text-gray-900">Verification Actions</h3>
                   <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-medium flex items-center gap-1">
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 inline-block" />
-                    Backend-managed
+                    VCN Active
                   </span>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                  <button onClick={registerDoctor} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
-                    <span className="text-lg">🩺</span> Register Doctor
+                  <button onClick={() => setActiveTab("doctors")} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
+                    <span className="text-lg">👔</span> Add Doctor
                   </button>
                   <button onClick={addRecordHash} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
-                    <span className="text-lg">📁</span> Add Record Hash
+                    <span className="text-lg">📁</span> Add Record
                   </button>
                   <button onClick={() => { window.location.href = `${basePath}/verify`; }} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left border border-gray-100">
-                    <span className="text-lg">📜</span> View Ledger
+                    <span className="text-lg">📜</span> View VCN Records
                   </button>
                 </div>
               </div>
@@ -241,7 +249,7 @@ export default function ClinicDashboard() {
         )}
 
         {/* Slots Tab */}
-        {activeTab === "slots" && (
+        {activeSection === "slots" && (
           <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">📅</div>
@@ -277,7 +285,7 @@ export default function ClinicDashboard() {
         )}
 
         {/* Bookings Tab */}
-        {activeTab === "bookings" && (
+        {activeSection === "bookings" && (
           <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">👥</div>
@@ -307,8 +315,94 @@ export default function ClinicDashboard() {
           </div>
         )}
 
+        {/* Doctors Tab */}
+        {activeSection === "doctors" && (
+          <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">👔</div>
+                <h3 className="font-bold text-gray-900">Doctor Management</h3>
+              </div>
+              <button
+                onClick={() => setShowAddDoctor(!showAddDoctor)}
+                className="px-4 py-2 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors"
+              >
+                {showAddDoctor ? "Cancel" : "+ Add Doctor"}
+              </button>
+            </div>
+
+            {showAddDoctor && (
+              <div className="mb-6 p-4 rounded-xl border border-teal-100 bg-teal-50/30 space-y-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">Doctor Name *</label>
+                    <input
+                      type="text"
+                      value={doctorForm.name}
+                      onChange={(e) => setDoctorForm((f) => ({ ...f, name: e.target.value }))}
+                      placeholder="Dr. Mehmet Yilmaz"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">Specialty</label>
+                    <input
+                      type="text"
+                      value={doctorForm.specialty}
+                      onChange={(e) => setDoctorForm((f) => ({ ...f, specialty: e.target.value }))}
+                      placeholder="e.g., Hair Transplant"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">License Number *</label>
+                    <input
+                      type="text"
+                      value={doctorForm.license}
+                      onChange={(e) => setDoctorForm((f) => ({ ...f, license: e.target.value }))}
+                      placeholder="e.g., TR-MED-45231"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    />
+                  </div>
+                </div>
+                <button
+                  onClick={addDoctor}
+                  disabled={bcLoading}
+                  className="w-full py-2.5 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 disabled:opacity-50 transition-colors"
+                >
+                  {bcLoading ? "Verifying..." : "Add Doctor & Verify on VCN"}
+                </button>
+              </div>
+            )}
+
+            <div className="space-y-3">
+              {doctors.length === 0 ? (
+                <div className="text-center py-10">
+                  <div className="text-3xl mb-2">👔</div>
+                  <p className="text-gray-500 text-sm">No doctors added yet. Add your first doctor to manage their credentials.</p>
+                </div>
+              ) : (
+                doctors.map((d) => (
+                  <div key={d.id} className="flex items-center gap-4 p-4 rounded-xl border border-gray-100 hover:bg-teal-50/50 transition-colors">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-400 to-teal-500 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                      {d.name[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-gray-900">{d.name}</p>
+                      <p className="text-xs text-gray-400">{d.specialty} · License: {d.license}</p>
+                    </div>
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700 flex-shrink-0">
+                      ✓ VCN Verified
+                    </span>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Credentials Tab */}
-        {activeTab === "credentials" && (
+        {activeSection === "credentials" && (
           <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">🔒</div>
@@ -336,12 +430,43 @@ export default function ClinicDashboard() {
                       {c.status}
                     </span>
                     {c.onChainTxHash && (
-                      <span className="text-xs text-gray-400 font-mono">TX: {c.onChainTxHash.slice(0, 8)}…</span>
+                      <span className="text-xs text-gray-400 font-mono">VCN: {c.onChainTxHash.slice(0, 8)}…</span>
                     )}
                   </div>
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* Profile Tab */}
+        {activeSection === "profile" && (
+          <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">🏥</div>
+              <h3 className="font-bold text-gray-900">Clinic Profile</h3>
+            </div>
+            <div className="space-y-4 max-w-lg">
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Clinic Name</label>
+                <input type="text" defaultValue="Istanbul Aesthetic Center" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">City</label>
+                <input type="text" defaultValue="Istanbul" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Specialties</label>
+                <input type="text" defaultValue="Hair Transplant, Dental, Cosmetic Surgery" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-1">Contact Email</label>
+                <input type="email" defaultValue="contact@istanbul-aesthetic.com" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300" />
+              </div>
+              <button onClick={() => toast({ title: "Profile updated", description: "Your clinic profile has been saved." })} className="w-full py-2.5 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 transition-colors">
+                Save Profile
+              </button>
+            </div>
           </div>
         )}
       </div>

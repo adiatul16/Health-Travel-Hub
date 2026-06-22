@@ -161,16 +161,16 @@ export default function VerifyPage() {
                 animate={{ opacity: 1, y: 0 }}
                 className="text-3xl font-bold"
               >
-                ⛓️ VitaVia Blockchain Ledger
+                🛡️ VitaVia Care Network Ledger
               </motion.h1>
               <p className="text-slate-300 mt-2 max-w-xl">
-                Every verification, record, and review is stored permanently on the Polygon Amoy blockchain.
+                Every verification, record, and review is stored permanently on our Care Network.
                 No raw health data on-chain — only SHA-256 hashes and metadata.
               </p>
             </div>
             <div className="flex items-center gap-3">
               <span className="text-xs text-slate-400 bg-white/10 px-3 py-1.5 rounded-lg">
-                Backend-managed · Polygon Amoy
+                VCN Verified
               </span>
             </div>
           </div>
@@ -180,7 +180,7 @@ export default function VerifyPage() {
       {/* Explainer */}
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-8">
-          <h2 className="font-bold text-blue-900 text-lg mb-3">How VitaVia uses blockchain</h2>
+          <h2 className="font-bold text-blue-900 text-lg mb-3">How VitaVia Care Network works</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-blue-800">
             <div className="bg-white rounded-xl p-4 border border-blue-100">
               <div className="text-2xl mb-2">🏥</div>
@@ -258,10 +258,10 @@ export default function VerifyPage() {
           </div>
         ) : error ? (
           <div className="bg-red-50 border border-red-200 rounded-xl p-6 text-center">
-            <p className="text-red-700 font-semibold mb-2">Unable to load blockchain data</p>
+            <p className="text-red-700 font-semibold mb-2">Unable to load VCN data</p>
             <p className="text-red-600 text-sm">{error}</p>
             <p className="text-gray-400 text-xs mt-3">
-              Make sure the contract is deployed and the RPC endpoint is reachable.
+              Make sure the network is available and the service is running.
               <br />Backend queries Polygon Amoy directly.
             </p>
           </div>

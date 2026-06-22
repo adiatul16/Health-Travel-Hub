@@ -12,7 +12,7 @@ export interface CredentialData {
   onChainTimestamp?: string | null;
   anchoredAt?: string | null;
   polygonScanUrl?: string | null;
-  blockchainConfigured?: boolean;
+  vcnConfigured?: boolean;
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -216,7 +216,7 @@ function CredentialModal({
         </div>
 
         <p className="mt-5 text-xs text-gray-400 text-center">
-          This hash is permanently recorded on the Polygon blockchain.
+          This hash is permanently recorded on the Care Network.
           No party — including VitaVia — can alter it.
         </p>
       </motion.div>
@@ -237,10 +237,10 @@ export function CredentialBadge({ credential }: { credential: CredentialData }) 
             ? "bg-emerald-100 text-emerald-700 border border-emerald-200 hover:bg-emerald-200"
             : "bg-amber-100 text-amber-700 border border-amber-200"
         }`}
-        title={isAnchored ? "View blockchain verification" : "Pending verification"}
+        title={isAnchored ? "View Care Network verification" : "Pending verification"}
       >
-        <span>{isAnchored ? "⛓️" : "⏳"}</span>
-        <span>{isAnchored ? "Verified On-Chain" : "Pending"}</span>
+        <span>{isAnchored ? "🛡️" : "⏳"}</span>
+        <span>{isAnchored ? "Verified" : "Pending"}</span>
       </button>
 
       <AnimatePresence>

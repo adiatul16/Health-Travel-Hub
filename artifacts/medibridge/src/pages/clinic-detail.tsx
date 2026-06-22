@@ -143,12 +143,12 @@ export default function ClinicDetail() {
               </div>
             </motion.section>
 
-            {/* ── Verified Credentials (blockchain-anchored) ── */}
+            {/* ── Verified Credentials (VCN-verified) ── */}
             <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25 }}>
               <div className="flex items-center gap-3 mb-4">
                 <h2 className="text-xl font-bold">Verified Credentials</h2>
                 <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-full">
-                  ⛓️ Blockchain-anchored
+                  🛡️ VCN Verified
                 </span>
               </div>
 
@@ -161,7 +161,7 @@ export default function ClinicDetail() {
               ) : credentials.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-gray-200 p-6 text-center">
                   <p className="text-sm text-muted-foreground">
-                    No on-chain credentials yet. Credentials submitted by the clinic are reviewed by VitaVia and anchored on the Polygon blockchain.
+                    No verified credentials yet. Credentials submitted by the clinic are reviewed by VitaVia and recorded on the Care Network.
                   </p>
                 </div>
               ) : (
@@ -191,7 +191,7 @@ export default function ClinicDetail() {
                   ))}
 
                   <p className="text-xs text-muted-foreground text-center pt-2">
-                    Each credential's SHA-256 hash is permanently recorded on the Polygon blockchain.
+                    Each credential's SHA-256 hash is permanently recorded on the Care Network.
                     Click any badge to independently verify.
                   </p>
                 </div>
@@ -334,7 +334,7 @@ export default function ClinicDetail() {
                   </span>
                 </div>
                 <p className="text-xs text-emerald-700">
-                  This clinic's credentials are verified and permanently recorded on the Polygon blockchain — independently auditable by anyone.
+                  This clinic's credentials are verified and permanently recorded on the Care Network — independently auditable by anyone.
                 </p>
               </motion.div>
             )}
