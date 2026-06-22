@@ -97,7 +97,7 @@ async function deploy() {
   console.log(`   Address: ${address}`);
   console.log(`   PolygonScan: https://amoy.polygonscan.com/address/${address}`);
   console.log(
-    "\nAdd this to Replit Secrets:\n  CREDENTIAL_CONTRACT_ADDRESS=" + address
+    "\n✅ Contract address stored in ledger.json\n  View on PolygonScan: https://amoy.polygonscan.com/address/" + address
   );
 }
 
