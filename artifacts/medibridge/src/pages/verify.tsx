@@ -112,7 +112,7 @@ export default function VerifyPage() {
       setLoading(true);
       setError(null);
       try {
-        const res = await fetch("/api/blockchain/events");
+        const res = await fetch("/api/blockchain/events", { credentials: "include" });
         if (!res.ok) throw new Error("Failed to fetch events");
         const all = await res.json();
         const merged: ChainEvent[] = [

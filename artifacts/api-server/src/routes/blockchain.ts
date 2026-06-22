@@ -26,8 +26,8 @@ router.get("/health", (_req, res) => {
 
 /* ─── Write operations (backend wallet) ─── */
 
-// Anchor a medical record hash
-router.post("/record", requireAuth, async (req, res) => {
+// Anchor a medical record hash (open to all users — record hash is anonymous)
+router.post("/record", async (req, res) => {
   try {
     const { dataHash, ref, phase } = req.body;
     if (!dataHash || !ref) {

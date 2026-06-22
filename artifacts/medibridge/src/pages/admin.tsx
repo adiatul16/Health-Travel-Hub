@@ -488,6 +488,7 @@ export default function Admin() {
   async function apiPost(path: string, body: Record<string, any>) {
     const res = await fetch(`/api${path}`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     });
