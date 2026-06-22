@@ -269,15 +269,7 @@ export function PatientPortalShell({ children }: { children: React.ReactNode }) 
         { label: "Messages", icon: "💬", href: "#messages", section: "messages" },
         { label: "Settings", icon: "⚙️", href: "#settings", section: "settings" },
       ]}
-      sections={[
-        { label: "Overview", icon: "📊", id: "overview" },
-        { label: "Bookings", icon: "📋", id: "bookings" },
-        { label: "Travel", icon: "✈️", id: "travel" },
-        { label: "Recovery", icon: "❤️", id: "recovery" },
-        { label: "Records", icon: "📁", id: "records" },
-        { label: "Messages", icon: "💬", id: "messages" },
-        { label: "Settings", icon: "⚙️", id: "settings" },
-      ]}
+      sections={[]}
     />
   );
 }
@@ -315,14 +307,7 @@ export function ClinicPortalShell({ children }: { children: React.ReactNode }) {
         { label: "Credentials", icon: "🔒", href: "#credentials", section: "credentials" },
         { label: "Profile", icon: "🏥", href: "#profile", section: "profile" },
       ]}
-      sections={[
-        { label: "Overview", icon: "📊", id: "overview" },
-        { label: "Slots", icon: "📅", id: "slots" },
-        { label: "Bookings", icon: "👥", id: "bookings" },
-        { label: "Doctors", icon: "👔", id: "doctors" },
-        { label: "Credentials", icon: "🔒", id: "credentials" },
-        { label: "Profile", icon: "🏥", id: "profile" },
-      ]}
+      sections={[]}
     />
   );
 }
@@ -360,14 +345,7 @@ export function AdminPortalShell({ children }: { children: React.ReactNode }) {
         { label: "Affiliates", icon: "🔗", href: "#affiliates", section: "affiliates" },
         { label: "Settings", icon: "⚙️", href: "#settings", section: "settings" },
       ]}
-      sections={[
-        { label: "Overview", icon: "📊", id: "overview" },
-        { label: "Bookings", icon: "📋", id: "bookings" },
-        { label: "VCN", icon: "🛡️", id: "vcn" },
-        { label: "Clinics", icon: "🏥", id: "clinics" },
-        { label: "Affiliates", icon: "🔗", id: "affiliates" },
-        { label: "Settings", icon: "⚙️", id: "settings" },
-      ]}
+      sections={[]}
     />
   );
 }
