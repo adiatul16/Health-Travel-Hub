@@ -21,12 +21,15 @@ import type {
 
 import type {
   AdminMetrics,
+  AnchorTestimonial200,
   Clinic,
+  ClinicDetail,
   ContactConfirmation,
   ContactInput,
   CostComparison,
   DashboardSummary,
   Destination,
+  Doctor,
   HealthStatus,
   ListClinicsParams,
   ListSlotsParams,
@@ -35,7 +38,9 @@ import type {
   Testimonial,
   Treatment,
   TreatmentSlot,
-  TreatmentStat
+  TreatmentStat,
+  VerifyDoctor200,
+  VerifyTestimonial200
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -376,9 +381,9 @@ export const getGetClinicUrl = (id: number,) => {
 /**
  * @summary Get clinic details
  */
-export const getClinic = async (id: number, options?: RequestInit): Promise<Clinic> => {
+export const getClinic = async (id: number, options?: RequestInit): Promise<ClinicDetail> => {
 
-  return customFetch<Clinic>(getGetClinicUrl(id),
+  return customFetch<ClinicDetail>(getGetClinicUrl(id),
   {
     ...options,
     method: 'GET'
@@ -441,6 +446,293 @@ export function useGetClinic<TData = Awaited<ReturnType<typeof getClinic>>, TErr
 
 
 
+
+export const getListDoctorsByClinicUrl = (clinicId: number,) => {
+
+
+
+
+  return `/api/doctors/clinic/${clinicId}`
+}
+
+/**
+ * @summary List doctors for a clinic
+ */
+export const listDoctorsByClinic = async (clinicId: number, options?: RequestInit): Promise<Doctor[]> => {
+
+  return customFetch<Doctor[]>(getListDoctorsByClinicUrl(clinicId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListDoctorsByClinicQueryKey = (clinicId: number,) => {
+    return [
+    `/api/doctors/clinic/${clinicId}`
+    ] as const;
+    }
+
+
+export const getListDoctorsByClinicQueryOptions = <TData = Awaited<ReturnType<typeof listDoctorsByClinic>>, TError = ErrorType<unknown>>(clinicId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDoctorsByClinic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListDoctorsByClinicQueryKey(clinicId);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listDoctorsByClinic>>> = ({ signal }) => listDoctorsByClinic(clinicId, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(clinicId), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listDoctorsByClinic>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListDoctorsByClinicQueryResult = NonNullable<Awaited<ReturnType<typeof listDoctorsByClinic>>>
+export type ListDoctorsByClinicQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List doctors for a clinic
+ */
+
+export function useListDoctorsByClinic<TData = Awaited<ReturnType<typeof listDoctorsByClinic>>, TError = ErrorType<unknown>>(
+ clinicId: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listDoctorsByClinic>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListDoctorsByClinicQueryOptions(clinicId,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getAnchorTestimonialUrl = (id: number,) => {
+
+
+
+
+  return `/api/testimonials/${id}/anchor`
+}
+
+/**
+ * @summary Anchor a testimonial on the blockchain
+ */
+export const anchorTestimonial = async (id: number, options?: RequestInit): Promise<AnchorTestimonial200> => {
+
+  return customFetch<AnchorTestimonial200>(getAnchorTestimonialUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getAnchorTestimonialMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof anchorTestimonial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof anchorTestimonial>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['anchorTestimonial'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof anchorTestimonial>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  anchorTestimonial(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type AnchorTestimonialMutationResult = NonNullable<Awaited<ReturnType<typeof anchorTestimonial>>>
+
+    export type AnchorTestimonialMutationError = ErrorType<void>
+
+    /**
+ * @summary Anchor a testimonial on the blockchain
+ */
+export const useAnchorTestimonial = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof anchorTestimonial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof anchorTestimonial>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getAnchorTestimonialMutationOptions(options));
+    }
+
+export const getVerifyTestimonialUrl = (id: number,) => {
+
+
+
+
+  return `/api/testimonials/${id}/verify`
+}
+
+/**
+ * @summary Verify a testimonial's on-chain record
+ */
+export const verifyTestimonial = async (id: number, options?: RequestInit): Promise<VerifyTestimonial200> => {
+
+  return customFetch<VerifyTestimonial200>(getVerifyTestimonialUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getVerifyTestimonialMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyTestimonial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyTestimonial>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['verifyTestimonial'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyTestimonial>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  verifyTestimonial(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyTestimonialMutationResult = NonNullable<Awaited<ReturnType<typeof verifyTestimonial>>>
+
+    export type VerifyTestimonialMutationError = ErrorType<void>
+
+    /**
+ * @summary Verify a testimonial's on-chain record
+ */
+export const useVerifyTestimonial = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyTestimonial>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof verifyTestimonial>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getVerifyTestimonialMutationOptions(options));
+    }
+
+export const getVerifyDoctorUrl = (id: number,) => {
+
+
+
+
+  return `/api/doctors/${id}/verify`
+}
+
+/**
+ * @summary Verify a doctor's on-chain credentials
+ */
+export const verifyDoctor = async (id: number, options?: RequestInit): Promise<VerifyDoctor200> => {
+
+  return customFetch<VerifyDoctor200>(getVerifyDoctorUrl(id),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getVerifyDoctorMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyDoctor>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof verifyDoctor>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['verifyDoctor'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof verifyDoctor>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  verifyDoctor(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type VerifyDoctorMutationResult = NonNullable<Awaited<ReturnType<typeof verifyDoctor>>>
+
+    export type VerifyDoctorMutationError = ErrorType<void>
+
+    /**
+ * @summary Verify a doctor's on-chain credentials
+ */
+export const useVerifyDoctor = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof verifyDoctor>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof verifyDoctor>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getVerifyDoctorMutationOptions(options));
+    }
 
 export const getListDestinationsUrl = () => {
 

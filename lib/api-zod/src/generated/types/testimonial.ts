@@ -17,4 +17,10 @@ export interface Testimonial {
   afterText: string;
   savings: number;
   avatarUrl: string;
+  anonymous?: boolean;
+  patientWallet?: string;
+  documentHash?: string;
+  onChainTxHash?: string;
+  onChainTimestamp?: number;
+  verified?: boolean;
 }

@@ -7,14 +7,19 @@
  */
 
 export * from './adminMetrics';
+export * from './anchorTestimonial200';
 export * from './clinic';
+export * from './clinicDetail';
 export * from './contactConfirmation';
 export * from './contactInput';
 export * from './costComparison';
 export * from './dashboardSummary';
 export * from './destination';
+export * from './doctor';
 export * from './healthStatus';
 export * from './listClinicsParams';
+export * from './listClinicsSortBy';
+export * from './listClinicsSortDir';
 export * from './listSlotsParams';
 export * from './monthlyRevenue';
 export * from './packageOption';
@@ -29,3 +34,5 @@ export * from './treatmentSlotAvailability';
 export * from './treatmentStat';
 export * from './upcomingBooking';
 export * from './upcomingBookingStatus';
+export * from './verifyDoctor200';
+export * from './verifyTestimonial200';

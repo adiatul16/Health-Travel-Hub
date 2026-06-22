@@ -5,9 +5,18 @@
  * MediBridge Global API
  * OpenAPI spec version: 0.1.0
  */
+import type { ListClinicsSortBy } from './listClinicsSortBy';
+import type { ListClinicsSortDir } from './listClinicsSortDir';
 
 export type ListClinicsParams = {
 destination?: string;
 treatment?: string;
 featured?: boolean;
+country?: string;
+jci?: boolean;
+minRating?: number;
+minSlots?: number;
+specialty?: string;
+sortBy?: ListClinicsSortBy;
+sortDir?: ListClinicsSortDir;
 };

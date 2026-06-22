@@ -92,6 +92,36 @@ paths:
           in: query
           schema:
             type: boolean
+        - name: country
+          in: query
+          schema:
+            type: string
+        - name: jci
+          in: query
+          schema:
+            type: boolean
+        - name: minRating
+          in: query
+          schema:
+            type: number
+        - name: minSlots
+          in: query
+          schema:
+            type: integer
+        - name: specialty
+          in: query
+          schema:
+            type: string
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [featured, rating, slots, price, name, established]
+        - name: sortDir
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
       responses:
         "200":
           description: List of clinics
@@ -119,7 +149,118 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Clinic"
+                $ref: "#/components/schemas/ClinicDetail"
+        "404":
+          description: Not found
+
+  /doctors/clinic/{clinicId}:
+    get:
+      operationId: listDoctorsByClinic
+      tags: [clinics]
+      summary: List doctors for a clinic
+      parameters:
+        - name: clinicId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of doctors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Doctor"
+
+  /testimonials/{id}/anchor:
+    post:
+      operationId: anchorTestimonial
+      tags: [testimonials]
+      summary: Anchor a testimonial on the blockchain
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Anchored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  txHash:
+                    type: string
+                  timestamp:
+                    type: string
+                  hash:
+                    type: string
+        "404":
+          description: Not found
+        "503":
+          description: Blockchain not configured
+
+  /testimonials/{id}/verify:
+    post:
+      operationId: verifyTestimonial
+      tags: [testimonials]
+      summary: Verify a testimonial's on-chain record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documentHash:
+                    type: string
+                  onChainMatch:
+                    type: boolean
+                  onChainTimestamp:
+                    type: number
+                  tamperDetected:
+                    type: boolean
+        "404":
+          description: Not found
+
+  /doctors/{id}/verify:
+    post:
+      operationId: verifyDoctor
+      tags: [clinics]
+      summary: Verify a doctor's on-chain credentials
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Verification result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  documentHash:
+                    type: string
+                  onChainMatch:
+                    type: boolean
+                  onChainTimestamp:
+                    type: number
+                  tamperDetected:
+                    type: boolean
         "404":
           description: Not found
 
@@ -350,6 +491,15 @@ components:
         description:
           type: string
 
+    ClinicDetail:
+      allOf:
+        - $ref: "#/components/schemas/Clinic"
+      properties:
+        doctors:
+          type: array
+          items:
+            $ref: "#/components/schemas/Doctor"
+
     Destination:
       type: object
       required: [id, name, country, clinicCount, averageSavings, popularTreatments, qualityScore, imageUrl, flag]
@@ -520,6 +670,55 @@ components:
           type: number
         avatarUrl:
           type: string
+        anonymous:
+          type: boolean
+        patientWallet:
+          type: string
+        documentHash:
+          type: string
+        onChainTxHash:
+          type: string
+        onChainTimestamp:
+          type: number
+        verified:
+          type: boolean
+
+    Doctor:
+      type: object
+      required: [id, name, title, specialty, licenseNumber, yearsExperience, certifications, languages, verified]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        title:
+          type: string
+        specialty:
+          type: string
+        licenseNumber:
+          type: string
+        yearsExperience:
+          type: integer
+        certifications:
+          type: array
+          items:
+            type: string
+        bio:
+          type: string
+        imageUrl:
+          type: string
+        languages:
+          type: array
+          items:
+            type: string
+        verified:
+          type: boolean
+        documentHash:
+          type: string
+        onChainTxHash:
+          type: string
+        onChainTimestamp:
+          type: number
 
     ContactInput:
       type: object

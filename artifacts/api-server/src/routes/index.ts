@@ -12,6 +12,7 @@ import dashboardRouter from "./dashboard";
 import adminRouter from "./admin";
 import chatRouter from "./chat";
 import credentialsRouter from "./credentials";
+import doctorsRouter from "./doctors";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use("/dashboard", dashboardRouter);
 router.use("/admin", adminRouter);
 router.use("/chat", chatRouter);
 router.use("/credentials", credentialsRouter);
+router.use("/doctors", doctorsRouter);
 
 export default router;

@@ -56,7 +56,14 @@ export const GetPopularTreatmentsResponse = zod.array(GetPopularTreatmentsRespon
 export const ListClinicsQueryParams = zod.object({
   "destination": zod.coerce.string().optional(),
   "treatment": zod.coerce.string().optional(),
-  "featured": zod.coerce.boolean().optional()
+  "featured": zod.coerce.boolean().optional(),
+  "country": zod.coerce.string().optional(),
+  "jci": zod.coerce.boolean().optional(),
+  "minRating": zod.coerce.number().optional(),
+  "minSlots": zod.coerce.number().optional(),
+  "specialty": zod.coerce.string().optional(),
+  "sortBy": zod.enum(['featured', 'rating', 'slots', 'price', 'name', 'established']).optional(),
+  "sortDir": zod.enum(['asc', 'desc']).optional()
 })
 
 export const ListClinicsResponseItem = zod.object({
@@ -102,6 +109,93 @@ export const GetClinicResponse = zod.object({
   "yearsEstablished": zod.number(),
   "successRate": zod.number().optional(),
   "description": zod.string().optional()
+}).and(zod.object({
+  "doctors": zod.array(zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "title": zod.string(),
+  "specialty": zod.string(),
+  "licenseNumber": zod.string(),
+  "yearsExperience": zod.number(),
+  "certifications": zod.array(zod.string()),
+  "bio": zod.string().optional(),
+  "imageUrl": zod.string().optional(),
+  "languages": zod.array(zod.string()),
+  "verified": zod.boolean(),
+  "documentHash": zod.string().optional(),
+  "onChainTxHash": zod.string().optional(),
+  "onChainTimestamp": zod.number().optional()
+})).optional()
+}))
+
+
+/**
+ * @summary List doctors for a clinic
+ */
+export const ListDoctorsByClinicParams = zod.object({
+  "clinicId": zod.coerce.number()
+})
+
+export const ListDoctorsByClinicResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "title": zod.string(),
+  "specialty": zod.string(),
+  "licenseNumber": zod.string(),
+  "yearsExperience": zod.number(),
+  "certifications": zod.array(zod.string()),
+  "bio": zod.string().optional(),
+  "imageUrl": zod.string().optional(),
+  "languages": zod.array(zod.string()),
+  "verified": zod.boolean(),
+  "documentHash": zod.string().optional(),
+  "onChainTxHash": zod.string().optional(),
+  "onChainTimestamp": zod.number().optional()
+})
+export const ListDoctorsByClinicResponse = zod.array(ListDoctorsByClinicResponseItem)
+
+
+/**
+ * @summary Anchor a testimonial on the blockchain
+ */
+export const AnchorTestimonialParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const AnchorTestimonialResponse = zod.object({
+  "txHash": zod.string().optional(),
+  "timestamp": zod.string().optional(),
+  "hash": zod.string().optional()
+})
+
+
+/**
+ * @summary Verify a testimonial's on-chain record
+ */
+export const VerifyTestimonialParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const VerifyTestimonialResponse = zod.object({
+  "documentHash": zod.string().optional(),
+  "onChainMatch": zod.boolean().optional(),
+  "onChainTimestamp": zod.number().optional(),
+  "tamperDetected": zod.boolean().optional()
+})
+
+
+/**
+ * @summary Verify a doctor's on-chain credentials
+ */
+export const VerifyDoctorParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const VerifyDoctorResponse = zod.object({
+  "documentHash": zod.string().optional(),
+  "onChainMatch": zod.boolean().optional(),
+  "onChainTimestamp": zod.number().optional(),
+  "tamperDetected": zod.boolean().optional()
 })
 
 
@@ -213,7 +307,13 @@ export const ListTestimonialsResponseItem = zod.object({
   "beforeText": zod.string(),
   "afterText": zod.string(),
   "savings": zod.number(),
-  "avatarUrl": zod.string()
+  "avatarUrl": zod.string(),
+  "anonymous": zod.boolean().optional(),
+  "patientWallet": zod.string().optional(),
+  "documentHash": zod.string().optional(),
+  "onChainTxHash": zod.string().optional(),
+  "onChainTimestamp": zod.number().optional(),
+  "verified": zod.boolean().optional()
 })
 export const ListTestimonialsResponse = zod.array(ListTestimonialsResponseItem)
 

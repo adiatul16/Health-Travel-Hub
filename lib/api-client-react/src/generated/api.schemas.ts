@@ -52,6 +52,27 @@ export interface Clinic {
   description?: string;
 }
 
+export interface Doctor {
+  id: number;
+  name: string;
+  title: string;
+  specialty: string;
+  licenseNumber: string;
+  yearsExperience: number;
+  certifications: string[];
+  bio?: string;
+  imageUrl?: string;
+  languages: string[];
+  verified: boolean;
+  documentHash?: string;
+  onChainTxHash?: string;
+  onChainTimestamp?: number;
+}
+
+export type ClinicDetail = Clinic & {
+  doctors?: Doctor[];
+};
+
 export interface Destination {
   id: number;
   name: string;
@@ -155,6 +176,12 @@ export interface Testimonial {
   afterText: string;
   savings: number;
   avatarUrl: string;
+  anonymous?: boolean;
+  patientWallet?: string;
+  documentHash?: string;
+  onChainTxHash?: string;
+  onChainTimestamp?: number;
+  verified?: boolean;
 }
 
 export interface ContactInput {
@@ -235,6 +262,53 @@ export type ListClinicsParams = {
 destination?: string;
 treatment?: string;
 featured?: boolean;
+country?: string;
+jci?: boolean;
+minRating?: number;
+minSlots?: number;
+specialty?: string;
+sortBy?: ListClinicsSortBy;
+sortDir?: ListClinicsSortDir;
+};
+
+export type ListClinicsSortBy = typeof ListClinicsSortBy[keyof typeof ListClinicsSortBy];
+
+
+export const ListClinicsSortBy = {
+  featured: 'featured',
+  rating: 'rating',
+  slots: 'slots',
+  price: 'price',
+  name: 'name',
+  established: 'established',
+} as const;
+
+export type ListClinicsSortDir = typeof ListClinicsSortDir[keyof typeof ListClinicsSortDir];
+
+
+export const ListClinicsSortDir = {
+  asc: 'asc',
+  desc: 'desc',
+} as const;
+
+export type AnchorTestimonial200 = {
+  txHash?: string;
+  timestamp?: string;
+  hash?: string;
+};
+
+export type VerifyTestimonial200 = {
+  documentHash?: string;
+  onChainMatch?: boolean;
+  onChainTimestamp?: number;
+  tamperDetected?: boolean;
+};
+
+export type VerifyDoctor200 = {
+  documentHash?: string;
+  onChainMatch?: boolean;
+  onChainTimestamp?: number;
+  tamperDetected?: boolean;
 };
 
 export type ListSlotsParams = {

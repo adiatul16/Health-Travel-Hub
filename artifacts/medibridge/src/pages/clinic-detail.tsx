@@ -194,7 +194,74 @@ export default function ClinicDetail() {
               )}
             </motion.section>
 
+            {/* Doctors section */}
             <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+              <div className="flex items-center gap-3 mb-4">
+                <h2 className="text-xl font-bold">Our Doctors</h2>
+                <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-semibold px-2.5 py-1 rounded-full">
+                  ⛓️ Blockchain-verified
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {(clinic.doctors && clinic.doctors.length > 0 ? clinic.doctors : []).map((doctor) => (
+                  <motion.div
+                    key={doctor.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="border border-gray-100 rounded-xl p-4 bg-white shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg shrink-0">
+                        {doctor.name.charAt(0)}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm text-gray-900">{doctor.name}</span>
+                          {doctor.verified && (
+                            <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-emerald-200">
+                              ⛓️ Verified
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{doctor.title} · {doctor.specialty}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {doctor.yearsExperience} years exp · {doctor.languages?.slice(0, 2).join(", ")}
+                        </div>
+                        {doctor.certifications && doctor.certifications.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            {doctor.certifications.map((cert) => (
+                              <span key={cert} className="bg-secondary text-secondary-foreground text-[10px] px-2 py-0.5 rounded font-medium">
+                                {cert}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    {doctor.bio && (
+                      <p className="text-xs text-muted-foreground mt-2 leading-relaxed">{doctor.bio}</p>
+                    )}
+                    {doctor.onChainTxHash && (
+                      <a
+                        href={`https://amoy.polygonscan.com/tx/${doctor.onChainTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-emerald-600 hover:underline mt-2 inline-block"
+                      >
+                        View on-chain record →
+                      </a>
+                    )}
+                  </motion.div>
+                ))}
+                {(!clinic.doctors || clinic.doctors.length === 0) && (
+                  <div className="text-sm text-muted-foreground text-center py-4 border border-dashed border-gray-200 rounded-xl">
+                    Doctor profiles are being verified and will be added soon.
+                  </div>
+                )}
+              </div>
+            </motion.section>
+
+            <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.35 }}>
               <h2 className="text-xl font-bold mb-3">Why choose {clinic.name}?</h2>
               <ul className="space-y-2 text-muted-foreground">
                 <li className="flex items-start gap-2"><span className="text-primary mt-0.5">✓</span> Internationally accredited with verified patient outcomes</li>
