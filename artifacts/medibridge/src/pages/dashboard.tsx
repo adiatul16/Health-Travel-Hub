@@ -243,11 +243,17 @@ export default function Dashboard() {
     if (!file) return;
 
     setRecordLoading(true);
-    setUploadProgress("Requesting upload URL...");
+    setUploadProgress("Computing hash...");
 
     try {
+      // Step 1: Compute hash FIRST (before upload)
+      const hash = await computeFileHash(file);
+      setUploadProgress("Hash computed. Requesting upload URL...");
+
+      // Step 2: Request presigned URL
       const res = await fetch("/api/storage/uploads/request-url", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: file.name,
@@ -255,28 +261,36 @@ export default function Dashboard() {
           contentType: file.type || "application/octet-stream",
         }),
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Failed to get upload URL (${res.status})`);
+      }
       const { uploadURL, objectPath } = await res.json();
       if (!uploadURL) throw new Error("Failed to get upload URL");
 
-      setUploadProgress("Uploading file...");
+      // Step 3: Upload file to GCS
+      setUploadProgress("Uploading file to secure storage...");
       const putRes = await fetch(uploadURL, {
         method: "PUT",
         headers: { "Content-Type": file.type || "application/octet-stream" },
         body: file,
       });
-      if (!putRes.ok) throw new Error("Upload failed");
+      if (!putRes.ok) {
+        const errText = await putRes.text().catch(() => "Upload failed");
+        throw new Error(`Upload failed: ${errText}`);
+      }
 
-      setUploadProgress("Securing record...");
-      const hash = await computeFileHash(file);
+      // Step 4: Anchor hash to blockchain
+      setUploadProgress("Anchoring hash to Care Network...");
       const data = await apiPost("/blockchain/record", {
         dataHash: hash,
-        ref: `Patient record: ${file.name}`,
+        ref: `Patient record: ${file.name} (${objectPath || file.name})`,
         phase: "pre-op",
       });
 
       toast({
         title: "Record uploaded and secured",
-        description: `Your file is stored safely. Record hash stored on VitaVia Care Network.`,
+        description: `File stored securely. Hash anchored to Care Network. TX: ${data.txHash?.slice(0, 10) || ""}…`,
       });
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });

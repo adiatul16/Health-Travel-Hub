@@ -107,6 +107,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <div className="hidden sm:block">
                 <LoginDropdown compact />
               </div>
+              <div className="sm:hidden">
+                <Button
+                  asChild
+                  size="sm"
+                  className="purple-gradient border-0 shadow-sm hover:shadow-md transition-all rounded-xl font-bold text-sm h-9 px-3"
+                >
+                  <Link href="/sign-in">Log In</Link>
+                </Button>
+              </div>
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                 <Button
                   asChild
@@ -204,6 +213,30 @@ export function Layout({ children }: { children: React.ReactNode }) {
                           : "text-gray-600 hover:text-[#1F7A8C] hover:bg-[#F4F7FA]/70"
                       }`}
                     >
+                      {item.label}
+                    </Link>
+                  </motion.div>
+                ))}
+                <motion.div variants={{ hidden: { opacity: 0, x: -12 }, show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 26 } } }}>
+                  <div className="border-t border-[#E5E7EB] my-2" />
+                </motion.div>
+                {[
+                  { href: "/sign-in", label: "Patient Login", icon: "👥" },
+                  { href: "/clinic-login", label: "Clinic Portal", icon: "🏥" },
+                  { href: "/admin-login", label: "Admin Console", icon: "⚙️" },
+                ].map((item) => (
+                  <motion.div
+                    key={item.href}
+                    variants={{
+                      hidden: { opacity: 0, x: -12 },
+                      show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 26 } },
+                    }}
+                  >
+                    <Link
+                      href={item.href}
+                      className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold text-gray-600 hover:text-[#1F7A8C] hover:bg-[#F4F7FA]/70 transition-colors"
+                    >
+                      <span>{item.icon}</span>
                       {item.label}
                     </Link>
                   </motion.div>
