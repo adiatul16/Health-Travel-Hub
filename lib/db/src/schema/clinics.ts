@@ -19,6 +19,7 @@ export const clinicsTable = pgTable("clinics", {
   successRate: numeric("success_rate", { precision: 5, scale: 2 }).notNull(),
   description: text("description"),
   featured: boolean("featured").notNull().default(false),
+  walletAddress: text("wallet_address").unique(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -304,6 +304,7 @@ export function ClinicPortalShell({ children }: { children: React.ReactNode }) {
         { label: "Slots", icon: "📅", href: "#slots", section: "slots" },
         { label: "Bookings", icon: "👥", href: "#bookings", section: "bookings" },
         { label: "Doctors", icon: "👔", href: "#doctors", section: "doctors" },
+        { label: "Patient Records", icon: "📁", href: "#patient-records", section: "patient-records" },
         { label: "Credentials", icon: "🔒", href: "#credentials", section: "credentials" },
         { label: "Profile", icon: "🏥", href: "#profile", section: "profile" },
       ]}

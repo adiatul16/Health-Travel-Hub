@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { requireAuth } from "../middlewares/auth.js";
+import { ensurePatient } from "../services/patients.js";
 import {
-  addRecord,
   verifyClinic,
   verifyDoctor,
   addReview,
@@ -39,22 +39,6 @@ router.get("/stats", async (_req, res) => {
 });
 
 /* ─── Write operations (backend wallet) ─── */
-
-// Anchor a medical record hash (open to all users — record hash is anonymous)
-router.post("/record", async (req, res) => {
-  try {
-    const { dataHash, ref, phase } = req.body;
-    if (!dataHash || !ref) {
-      res.status(400).json({ error: "dataHash and ref are required" });
-      return;
-    }
-    const userId = (req as any).auth?.userId || "anonymous";
-    const result = await addRecord(userId, dataHash, ref, phase || "pre-op");
-    res.json({ txHash: result.txHash, url: txUrl(result.txHash) });
-  } catch (err: any) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // Verify a clinic (admin only)
 router.post("/verify-clinic", requireAuth, async (req, res) => {
@@ -94,8 +78,9 @@ router.post("/review", requireAuth, async (req, res) => {
       res.status(400).json({ error: "clinicAddress and rating are required" });
       return;
     }
-    const userId = (req as any).auth?.userId || "anonymous";
-    const result = await addReview(userId, clinicAddress, rating, comment || "");
+    const clerkUserId = (req as any).auth.userId as string;
+    const patient = await ensurePatient(clerkUserId);
+    const result = await addReview(patient.walletAddress, clinicAddress, rating, comment || "");
     res.json({ txHash: result.txHash, url: txUrl(result.txHash) });
   } catch (err: any) {
     res.status(500).json({ error: err.message });

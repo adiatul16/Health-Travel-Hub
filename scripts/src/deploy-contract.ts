@@ -22,10 +22,7 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const AMOY_RPC = "https://rpc-amoy.polygon.technology";
-const SOURCE_PATH = resolve(
-  __dirname,
-  "../../artifacts/api-server/src/contracts/MediBridgeLedger.sol"
-);
+const SOURCE_PATH = resolve(__dirname, "../../contracts/MediBridgeLedger.sol");
 const LEDGER_PATH = join(__dirname, "../../lib/blockchain/ledger.json");
 
 function compileContract() {

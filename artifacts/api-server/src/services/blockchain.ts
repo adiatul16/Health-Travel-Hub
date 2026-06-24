@@ -28,6 +28,15 @@ export function hashDocument(content: string): string {
   return "0x" + crypto.createHash("sha256").update(content, "utf8").digest("hex");
 }
 
+/**
+ * Generate a fresh on-chain identity address for a patient/doctor/clinic.
+ * No private key is kept — the backend wallet is the sole signer for everything,
+ * so this address is purely an identity label, never used to sign anything.
+ */
+export function generateWalletAddress(): string {
+  return ethers.Wallet.createRandom().address;
+}
+
 export function isBlockchainConfigured(): boolean {
   return !!(process.env.POLYGON_PRIVATE_KEY && LEGACY_CONTRACT_ADDRESS);
 }
@@ -67,7 +76,33 @@ export async function addRecord(
 ): Promise<{ txHash: string }> {
   const wallet = getWallet();
   const contract = getLedgerContract(wallet);
-  const tx = await (contract.addRecord as any)(dataHash, ref, phase);
+  const tx = await (contract.addRecordFor as any)(patientAddress, dataHash, ref, phase);
+  const receipt = await tx.wait(1);
+  if (!receipt) throw new Error("Transaction not confirmed");
+  return { txHash: receipt.hash };
+}
+
+export async function grantConsent(
+  patientAddress: string,
+  doctorAddress: string,
+  recordHash: string
+): Promise<{ txHash: string }> {
+  const wallet = getWallet();
+  const contract = getLedgerContract(wallet);
+  const tx = await (contract.grantConsentFor as any)(patientAddress, doctorAddress, recordHash);
+  const receipt = await tx.wait(1);
+  if (!receipt) throw new Error("Transaction not confirmed");
+  return { txHash: receipt.hash };
+}
+
+export async function revokeConsent(
+  patientAddress: string,
+  doctorAddress: string,
+  recordHash: string
+): Promise<{ txHash: string }> {
+  const wallet = getWallet();
+  const contract = getLedgerContract(wallet);
+  const tx = await (contract.revokeConsentFor as any)(patientAddress, doctorAddress, recordHash);
   const receipt = await tx.wait(1);
   if (!receipt) throw new Error("Transaction not confirmed");
   return { txHash: receipt.hash };
@@ -111,7 +146,7 @@ export async function addReview(
 ): Promise<{ txHash: string }> {
   const wallet = getWallet();
   const contract = getLedgerContract(wallet);
-  const tx = await (contract.addReview as any)(clinicAddress, rating, comment);
+  const tx = await (contract.addReviewFor as any)(patientAddress, clinicAddress, rating, comment);
   const receipt = await tx.wait(1);
   if (!receipt) throw new Error("Transaction not confirmed");
   return { txHash: receipt.hash };

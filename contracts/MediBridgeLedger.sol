@@ -1,15 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-
 /**
  * @title MediBridgeLedger
  * @notice On-chain trust layer for MediBridge Global. Stores SHA-256 hashes
  *   of medical records, clinic/doctor verifications, patient consent,
  *   and verified reviews. No raw health data lives on-chain.
  */
-contract MediBridgeLedger is Ownable {
+contract MediBridgeLedger {
+    address public owner;
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Not owner");
+        _;
+    }
+
     /* ─── Events ─── */
     event ClinicVerified(
         address indexed clinic,
@@ -124,7 +133,7 @@ contract MediBridgeLedger is Ownable {
         uint256 expiry
     ) external {
         require(
-            msg.sender == owner() || clinics[msg.sender].verified,
+            msg.sender == owner || clinics[msg.sender].verified,
             "Not authorized"
         );
         doctors[doctor] = Doctor(clinic, license, expiry, true);
@@ -146,6 +155,19 @@ contract MediBridgeLedger is Ownable {
         emit RecordAdded(msg.sender, dataHash, ref, phase, block.timestamp);
     }
 
+    /// @notice Same as addRecord, but for use by the trusted backend relayer,
+    ///   which signs all transactions itself and must specify the real patient.
+    function addRecordFor(
+        address patient,
+        bytes32 dataHash,
+        string calldata ref,
+        string calldata phase
+    ) external onlyOwner {
+        records.push(Record(patient, dataHash, ref, phase, block.timestamp));
+        hasOnChainInteraction[patient] = true;
+        emit RecordAdded(patient, dataHash, ref, phase, block.timestamp);
+    }
+
     function getRecordCount() external view returns (uint256) {
         return records.length;
     }
@@ -159,6 +181,17 @@ contract MediBridgeLedger is Ownable {
     function revokeConsent(address doctor, bytes32 recordHash) external {
         consent[msg.sender][doctor][recordHash] = Consent(false, block.timestamp);
         emit ConsentRevoked(msg.sender, doctor, recordHash);
+    }
+
+    /// @notice Relayer variants of grant/revokeConsent — see addRecordFor.
+    function grantConsentFor(address patient, address doctor, bytes32 recordHash) external onlyOwner {
+        consent[patient][doctor][recordHash] = Consent(true, block.timestamp);
+        emit ConsentGranted(patient, doctor, recordHash);
+    }
+
+    function revokeConsentFor(address patient, address doctor, bytes32 recordHash) external onlyOwner {
+        consent[patient][doctor][recordHash] = Consent(false, block.timestamp);
+        emit ConsentRevoked(patient, doctor, recordHash);
     }
 
     function hasConsent(
@@ -179,6 +212,19 @@ contract MediBridgeLedger is Ownable {
         require(rating >= 1 && rating <= 5, "Rating must be 1-5");
         reviews[clinic].push(Review(msg.sender, rating, comment, block.timestamp));
         emit ReviewAdded(msg.sender, clinic, rating, comment, block.timestamp);
+    }
+
+    /// @notice Relayer variant of addReview — see addRecordFor.
+    function addReviewFor(
+        address patient,
+        address clinic,
+        uint8 rating,
+        string calldata comment
+    ) external onlyOwner {
+        require(hasOnChainInteraction[patient], "Must have on-chain interaction");
+        require(rating >= 1 && rating <= 5, "Rating must be 1-5");
+        reviews[clinic].push(Review(patient, rating, comment, block.timestamp));
+        emit ReviewAdded(patient, clinic, rating, comment, block.timestamp);
     }
 
     function getReviewCount(address clinic) external view returns (uint256) {

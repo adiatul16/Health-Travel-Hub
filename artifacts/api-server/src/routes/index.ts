@@ -15,6 +15,10 @@ import credentialsRouter from "./credentials";
 import doctorsRouter from "./doctors";
 import blockchainRouter from "./blockchain";
 import storageRouter from "./storage";
+import patientsRouter from "./patients";
+import recordsRouter from "./records";
+import accessRequestsRouter from "./access-requests";
+import recordGrantsRouter from "./record-grants";
 
 const router: IRouter = Router();
 
@@ -33,6 +37,10 @@ router.use("/chat", chatRouter);
 router.use("/credentials", credentialsRouter);
 router.use("/doctors", doctorsRouter);
 router.use("/blockchain", blockchainRouter);
+router.use("/patients", patientsRouter);
+router.use("/records", recordsRouter);
+router.use("/access-requests", accessRequestsRouter);
+router.use("/record-grants", recordGrantsRouter);
 router.use(storageRouter);
 
 export default router;

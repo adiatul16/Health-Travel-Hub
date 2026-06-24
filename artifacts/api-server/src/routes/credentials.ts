@@ -3,6 +3,7 @@ import { db } from "@workspace/db";
 import { credentialsTable, clinicsTable } from "@workspace/db";
 import { eq, and } from "drizzle-orm";
 import { hashDocument, isBlockchainConfigured, verifyOnChain } from "../services/blockchain.js";
+import { ipfsGatewayUrl } from "../services/ipfs.js";
 
 const router = Router();
 
@@ -38,6 +39,7 @@ router.get("/clinic/:clinicId", async (req, res) => {
       polygonScanUrl: c.onChainTxHash
         ? `https://amoy.polygonscan.com/tx/${c.onChainTxHash}`
         : null,
+      ipfsUrl: c.ipfsCid ? ipfsGatewayUrl(c.ipfsCid) : null,
       blockchainConfigured: isBlockchainConfigured(),
     }))
   );

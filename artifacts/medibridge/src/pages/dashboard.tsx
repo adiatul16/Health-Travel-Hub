@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useGetDashboardSummary } from "@workspace/api-client-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,26 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { sha256 } from "@workspace/blockchain";
+
+interface MedicalRecordRow {
+  id: number;
+  fileName: string;
+  contentType: string;
+  sizeBytes: number;
+  phase: string;
+  onChainTxHash: string | null;
+  createdAt: string;
+  grants: { id: number; doctorId: number; status: string }[];
+}
+
+interface PendingAccessRequest {
+  id: number;
+  note: string | null;
+  status: string;
+  createdAt: string;
+  doctorId: number;
+  doctorName: string;
+}
 
 function StatCard({
   label,
@@ -198,6 +217,11 @@ export default function Dashboard() {
   const [selectedBooking, setSelectedBooking] = useState<BookingDetails | null>(null);
   const [recordLoading, setRecordLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState<string | null>(null);
+  const [records, setRecords] = useState<MedicalRecordRow[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<PendingAccessRequest[]>([]);
+  const [grantTarget, setGrantTarget] = useState<PendingAccessRequest | null>(null);
+  const [selectedRecordIds, setSelectedRecordIds] = useState<number[]>([]);
+  const [grantLoading, setGrantLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -216,88 +240,87 @@ export default function Dashboard() {
       body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Request failed");
+    if (!res.ok) throw new Error(data.message || data.error || "Request failed");
     return data;
   }
 
-  async function fileToArrayBuffer(file: File): Promise<ArrayBuffer> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result as ArrayBuffer);
-      reader.onerror = reject;
-      reader.readAsArrayBuffer(file);
-    });
-  }
+  const refreshRecords = useCallback(async () => {
+    const res = await fetch("/api/records", { credentials: "include" });
+    if (res.ok) setRecords(await res.json());
+  }, []);
 
-  async function computeFileHash(file: File): Promise<string> {
-    const buf = await fileToArrayBuffer(file);
-    const hashBuf = await crypto.subtle.digest("SHA-256", buf);
-    const hex = Array.from(new Uint8Array(hashBuf))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-    return "0x" + hex;
-  }
+  const refreshPendingRequests = useCallback(async () => {
+    const res = await fetch("/api/access-requests", { credentials: "include" });
+    if (res.ok) setPendingRequests(await res.json());
+  }, []);
+
+  useEffect(() => {
+    apiPost("/patients/profile", {}).catch(() => {});
+    void refreshRecords();
+    void refreshPendingRequests();
+  }, [refreshRecords, refreshPendingRequests]);
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setRecordLoading(true);
-    setUploadProgress("Computing hash...");
+    setUploadProgress("Encrypting and uploading to the Care Network...");
 
     try {
-      // Step 1: Compute hash FIRST (before upload)
-      const hash = await computeFileHash(file);
-      setUploadProgress("Hash computed. Requesting upload URL...");
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("phase", "pre-op");
 
-      // Step 2: Request presigned URL
-      const res = await fetch("/api/storage/uploads/request-url", {
+      const res = await fetch("/api/records/upload", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: file.name,
-          size: file.size,
-          contentType: file.type || "application/octet-stream",
-        }),
+        body: formData,
       });
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `Failed to get upload URL (${res.status})`);
-      }
-      const { uploadURL, objectPath } = await res.json();
-      if (!uploadURL) throw new Error("Failed to get upload URL");
-
-      // Step 3: Upload file to GCS
-      setUploadProgress("Uploading file to secure storage...");
-      const putRes = await fetch(uploadURL, {
-        method: "PUT",
-        headers: { "Content-Type": file.type || "application/octet-stream" },
-        body: file,
-      });
-      if (!putRes.ok) {
-        const errText = await putRes.text().catch(() => "Upload failed");
-        throw new Error(`Upload failed: ${errText}`);
-      }
-
-      // Step 4: Anchor hash to blockchain
-      setUploadProgress("Anchoring hash to Care Network...");
-      const data = await apiPost("/blockchain/record", {
-        dataHash: hash,
-        ref: `Patient record: ${file.name} (${objectPath || file.name})`,
-        phase: "pre-op",
-      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "Upload failed");
 
       toast({
         title: "Record uploaded and secured",
-        description: `File stored securely. Hash anchored to Care Network. TX: ${data.txHash?.slice(0, 10) || ""}…`,
+        description: `Encrypted, pinned to IPFS, and hash anchored to Care Network. TX: ${data.txHash?.slice(0, 10) || ""}…`,
       });
+      await refreshRecords();
     } catch (err: any) {
       toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
       setRecordLoading(false);
       setUploadProgress(null);
       if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function revokeGrant(grantId: number) {
+    try {
+      await apiPost(`/record-grants/${grantId}/revoke`, {});
+      toast({ title: "Access revoked", description: "The doctor can no longer view this record." });
+      await refreshRecords();
+    } catch (err: any) {
+      toast({ title: "Failed to revoke access", description: err.message, variant: "destructive" });
+    }
+  }
+
+  function openGrantModal(request: PendingAccessRequest) {
+    setGrantTarget(request);
+    setSelectedRecordIds([]);
+  }
+
+  async function confirmGrant() {
+    if (!grantTarget || selectedRecordIds.length === 0) return;
+    setGrantLoading(true);
+    try {
+      await apiPost(`/access-requests/${grantTarget.id}/grant`, { recordIds: selectedRecordIds });
+      toast({ title: "Access granted", description: `${grantTarget.doctorName} can now view the selected record(s).` });
+      setGrantTarget(null);
+      await Promise.all([refreshRecords(), refreshPendingRequests()]);
+    } catch (err: any) {
+      toast({ title: "Failed to grant access", description: err.message, variant: "destructive" });
+    } finally {
+      setGrantLoading(false);
     }
   }
 
@@ -645,19 +668,130 @@ export default function Dashboard() {
                 {uploadProgress}
               </div>
             )}
-            <div className="p-8 rounded-xl border-2 border-dashed border-[#E5E7EB] text-center">
-              <div className="text-4xl mb-3">📁</div>
-              <p className="text-sm text-gray-500 mb-2">Your uploaded records are securely stored and verified</p>
-              <p className="text-xs text-gray-400">Upload medical reports, scans, prescriptions, or any health documents. All files are encrypted and a secure hash is stored in our Care Network.</p>
-            </div>
+
+            {pendingRequests.length > 0 && (
+              <div className="mb-6 p-4 rounded-xl border border-amber-200 bg-amber-50/50">
+                <p className="text-sm font-semibold text-gray-900 mb-3">Pending access requests</p>
+                <div className="space-y-2">
+                  {pendingRequests.map((r) => (
+                    <div key={r.id} className="flex items-center justify-between p-3 rounded-lg bg-white border border-amber-100">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{r.doctorName}</p>
+                        {r.note && <p className="text-xs text-gray-500">{r.note}</p>}
+                      </div>
+                      <button
+                        onClick={() => openGrantModal(r)}
+                        className="px-3 py-1.5 rounded-lg bg-[#0F4C81] text-white text-xs font-semibold hover:bg-[#1F7A8C] transition-colors"
+                      >
+                        Review request
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {records.length === 0 ? (
+              <div className="p-8 rounded-xl border-2 border-dashed border-[#E5E7EB] text-center">
+                <div className="text-4xl mb-3">📁</div>
+                <p className="text-sm text-gray-500 mb-2">Your uploaded records are securely stored and verified</p>
+                <p className="text-xs text-gray-400">Upload medical reports, scans, prescriptions, or any health documents. Files are encrypted, pinned to IPFS, and a secure hash is anchored to our Care Network.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {records.map((r) => (
+                  <div key={r.id} className="p-4 rounded-xl border border-[#E5E7EB]">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-gray-900">{r.fileName}</p>
+                        <p className="text-xs text-gray-400">
+                          {r.phase} · {new Date(r.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                          {r.onChainTxHash && (
+                            <>
+                              {" · "}
+                              <a
+                                href={`https://amoy.polygonscan.com/tx/${r.onChainTxHash}`}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="text-[#1F7A8C] hover:underline"
+                              >
+                                View on-chain
+                              </a>
+                            </>
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    {r.grants.length > 0 && (
+                      <div className="mt-3 pt-3 border-t border-gray-50 space-y-1.5">
+                        {r.grants.map((g) => (
+                          <div key={g.id} className="flex items-center justify-between text-xs">
+                            <span className={g.status === "granted" ? "text-emerald-700" : "text-gray-400"}>
+                              {g.status === "granted" ? "🔓 Access granted" : "🔒 Access revoked"} — Doctor #{g.doctorId}
+                            </span>
+                            {g.status === "granted" && (
+                              <button onClick={() => revokeGrant(g.id)} className="text-red-600 hover:underline font-medium">
+                                Revoke
+                              </button>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="mt-4 p-4 rounded-xl bg-[#F4F7FA] border border-[#E5E7EB]">
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-sm">🛡️</span>
                 <p className="text-sm font-semibold text-gray-900">Security Note</p>
               </div>
-              <p className="text-xs text-gray-500">Your files are stored in encrypted cloud storage. Only a cryptographic hash of your records is stored in our verification system — never the file itself. This ensures your privacy while maintaining an immutable record of your medical history.</p>
+              <p className="text-xs text-gray-500">Your files are encrypted (AES-256) before being pinned to IPFS — only a cryptographic hash is anchored on-chain. Only VitaVia's backend can decrypt a record, and only for a doctor you've explicitly granted access to. You can revoke that access at any time.</p>
             </div>
           </div>
+        )}
+
+        {grantTarget && (
+          <Dialog open onOpenChange={(open) => !open && setGrantTarget(null)}>
+            <DialogContent className="max-w-md">
+              <DialogHeader>
+                <DialogTitle>Grant access to {grantTarget.doctorName}</DialogTitle>
+                <DialogDescription>Choose which record(s) to share. You can revoke access at any time.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {records.length === 0 ? (
+                  <p className="text-sm text-gray-400">You don't have any records to share yet.</p>
+                ) : (
+                  records.map((r) => (
+                    <label key={r.id} className="flex items-center gap-3 p-2.5 rounded-lg border border-[#E5E7EB] cursor-pointer hover:bg-[#F4F7FA]/40">
+                      <input
+                        type="checkbox"
+                        checked={selectedRecordIds.includes(r.id)}
+                        onChange={(e) =>
+                          setSelectedRecordIds((prev) => (e.target.checked ? [...prev, r.id] : prev.filter((id) => id !== r.id)))
+                        }
+                      />
+                      <span className="text-sm text-gray-800">{r.fileName}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline" className="rounded-xl">Cancel</Button>
+                </DialogClose>
+                <Button
+                  onClick={confirmGrant}
+                  disabled={grantLoading || selectedRecordIds.length === 0}
+                  className="rounded-xl bg-[#0F4C81] hover:bg-[#1F7A8C]"
+                >
+                  {grantLoading ? "Granting..." : "Grant access"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         )}
 
         {activeSection === "messages" && (

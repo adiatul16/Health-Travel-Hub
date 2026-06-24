@@ -11,6 +11,7 @@ export const credentialsTable = pgTable("credentials", {
   issueDate: text("issue_date").notNull(),
   documentName: text("document_name"),
   documentHash: text("document_hash"),
+  ipfsCid: text("ipfs_cid"),
   onChainTxHash: text("on_chain_tx_hash"),
   onChainTimestamp: timestamp("on_chain_timestamp", { withTimezone: true }),
   status: text("status").notNull().default("pending"),

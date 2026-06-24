@@ -1,7 +1,212 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { Show, useUser } from "@clerk/react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { sha256 } from "@workspace/blockchain";
+
+interface DoctorProfile {
+  id: number;
+  name: string;
+  clinicId: number;
+  walletAddress: string;
+}
+
+interface RecordGrantRow {
+  id: number;
+  status: string;
+  recordId: number;
+  fileName: string;
+  phase: string;
+  patientEmail: string;
+}
+
+/** Doctor-facing records portal — gated by a real Clerk sign-in, separate from the
+ *  clinic-wide shared-password gate, since granting/viewing patient records needs a
+ *  real per-doctor identity. */
+function DoctorRecordsSection() {
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-teal-100 p-4 sm:p-6">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-9 h-9 rounded-xl bg-teal-100 flex items-center justify-center text-lg">📁</div>
+        <h3 className="font-bold text-gray-900">Patient Records</h3>
+      </div>
+      <Show when="signed-in">
+        <DoctorRecordsPortal />
+      </Show>
+      <Show when="signed-out">
+        <DoctorSignIn />
+      </Show>
+    </div>
+  );
+}
+
+function DoctorSignIn() {
+  const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+  return (
+    <div className="max-w-sm py-6 text-center mx-auto">
+      <p className="text-sm text-gray-500 mb-4">
+        Sign in with your VitaVia account to request and view patient records securely.
+      </p>
+      <Button asChild className="rounded-xl bg-teal-600 hover:bg-teal-700 w-full">
+        <a href={`${basePath}/sign-in?redirect_url=${encodeURIComponent(`${basePath}/clinic-dashboard#patient-records`)}`}>
+          Sign in
+        </a>
+      </Button>
+    </div>
+  );
+}
+
+function DoctorRecordsPortal() {
+  const { toast } = useToast();
+  const [doctor, setDoctor] = useState<DoctorProfile | null>(null);
+  const [linkError, setLinkError] = useState<string | null>(null);
+  const [grants, setGrants] = useState<RecordGrantRow[]>([]);
+  const [requestForm, setRequestForm] = useState({ patientEmail: "", note: "" });
+  const [requestLoading, setRequestLoading] = useState(false);
+  const [denialBanner, setDenialBanner] = useState<{ fileName: string; message: string } | null>(null);
+
+  const refreshGrants = useCallback(async () => {
+    const res = await fetch("/api/record-grants", { credentials: "include" });
+    if (res.ok) setGrants(await res.json());
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/doctors/profile", { method: "POST", credentials: "include" })
+      .then(async (res) => {
+        const data = await res.json();
+        if (!res.ok) {
+          setLinkError(data.message || "No doctor profile found for your email.");
+          return;
+        }
+        setDoctor(data);
+        void refreshGrants();
+      })
+      .catch(() => setLinkError("Failed to load your doctor profile."));
+  }, [refreshGrants]);
+
+  async function requestAccess() {
+    if (!requestForm.patientEmail) {
+      toast({ title: "Patient email required", variant: "destructive" });
+      return;
+    }
+    setRequestLoading(true);
+    try {
+      const res = await fetch("/api/access-requests", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestForm),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || data.error || "Request failed");
+      toast({ title: "Access requested", description: "The patient will see your request in their dashboard." });
+      setRequestForm({ patientEmail: "", note: "" });
+    } catch (err: any) {
+      toast({ title: "Failed to request access", description: err.message, variant: "destructive" });
+    } finally {
+      setRequestLoading(false);
+    }
+  }
+
+  async function viewRecord(grant: RecordGrantRow) {
+    setDenialBanner(null);
+    try {
+      const res = await fetch(`/api/records/${grant.recordId}/content`, { credentials: "include" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setDenialBanner({
+          fileName: grant.fileName,
+          message: data.message || "Access to this record has been denied.",
+        });
+        void refreshGrants();
+        return;
+      }
+      const blob = await res.blob();
+      window.open(URL.createObjectURL(blob), "_blank");
+    } catch (err: any) {
+      setDenialBanner({ fileName: grant.fileName, message: "Couldn't load this record. Please try again." });
+    }
+  }
+
+  if (linkError) {
+    return (
+      <div className="py-8 text-center max-w-md mx-auto">
+        <div className="text-3xl mb-3">🔒</div>
+        <p className="text-sm text-gray-600">{linkError}</p>
+      </div>
+    );
+  }
+
+  if (!doctor) {
+    return (
+      <div className="flex items-center gap-3 text-gray-400 py-8">
+        <div className="w-5 h-5 border-2 border-teal-200 border-t-teal-500 rounded-full animate-spin" />
+        Loading your doctor profile...
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {denialBanner && (
+        <div className="p-4 rounded-xl border border-red-200 bg-red-50 flex items-start gap-3">
+          <span className="text-xl">🚫</span>
+          <div>
+            <p className="text-sm font-semibold text-red-800">Access denied — {denialBanner.fileName}</p>
+            <p className="text-xs text-red-600 mt-0.5">{denialBanner.message}</p>
+          </div>
+        </div>
+      )}
+
+      <div className="p-4 rounded-xl border border-teal-100 bg-teal-50/30 space-y-3">
+        <p className="text-sm font-semibold text-gray-900">Request access to a patient's records</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <input
+            type="email"
+            placeholder="patient@email.com"
+            value={requestForm.patientEmail}
+            onChange={(e) => setRequestForm((f) => ({ ...f, patientEmail: e.target.value }))}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+          />
+          <input
+            type="text"
+            placeholder="Note (optional)"
+            value={requestForm.note}
+            onChange={(e) => setRequestForm((f) => ({ ...f, note: e.target.value }))}
+            className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+          />
+        </div>
+        <button
+          onClick={requestAccess}
+          disabled={requestLoading}
+          className="w-full py-2.5 rounded-xl bg-teal-600 text-white text-sm font-semibold hover:bg-teal-700 disabled:opacity-50 transition-colors"
+        >
+          {requestLoading ? "Sending..." : "Request access"}
+        </button>
+      </div>
+
+      <div>
+        <p className="text-sm font-semibold text-gray-900 mb-3">Records granted to you</p>
+        {grants.length === 0 ? (
+          <p className="text-gray-400 text-sm py-4">No records have been granted to you yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {grants.map((g) => (
+              <div key={g.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100">
+                <div>
+                  <p className="text-sm font-medium text-gray-900">{g.fileName}</p>
+                  <p className="text-xs text-gray-400">{g.patientEmail} · {g.phase}</p>
+                </div>
+                <button onClick={() => viewRecord(g)} className="px-3 py-1.5 rounded-lg bg-teal-600 text-white text-xs font-semibold hover:bg-teal-700 transition-colors">
+                  View
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 interface ClinicSlot {
   id: number;
@@ -47,7 +252,7 @@ export default function ClinicDashboard() {
   const [activeTab, setActiveTab] = useState<"overview" | "slots" | "bookings" | "doctors" | "credentials" | "profile">("overview");
   const [bcLoading, setBcLoading] = useState(false);
   const [showAddDoctor, setShowAddDoctor] = useState(false);
-  const [doctorForm, setDoctorForm] = useState({ name: "", specialty: "", license: "" });
+  const [doctorForm, setDoctorForm] = useState({ name: "", specialty: "", license: "", email: "" });
 
   const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
@@ -64,46 +269,32 @@ export default function ClinicDashboard() {
   }
 
   async function addDoctor() {
-    if (!doctorForm.name || !doctorForm.license) {
-      toast({ title: "Missing info", description: "Name and license are required.", variant: "destructive" });
+    if (!doctorForm.name || !doctorForm.license || !doctorForm.email) {
+      toast({ title: "Missing info", description: "Name, license, and email are required.", variant: "destructive" });
       return;
     }
     setBcLoading(true);
     try {
-      const hash = await sha256(`${doctorForm.name}:${doctorForm.license}:${Date.now()}`);
-      const data = await apiPost("/blockchain/verify-doctor", {
-        doctorAddress: "0x0000000000000000000000000000000000000000",
-        clinicAddress: "0x0000000000000000000000000000000000000000",
-        license: doctorForm.license,
+      const data = await apiPost("/doctors", {
+        clinicId: 1,
+        name: doctorForm.name,
+        specialty: doctorForm.specialty,
+        licenseNumber: doctorForm.license,
+        email: doctorForm.email,
         expiryDays: 365,
       });
       const newDoctor: Doctor = {
-        id: doctors.length + 1,
-        name: doctorForm.name,
-        specialty: doctorForm.specialty,
-        license: doctorForm.license,
-        verified: true,
-        onChainTxHash: data.txHash,
+        id: data.id,
+        name: data.name,
+        specialty: data.specialty,
+        license: data.licenseNumber,
+        verified: data.verified,
+        onChainTxHash: data.onChainTxHash,
       };
       setDoctors((d) => [...d, newDoctor]);
-      setDoctorForm({ name: "", specialty: "", license: "" });
+      setDoctorForm({ name: "", specialty: "", license: "", email: "" });
       setShowAddDoctor(false);
-      toast({ title: "Doctor added", description: `${doctorForm.name} has been added and verified.` });
-    } catch (err: any) {
-      toast({ title: "Failed", description: err.message, variant: "destructive" });
-    } finally {
-      setBcLoading(false);
-    }
-  }
-
-  async function addRecordHash() {
-    setBcLoading(true);
-    try {
-      const ref = prompt("Reference for this record (e.g., 'Patient scan result')");
-      if (!ref) { setBcLoading(false); return; }
-      const hash = await sha256(ref + Date.now().toString());
-      const data = await apiPost("/blockchain/record", { dataHash: hash, ref, phase: "clinic" });
-      toast({ title: "Record secured", description: "Record hash has been verified on our Care Network." });
+      toast({ title: "Doctor added", description: `${doctorForm.name} has been added and verified. They can now sign in with ${doctorForm.email} to manage patient records.` });
     } catch (err: any) {
       toast({ title: "Failed", description: err.message, variant: "destructive" });
     } finally {
@@ -236,8 +427,8 @@ export default function ClinicDashboard() {
                   <button onClick={() => setActiveTab("doctors")} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
                     <span className="text-lg">👔</span> Add Doctor
                   </button>
-                  <button onClick={addRecordHash} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
-                    <span className="text-lg">📁</span> Add Record
+                  <button onClick={() => { window.location.hash = "patient-records"; }} disabled={bcLoading} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left disabled:opacity-50 border border-gray-100">
+                    <span className="text-lg">📁</span> Patient Records
                   </button>
                   <button onClick={() => { window.location.href = `${basePath}/verify`; }} className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-teal-50 transition-colors text-left border border-gray-100">
                     <span className="text-lg">📜</span> View VCN Records
@@ -333,7 +524,7 @@ export default function ClinicDashboard() {
 
             {showAddDoctor && (
               <div className="mb-6 p-4 rounded-xl border border-teal-100 bg-teal-50/30 space-y-3">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   <div>
                     <label className="block text-xs font-semibold text-gray-600 mb-1">Doctor Name *</label>
                     <input
@@ -363,6 +554,17 @@ export default function ClinicDashboard() {
                       placeholder="e.g., TR-MED-45231"
                       className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
                     />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">Email *</label>
+                    <input
+                      type="email"
+                      value={doctorForm.email}
+                      onChange={(e) => setDoctorForm((f) => ({ ...f, email: e.target.value }))}
+                      placeholder="doctor@clinic.com"
+                      className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-300"
+                    />
+                    <p className="text-[11px] text-gray-400 mt-1">Used to sign them in to the Patient Records portal.</p>
                   </div>
                 </div>
                 <button
@@ -400,6 +602,9 @@ export default function ClinicDashboard() {
             </div>
           </div>
         )}
+
+        {/* Patient Records Tab */}
+        {activeSection === "patient-records" && <DoctorRecordsSection />}
 
         {/* Credentials Tab */}
         {activeSection === "credentials" && (

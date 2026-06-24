@@ -6,3 +6,7 @@ export * from "./testimonials";
 export * from "./contacts";
 export * from "./credentials";
 export * from "./doctors";
+export * from "./patients";
+export * from "./medical_records";
+export * from "./access_requests";
+export * from "./record_grants";

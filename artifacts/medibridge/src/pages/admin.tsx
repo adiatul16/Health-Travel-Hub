@@ -502,12 +502,12 @@ export default function Admin() {
     setBcLoading(true);
     setBcMsg(null);
     try {
-      const clinicAddr = prompt("Clinic wallet address (0x...)")?.trim();
-      const name = prompt("Clinic name")?.trim();
+      const clinicIdStr = prompt("Clinic ID")?.trim();
       const accreditation = prompt("Accreditation (e.g., JCI)")?.trim();
-      if (!clinicAddr || !name || !accreditation) { setBcLoading(false); return; }
-      const data = await apiPost("/blockchain/verify-clinic", { clinicAddress: clinicAddr, name, accreditation, expiryDays: 365 });
-      setBcMsg(`Verified! TX: ${data.txHash.slice(0, 10)}…`);
+      const clinicId = clinicIdStr ? parseInt(clinicIdStr, 10) : NaN;
+      if (!clinicId || !accreditation) { setBcLoading(false); return; }
+      const data = await apiPost(`/admin/clinics/${clinicId}/verify`, { accreditation, expiryDays: 365 });
+      setBcMsg(`Verified! Wallet: ${data.walletAddress.slice(0, 10)}… TX: ${data.txHash.slice(0, 10)}…`);
     } catch (err: any) {
       setBcMsg(`Failed: ${err.message}`);
     } finally {

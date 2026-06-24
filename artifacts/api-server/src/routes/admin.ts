@@ -1,4 +1,5 @@
 import { Router } from "express";
+import multer from "multer";
 import { db } from "@workspace/db";
 import { credentialsTable, clinicsTable } from "@workspace/db";
 import { eq, desc } from "drizzle-orm";
@@ -6,8 +7,14 @@ import {
   anchorCredential,
   hashDocument,
   isBlockchainConfigured,
+  verifyClinic,
+  generateWalletAddress,
+  txUrl,
 } from "../services/blockchain.js";
+import { sha256Hex } from "../services/encryption.js";
+import { pinToIPFS, ipfsGatewayUrl } from "../services/ipfs.js";
 const router = Router();
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
 router.get("/metrics", (_req, res) => {
   res.json({
@@ -50,6 +57,7 @@ router.get("/credentials", async (_req, res) => {
       issueDate: credentialsTable.issueDate,
       documentName: credentialsTable.documentName,
       documentHash: credentialsTable.documentHash,
+      ipfsCid: credentialsTable.ipfsCid,
       onChainTxHash: credentialsTable.onChainTxHash,
       onChainTimestamp: credentialsTable.onChainTimestamp,
       status: credentialsTable.status,
@@ -67,6 +75,7 @@ router.get("/credentials", async (_req, res) => {
       polygonScanUrl: r.onChainTxHash
         ? `https://amoy.polygonscan.com/tx/${r.onChainTxHash}`
         : null,
+      ipfsUrl: r.ipfsCid ? ipfsGatewayUrl(r.ipfsCid) : null,
       blockchainConfigured: isBlockchainConfigured(),
     }))
   );
@@ -112,6 +121,86 @@ router.post("/credentials", async (req, res) => {
     .returning();
 
   res.status(201).json(created);
+});
+
+/**
+ * Attach the real certification document to a pending credential: the file is
+ * hashed server-side (replacing manual hash entry) and pinned to IPFS *publicly*
+ * (unencrypted) so patients can independently verify the accreditation document —
+ * unlike medical records, certification documents are meant to be verifiable proof,
+ * not private.
+ */
+router.post("/credentials/:id/document", upload.single("file"), async (req, res) => {
+  const id = parseInt(req.params.id as string);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid ID" });
+    return;
+  }
+  const file = req.file;
+  if (!file) {
+    res.status(400).json({ error: "No file provided" });
+    return;
+  }
+
+  const [credential] = await db.select().from(credentialsTable).where(eq(credentialsTable.id, id)).limit(1);
+  if (!credential) {
+    res.status(404).json({ error: "Credential not found" });
+    return;
+  }
+  if (credential.status === "anchored") {
+    res.status(400).json({ error: "Already anchored on-chain" });
+    return;
+  }
+
+  try {
+    const documentHash = sha256Hex(file.buffer);
+    const ipfsCid = await pinToIPFS(file.buffer, file.originalname);
+
+    const [updated] = await db
+      .update(credentialsTable)
+      .set({ documentHash, documentName: file.originalname, ipfsCid })
+      .where(eq(credentialsTable.id, id))
+      .returning();
+
+    res.json({ ...updated, ipfsUrl: ipfsGatewayUrl(ipfsCid) });
+  } catch (err: any) {
+    req.log.error({ err }, "Failed to pin credential document");
+    res.status(500).json({ error: err.message ?? "Failed to upload document" });
+  }
+});
+
+/** Verify a clinic on the Care Network using its own (persisted) wallet address — never a manually-typed one. */
+router.post("/clinics/:id/verify", async (req, res) => {
+  const id = parseInt(req.params.id as string);
+  if (isNaN(id)) {
+    res.status(400).json({ error: "Invalid ID" });
+    return;
+  }
+  const { accreditation, expiryDays } = req.body as { accreditation?: string; expiryDays?: number };
+  if (!accreditation) {
+    res.status(400).json({ error: "accreditation is required" });
+    return;
+  }
+
+  const [clinic] = await db.select().from(clinicsTable).where(eq(clinicsTable.id, id));
+  if (!clinic) {
+    res.status(404).json({ error: "Clinic not found" });
+    return;
+  }
+
+  try {
+    let walletAddress = clinic.walletAddress;
+    if (!walletAddress) {
+      walletAddress = generateWalletAddress();
+      await db.update(clinicsTable).set({ walletAddress }).where(eq(clinicsTable.id, id));
+    }
+
+    const { txHash } = await verifyClinic(walletAddress, clinic.name, accreditation, expiryDays ?? 365);
+    res.json({ clinicId: id, walletAddress, txHash, txUrl: txUrl(txHash) });
+  } catch (err: any) {
+    req.log.error({ err }, "Failed to verify clinic");
+    res.status(500).json({ error: err.message ?? "Failed to verify clinic" });
+  }
 });
 
 router.post("/credentials/:id/approve", async (req, res) => {

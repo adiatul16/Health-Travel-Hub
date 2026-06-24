@@ -5,7 +5,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const AMOY_RPC_URL = process.env.AMOY_RPC_URL || "https://rpc-amoy.polygon.technology";
-const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
+const PRIVATE_KEY = process.env.PRIVATE_KEY || process.env.POLYGON_PRIVATE_KEY || "";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.20",
